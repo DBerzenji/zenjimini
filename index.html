@@ -6,6 +6,14 @@
 <title>Zenji · Budget</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#3d5247">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Zenji">
+
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap');
 
@@ -1526,6 +1534,10 @@ function parseCSVLine(text) {
 // ─── INIT ─────────────────────────────────────────────────────────────
 document.getElementById('txn-date').value = todayISO();
 render();
+
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js');
+}
 </script>
 </body>
 </html>
