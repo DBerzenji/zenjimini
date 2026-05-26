@@ -4,14 +4,13 @@
 [X] When I click on a transaction in the pie chart, take me to the transaction on the transaction page.
 [X] When clicking on a transaction under it's Category, let me edit the transaction
 [X] Let editing transaction in the Category viewer edit or delete that category's Allocation in Transactions - there is a bug where editing an allocation's transaction, then changing that cateogry's allocation, keeps both the original edited one and the new allocation causing 2 allocation transactions to be applied.
-
-
-
-[] Let me filter/hide invidual or many categories of my choosing on the pie chart
-[1/2] Include Outflow transactions from Savings/Sinking Funds in the Distribution Overview (but make sure it can be filtered out) 
-[] Fix the CSV Template, it doesn't match the same format as when I export and import a CSV. 
-[] Make Distrubtion Overview longer to accomodate all the categories
-[] Still can't filter invidual categories on Distribution Overview 
-[] Make Distribution Overview extremely easy to switch between normal spending, and Sinking fund spending.
-[] Change "No spending or savings found for this month." when no transactions are available for the pie chart
-[] 
+[X] The category legend under the distribution overview gets cutoff because the panel is too short, can you make sure the categories don't get cut off even when I have many-many categories listed under the pie chart.
+[X] Include Outflow transactions from Savings/Sinking Funds in the Distribution Overview (but make sure it can be filtered out) 
+[X] Make Distribution Overview extremely easy to switch between normal spending, and Sinking fund spending. By default, present normal spending only.
+[X] Fix filtering certain categories on Distribution Overview (currently we get some JS errors when trying to filter categories in or out)
+[X] Category filtering still doesn't work when clicking on them individually
+[X] Make Sinking fund spending fall under the "Normal Spending" dropdown filter; I only want "(Saved)" transactions listed under the  "Sinking Funds" drowndown filter.
+[X] Remove the Toggle All button on the Distribution Overview page
+[X] Fix "txn linked" and "no txn yet" text
+[X] Change "No spending or savings found for this month." when no transactions are available for the pie chart
+[X] Fix the CSV Template under Import, it doesn't match the same format as when I export and import a CSV.
