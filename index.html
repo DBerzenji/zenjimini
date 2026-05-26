@@ -6,14 +6,6 @@
 <title>Zenji · Budget</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
-
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#3d5247">
-<link rel="apple-touch-icon" href="icon-192.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Zenji">
-
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap');
 
@@ -72,14 +64,15 @@ body {
 
 .header-stats {
     display: flex;
-    gap: 18px;
+    gap: 12px;
     flex: 1;
     justify-content: center;
+    flex-wrap: wrap;
 }
 
 .hstat { text-align: center; }
 .hstat-label {
-    font-size: 0.57rem;
+    font-size: 0.52rem;
     text-transform: uppercase;
     letter-spacing: 0.9px;
     color: var(--text2);
@@ -87,7 +80,7 @@ body {
     line-height: 1.2;
 }
 .hstat-val {
-    font-size: 0.95rem;
+    font-size: 0.88rem;
     font-weight: 700;
     line-height: 1.3;
 }
@@ -173,7 +166,7 @@ body {
     align-items: flex-start;
     gap: 8px;
 }
-.card-main { flex: 1; min-width: 0; }
+.card-main { flex: 1; min-width: 0; cursor: pointer; }
 .card-name {
     font-weight: 600;
     font-size: 0.92rem;
@@ -194,6 +187,27 @@ body {
     flex-shrink: 0;
 }
 
+/* ── REORDER BUTTONS ─────────────────────────── */
+.reorder-btns {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    margin-right: 2px;
+}
+.reorder-btn {
+    padding: 2px 5px;
+    background: none;
+    border: none;
+    border-radius: 4px;
+    color: var(--text2);
+    font-size: 0.65rem;
+    cursor: pointer;
+    line-height: 1;
+    transition: background 0.12s, color 0.12s;
+}
+.reorder-btn:hover { background: var(--accent-light); color: var(--accent); }
+.reorder-btn:disabled { opacity: 0.2; cursor: default; }
+
 /* ── PROGRESS ────────────────────────────────── */
 .prog-wrap {
     background: var(--accent-light);
@@ -213,6 +227,31 @@ body {
     color: var(--text2);
     font-weight: 500;
 }
+
+/* ── CAT TXN PANEL ───────────────────────────── */
+.cat-txn-panel {
+    margin-top: 10px;
+    border-top: 1px solid var(--border);
+    padding-top: 8px;
+    display: none;
+}
+.cat-txn-panel.open { display: block; }
+.cat-txn-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 4px;
+    border-bottom: 1px solid var(--accent-light);
+    font-size: 0.78rem;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 0.15s;
+}
+.cat-txn-item:hover { background: #eef2ef; }
+.cat-txn-item:last-child { border-bottom: none; }
+.cat-txn-desc { flex: 1; color: var(--text); font-weight: 500; }
+.cat-txn-meta { color: var(--text2); font-size: 0.7rem; }
+.cat-txn-amt { font-weight: 700; white-space: nowrap; }
 
 /* ── ASSIGNMENT BANNER ───────────────────────── */
 .assign-banner {
@@ -253,6 +292,63 @@ body {
     margin-top: 2px;
     margin-bottom: 4px;
     color: var(--accent);
+}
+
+/* ── MONTH NAV ───────────────────────────────── */
+.month-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    margin-bottom: 10px;
+    margin-top: 14px;
+}
+.month-nav-btn {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: var(--accent);
+    padding: 4px 10px;
+    border-radius: 7px;
+    transition: background 0.12s;
+    font-weight: 700;
+}
+.month-nav-btn:hover { background: var(--accent-light); }
+.month-nav-label {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text);
+}
+
+/* ── MONTH SUMMARY BAR ───────────────────────── */
+.month-summary {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 10px;
+}
+.ms-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 13px;
+    box-shadow: var(--shadow);
+}
+.ms-label {
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.9px;
+    color: var(--text2);
+    margin-bottom: 3px;
+}
+.ms-val {
+    font-size: 1rem;
+    font-weight: 700;
 }
 
 /* ── ADD CATEGORY TRIGGER ────────────────────── */
@@ -432,8 +528,11 @@ label.field-label {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 10px 0;
+    padding: 10px;
+    margin: 0 -10px;
     border-bottom: 1px solid var(--border);
+    border-radius: 8px;
+    transition: background-color 0.4s ease;
 }
 .txn-item:last-child { border-bottom: none; }
 
@@ -463,26 +562,43 @@ label.field-label {
     padding: 16px;
     box-shadow: var(--shadow);
     margin-top: 4px;
+    margin-bottom: 14px;
 }
 .chart-card-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 16px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 .chart-card-title {
     font-weight: 700;
     font-size: 0.92rem;
     color: var(--accent);
 }
+.chart-total-label {
+    font-size: 0.8rem;
+    color: var(--text2);
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 10px;
+}
+.chart-total-label span {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text);
+}
 .chart-wrap {
     position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 270px;
+    min-height: 260px;
+    height: auto;
+    padding-bottom: 10px;
 }
-#spendChart { max-width: 270px; max-height: 270px; }
+#spendChart { max-width: 100%; max-height: none; }
 
 /* ── MODAL ───────────────────────────────────── */
 .modal-bg {
@@ -584,13 +700,24 @@ textarea {
 .border-income  { border-left: 3px solid var(--income); }
 .border-expense { border-left: 3px solid var(--accent); }
 .border-sinking { border-left: 3px solid var(--sinking); }
+
+/* ── TXN MONTH GROUP ─────────────────────────── */
+.txn-month-header {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text2);
+    padding: 10px 0 4px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 2px;
+}
 </style>
 </head>
 <body>
 
 <div id="toast"></div>
 
-<!-- ════════════════════ HEADER ════════════════════ -->
 <header class="app-header">
     <div class="app-logo">Zenji</div>
     <div class="header-stats">
@@ -609,18 +736,23 @@ textarea {
     </div>
 </header>
 
-<!-- ════════════════════ TABS ════════════════════ -->
 <nav class="tabs">
     <button class="tab-btn active" onclick="switchTab('budget', this)">Budget</button>
     <button class="tab-btn" onclick="switchTab('transactions', this)">Transactions</button>
-    <button class="tab-btn" onclick="switchTab('spending', this); renderChart();">Spending</button>
+    <button class="tab-btn" onclick="switchTab('spending', this); renderCharts();">Spending</button>
 </nav>
 
-<!-- ════════════════════ BUDGET VIEW ════════════════════ -->
 <div class="view active" id="view-budget">
 
-    <!-- Timescale selector -->
-    <div class="ts-selector" style="margin-top:14px;">
+    <div class="month-nav">
+        <button class="month-nav-btn" onclick="changeGlobalMonth(-1)">&#8249;</button>
+        <span class="month-nav-label month-label-display">—</span>
+        <button class="month-nav-btn month-next-btn" onclick="changeGlobalMonth(1)">&#8250;</button>
+    </div>
+
+    <div class="month-summary" id="month-summary"></div>
+
+    <div class="ts-selector">
         <span class="ts-selector-label">View by</span>
         <select id="budget-ts" style="margin:0; flex:1;" onchange="renderBudget()">
             <option value="daily">Daily</option>
@@ -631,7 +763,6 @@ textarea {
         </select>
     </div>
 
-    <!-- Assignment banner -->
     <div class="assign-banner" id="assign-banner" style="display:none; margin-top:10px;">
         <div class="assign-banner-title" id="assign-title"></div>
         <div class="assign-bar-track">
@@ -640,7 +771,6 @@ textarea {
         <div class="assign-sub" id="assign-sub"></div>
     </div>
 
-    <!-- Income -->
     <div class="section-label">Income</div>
     <div id="income-list"></div>
     <div class="total-row" id="income-total" style="display:none;">
@@ -648,13 +778,19 @@ textarea {
         <span id="income-total-val"></span>
     </div>
 
-    <!-- Expenses -->
     <div class="section-label">Expenses</div>
     <div id="expense-list"></div>
+    <div class="total-row" id="expense-total" style="display:none;">
+        <span>Total</span>
+        <span id="expense-total-val"></span>
+    </div>
 
-    <!-- Sinking Funds -->
-    <div class="section-label">Sinking Funds</div>
+    <div class="section-label">Saving/Sinking Funds</div>
     <div id="sinking-list"></div>
+    <div class="total-row" id="sinking-total" style="display:none;">
+        <span>Total</span>
+        <span id="sinking-total-val"></span>
+    </div>
 
     <button class="add-cat-btn" onclick="openAddCatModal()">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
@@ -662,8 +798,13 @@ textarea {
     </button>
 </div>
 
-<!-- ════════════════════ TRANSACTIONS VIEW ════════════════════ -->
 <div class="view" id="view-transactions">
+
+    <div class="month-nav">
+        <button class="month-nav-btn" onclick="changeGlobalMonth(-1)">&#8249;</button>
+        <span class="month-nav-label month-label-display">—</span>
+        <button class="month-nav-btn month-next-btn" onclick="changeGlobalMonth(1)">&#8250;</button>
+    </div>
 
     <div class="form-card" style="margin-top:14px;">
         <div class="form-title">Log a Transaction</div>
@@ -682,35 +823,43 @@ textarea {
         <button class="btn-primary" onclick="addTransaction()">Log Transaction</button>
     </div>
 
-    <div class="section-label" style="margin-top:20px;">Recent Transactions</div>
+    <div class="section-label" style="margin-top:20px;" id="txn-list-label">Monthly Transactions</div>
     <div class="card" id="txn-list" style="padding:0 15px;">
         <div class="empty-state">No transactions yet.</div>
     </div>
 </div>
 
-<!-- ════════════════════ SPENDING VIEW ════════════════════ -->
 <div class="view" id="view-spending">
-    <div class="chart-card" style="margin-top:14px;">
+
+    <div class="month-nav">
+        <button class="month-nav-btn" onclick="changeGlobalMonth(-1)">&#8249;</button>
+        <span class="month-nav-label month-label-display">—</span>
+        <button class="month-nav-btn month-next-btn" onclick="changeGlobalMonth(1)">&#8250;</button>
+    </div>
+
+    <div class="chart-card">
         <div class="chart-card-header">
-            <span class="chart-card-title">Spending Distribution</span>
-            <select id="spend-ts" style="margin:0; width:auto; min-width:130px;" onchange="renderChart()">
-                <option value="1">Today</option>
-                <option value="7">This Week</option>
-                <option value="14">Past 2 Weeks</option>
-                <option value="30" selected>This Month</option>
-                <option value="365">This Year</option>
+            <span class="chart-card-title">Distribution Overview</span>
+            <div style="display:flex; gap:6px; align-items:center;">
+            <select id="chart-view-mode" onchange="chartActiveCategoryId=null; renderCharts();" style="margin:0; padding:4px 8px; font-size:0.75rem; border-radius:6px; width:auto; border:1px solid var(--border); background:var(--surface);">
+            <option value="expense" selected>Normal Spending</option>
+            <option value="sinking">Sinking Funds</option>
+            <option value="all">All Spending</option>
             </select>
+            <button class="btn-sm ghost" id="chart-toggle-all-btn" onclick="toggleAllChartSlices()" style="padding: 4px 8px; font-size: 0.7rem;">Toggle All</button>
+            <button class="btn-sm ghost" id="chart-back-btn" onclick="chartActiveCategoryId=null; renderCharts();" style="display:none; padding: 4px 8px; font-size: 0.7rem;">← Back</button>
+            </div>
         </div>
-        <div class="chart-wrap" id="chart-wrap">
+        <div class="chart-total-label" id="spend-total-label"></div>
+        <div class="chart-wrap" id="chart-wrap" style="cursor: pointer;">
             <canvas id="spendChart"></canvas>
         </div>
         <div id="spend-empty" class="empty-state" style="display:none;">
-            No expense transactions found for this period.
+            No spending or savings found for this month.
         </div>
     </div>
 </div>
 
-<!-- ════════════════════ ADD / EDIT CATEGORY MODAL ════════════════════ -->
 <div class="modal-bg" id="cat-modal" onclick="if(event.target===this)closeCatModal()">
     <div class="modal-box">
         <div class="modal-handle"></div>
@@ -722,9 +871,9 @@ textarea {
         <select id="cat-type" onchange="updateCatModalUI()">
             <option value="expense">Expense</option>
             <option value="income">Income</option>
-            <option value="sinking">Sinking Fund</option>
+            <option value="sinking">Saving/Sinking Fund</option>
         </select>
-        <label class="field-label">Budget allocation</label>
+        <label class="field-label">Budget allocation (for selected month)</label>
         <div class="input-row" style="margin-bottom:8px;">
             <input type="number" id="cat-allocation" placeholder="Amount ($)" step="0.01" min="0">
             <select id="cat-period">
@@ -746,7 +895,6 @@ textarea {
     </div>
 </div>
 
-<!-- ════════════════════ EDIT TRANSACTION MODAL ════════════════════ -->
 <div class="modal-bg" id="txn-modal" onclick="if(event.target===this)closeTxnModal()">
     <div class="modal-box">
         <div class="modal-handle"></div>
@@ -778,7 +926,6 @@ textarea {
     </div>
 </div>
 
-<!-- ════════════════════ CSV EXPORT MODAL ════════════════════ -->
 <div class="modal-bg" id="csv-out-modal" onclick="if(event.target===this)closeCsvOut()">
     <div class="modal-box">
         <div class="modal-handle"></div>
@@ -793,12 +940,14 @@ textarea {
     </div>
 </div>
 
-<!-- ════════════════════ CSV IMPORT MODAL ════════════════════ -->
 <div class="modal-bg" id="csv-in-modal" onclick="if(event.target===this)closeCsvIn()">
     <div class="modal-box">
         <div class="modal-handle"></div>
         <div class="modal-title">Import CSV</div>
-        <p style="font-size:0.8rem; color:var(--text2); margin:0 0 10px;">Paste CSV data below. Must match the exported column format.</p>
+        <p style="font-size:0.8rem; color:var(--text2); margin:0 0 4px;">Paste CSV data below. Must match the exported column format.</p>
+        <p style="font-size:0.78rem; color:var(--text2); margin:0 0 10px;">
+            <button class="btn-sm ghost" style="font-size:0.75rem; padding:4px 10px;" onclick="downloadCSVTemplate()">⬇ Download Template</button>
+        </p>
         <label class="field-label">Import mode</label>
         <select id="import-mode" style="margin-bottom:8px;">
             <option value="upsert">Merge / Update existing</option>
@@ -815,49 +964,53 @@ textarea {
 
 <script>
 // ─── STATE ──────────────────────────────────────────────────────────
-const STORAGE_KEY = 'zenji_v2';
-
+const STORAGE_KEY = 'zenji_v3';
 let state = JSON.parse(localStorage.getItem(STORAGE_KEY)) || null;
 
 if (!state) {
-    // Check for old BudgetFlow data and migrate it
-    const old = JSON.parse(localStorage.getItem('budgetflow_v6') || 'null');
-    if (old) {
-        state = {
-            categories: (old.categories || []).map(c => ({
-                id: c.id, name: c.name,
-                type: ['income','expense','sinking'].includes(c.type) ? c.type : 'expense',
-                allocation: 0, period: 'monthly', balance: 0
-            })),
-            transactions: (old.transactions || []).map(t => ({
-                id: t.id, desc: t.desc, catId: t.catId,
-                amt: t.amt, date: t.date, type: t.type || 'outflow'
-            }))
-        };
-    } else {
-        state = {
-            categories: [
-                { id: 1, name: 'Paycheck',   type: 'income',  allocation: 3200, period: 'monthly', balance: 0 },
-                { id: 2, name: 'Housing',    type: 'expense', allocation: 1500, period: 'monthly', balance: 0 },
-                { id: 3, name: 'Groceries',  type: 'expense', allocation:  600, period: 'monthly', balance: 0 },
-                { id: 4, name: 'Emergency Fund', type: 'sinking', allocation: 300, period: 'monthly', balance: 800 }
-            ],
-            transactions: []
-        };
-    }
+    state = {
+        categories: [
+            { id: 1, name: 'Paycheck',       type: 'income',  allocations: {}, period: 'monthly', balance: 0 },
+            { id: 2, name: 'Housing',        type: 'expense', allocations: {}, period: 'monthly', balance: 0 },
+            { id: 3, name: 'Groceries',      type: 'expense', allocations: {}, period: 'monthly', balance: 0 },
+            { id: 4, name: 'Emergency Fund', type: 'sinking', allocations: {}, period: 'monthly', balance: 800 }
+        ],
+        transactions: []
+    };
     save();
 }
 
-let globalChart = null;
+// Clean up old state fields and ensure allocations exist
+if (state.monthlyBudgetOverrides) delete state.monthlyBudgetOverrides;
+if (state.sinkingAllocTxns) delete state.sinkingAllocTxns;
+if (state.monthlyBalanceHistory) delete state.monthlyBalanceHistory;
+
+state.categories.forEach(c => {
+    if (!c.allocations) c.allocations = {};
+    if (c.allocation !== undefined) {
+        const d = new Date();
+        c.allocations[`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`] = c.allocation;
+        delete c.allocation;
+    }
+});
+
+let globalSpendChart = null;
+let chartActiveCategoryId = null;
+let chartActiveCategoryFlow = null;
+
+const TODAY = new Date();
+let currentYear = TODAY.getFullYear();
+let currentMonth = TODAY.getMonth(); 
+
+const openCatPanels = new Set();
 
 // ─── UTILITIES ──────────────────────────────────────────────────────
-const fmt    = n => '$' + n.toLocaleString('en-CA', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-const fmtDec = n => '$' + Math.abs(n).toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmt = n => '$' + (Math.round(n * 100) / 100).toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmtDec = n => '$' + Math.abs(Math.round(n * 100) / 100).toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-const PERIOD_LABELS  = { daily: 'day', weekly: 'week', biweekly: '2 wks', monthly: 'month', annually: 'year' };
-const PERIOD_LABELS_LONG = { daily: 'daily', weekly: 'weekly', biweekly: 'bi-weekly', monthly: 'monthly', annually: 'annually' };
+const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const PERIOD_LABELS = { daily: 'day', weekly: 'week', biweekly: '2 wks', monthly: 'month', annually: 'year' };
 
-// Convert any amount/period to a monthly equivalent
 function toMonthly(amount, period) {
     const amt = parseFloat(amount) || 0;
     switch (period) {
@@ -865,11 +1018,9 @@ function toMonthly(amount, period) {
         case 'weekly':   return amt * 4.33;
         case 'biweekly': return amt * 2.165;
         case 'annually': return amt / 12;
-        default:         return amt;   // monthly
+        default:         return amt;
     }
 }
-
-// Convert a monthly amount to the target period
 function fromMonthly(monthlyAmt, targetPeriod) {
     switch (targetPeriod) {
         case 'daily':    return monthlyAmt / 30.44;
@@ -880,44 +1031,57 @@ function fromMonthly(monthlyAmt, targetPeriod) {
     }
 }
 
-// Sum outflow transactions for a category within its own period window
-function getSpentThisPeriod(catId) {
-    const cat = state.categories.find(c => c.id == catId);
-    if (!cat) return 0;
-    const now  = new Date();
-    const period = cat.period || 'monthly';
+function monthKey(y, m) { return `${y}-${String(m+1).padStart(2,'0')}`; }
 
-    return state.transactions
-        .filter(t => {
-            if (t.catId != catId || t.type !== 'outflow') return false;
-            // Parse date safely (avoid timezone shifts)
-            const parts = (t.date || '').split('-');
-            if (parts.length < 3) return false;
-            const d = new Date(+parts[0], +parts[1]-1, +parts[2]);
-            switch (period) {
-                case 'daily':
-                    return d.toDateString() === now.toDateString();
-                case 'weekly': {
-                    const ws = new Date(now);
-                    ws.setDate(now.getDate() - now.getDay());
-                    ws.setHours(0, 0, 0, 0);
-                    return d >= ws;
-                }
-                case 'biweekly': {
-                    const cutoff = new Date(now);
-                    cutoff.setDate(now.getDate() - 13);
-                    cutoff.setHours(0, 0, 0, 0);
-                    return d >= cutoff;
-                }
-                case 'monthly':
-                    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-                case 'annually':
-                    return d.getFullYear() === now.getFullYear();
-                default:
-                    return false;
-            }
-        })
+function getTxnsForMonth(y, m) {
+    const prefix = monthKey(y, m);
+    return state.transactions.filter(t => (t.date || '').startsWith(prefix));
+}
+
+function getSpentInMonth(catId, y, m) {
+    return getTxnsForMonth(y, m)
+        .filter(t => t.catId == catId && t.type === 'outflow')
         .reduce((sum, t) => sum + (parseFloat(t.amt) || 0), 0);
+}
+
+// Get allocation for expense/income with forward inheritance
+function getStandardAlloc(cat, y, m) {
+    if (cat.allocations && cat.allocations[monthKey(y,m)] !== undefined) return parseFloat(cat.allocations[monthKey(y,m)]);
+    let cy = y, cm = m;
+    while(cy >= 2020) {
+        cm--; if (cm < 0) { cm = 11; cy--; }
+        if (cat.allocations && cat.allocations[monthKey(cy,cm)] !== undefined) return parseFloat(cat.allocations[monthKey(cy,cm)]);
+    }
+    return 0;
+}
+
+// Sinking allocations are derived directly from flagged transactions
+function getSinkingAlloc(catId, y, m) {
+    const prefix = monthKey(y, m);
+    const txns = state.transactions.filter(t => t.catId == catId && t.isAlloc && (t.date||'').startsWith(prefix));
+    return txns.reduce((sum, t) => sum + (parseFloat(t.amt) || 0), 0);
+}
+
+function getCatAlloc(cat, y, m) {
+    return cat.type === 'sinking' ? getSinkingAlloc(cat.id, y, m) : getStandardAlloc(cat, y, m);
+}
+
+function setCatAllocForMonth(catId, y, m, amount) {
+    const cat = state.categories.find(c => c.id === catId);
+    if (cat) {
+        if (!cat.allocations) cat.allocations = {};
+        cat.allocations[monthKey(y, m)] = amount;
+    }
+}
+
+function getSinkingCurrentBalance(cat) {
+    let bal = parseFloat(cat.balance) || 0;
+    state.transactions.filter(t => t.catId == cat.id).forEach(t => {
+        const a = parseFloat(t.amt) || 0;
+        if (t.type === 'inflow') bal += a;
+        else bal -= a;
+    });
+    return bal;
 }
 
 function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
@@ -936,9 +1100,14 @@ function showToast(msg, color) {
 function showBudgetToast(catId, txnType) {
     const cat = state.categories.find(c => c.id == catId);
     if (!cat || cat.type === 'income') return;
-    const alloc = parseFloat(cat.allocation) || 0;
+    if (cat.type === 'sinking') {
+        const bal = getSinkingCurrentBalance(cat);
+        showToast(`${cat.name} balance: ${fmtDec(bal)}`, 'var(--sinking)');
+        return;
+    }
+    const alloc = getCatAlloc(cat, currentYear, currentMonth);
     if (!alloc) return;
-    const spent     = getSpentThisPeriod(catId);
+    const spent     = getSpentInMonth(catId, currentYear, currentMonth);
     const remaining = alloc - spent;
     const pl        = PERIOD_LABELS[cat.period || 'monthly'];
     if (remaining >= 0) {
@@ -946,6 +1115,27 @@ function showBudgetToast(catId, txnType) {
     } else {
         showToast(`${cat.name}: ${fmtDec(Math.abs(remaining))} over budget this ${pl}!`, 'var(--danger)');
     }
+}
+
+function showConfirmToast(msg, onConfirm) {
+    const el = document.getElementById('toast');
+    clearTimeout(toastTimer);
+    el.innerHTML = '';
+    el.style.background = 'var(--danger)';
+    el.style.display = 'block';
+    const span = document.createElement('span');
+    span.textContent = msg;
+    el.appendChild(span);
+    const btnYes = document.createElement('button');
+    btnYes.textContent = 'Yes';
+    btnYes.style.cssText = 'margin-left:12px; background:#fff; color:var(--danger); border:none; border-radius:4px; padding:2px 8px; cursor:pointer; font-weight:700;';
+    btnYes.onclick = e => { e.stopPropagation(); el.style.display = 'none'; onConfirm(); };
+    const btnNo = document.createElement('button');
+    btnNo.textContent = 'No';
+    btnNo.style.cssText = 'margin-left:6px; background:transparent; color:#fff; border:1px solid #fff; border-radius:4px; padding:2px 8px; cursor:pointer;';
+    btnNo.onclick = e => { e.stopPropagation(); el.style.display = 'none'; };
+    el.appendChild(btnYes);
+    el.appendChild(btnNo);
 }
 
 // ─── TABS ────────────────────────────────────────────────────────────
@@ -956,23 +1146,37 @@ function switchTab(id, btn) {
     btn.classList.add('active');
 }
 
+// ─── MONTH NAVIGATION ────────────────────────────────────────────────
+function changeGlobalMonth(delta) {
+    currentMonth += delta;
+    if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+    if (currentMonth < 0)  { currentMonth = 11; currentYear--; }
+    chartActiveCategoryId = null;
+    chartActiveCategoryFlow = null;
+    render();
+    renderCharts();
+}
+
+function updateMonthLabels() {
+    const text = MONTH_NAMES[currentMonth] + ' ' + currentYear;
+    document.querySelectorAll('.month-label-display').forEach(el => el.textContent = text);
+}
+
 // ─── GLOBAL RENDER ───────────────────────────────────────────────────
 function render() {
+    updateMonthLabels();
     renderBudget();
     renderTransactions();
     populateCatSelects();
 }
 
 // ─── HEADER STATS ────────────────────────────────────────────────────
-function renderHeader() {
-    const totalIncomeM    = state.categories.filter(c => c.type === 'income').reduce((s, c) => s + toMonthly(c.allocation || 0, c.period || 'monthly'), 0);
-    const totalAllocatedM = state.categories.filter(c => c.type !== 'income').reduce((s, c) => s + toMonthly(c.allocation || 0, c.period || 'monthly'), 0);
-    const unassigned      = totalIncomeM - totalAllocatedM;
-
+function renderHeader(totalIncomeM, totalAllocatedM) {
+    const unassigned = totalIncomeM - totalAllocatedM;
     document.getElementById('h-income').textContent = fmt(totalIncomeM);
     const uEl = document.getElementById('h-unassigned');
-    if (Math.abs(unassigned) < 0.5) {
-        uEl.textContent   = '$0';
+    if (Math.abs(unassigned) < 0.005) {
+        uEl.textContent   = '$0.00';
         uEl.style.color   = 'var(--accent)';
     } else if (unassigned > 0) {
         uEl.textContent   = fmt(unassigned);
@@ -991,63 +1195,100 @@ function renderBudget() {
     const expenseCats = state.categories.filter(c => c.type === 'expense');
     const sinkCats    = state.categories.filter(c => c.type === 'sinking');
 
-    const totalIncomeM    = incomeCats.reduce((s, c) => s + toMonthly(c.allocation || 0, c.period || 'monthly'), 0);
-    const totalAllocatedM = [...expenseCats, ...sinkCats].reduce((s, c) => s + toMonthly(c.allocation || 0, c.period || 'monthly'), 0);
+    const totalIncomeM    = incomeCats.reduce((s, c) => s + toMonthly(getCatAlloc(c, currentYear, currentMonth), c.period), 0);
+    const totalExpenseM   = expenseCats.reduce((s, c) => s + toMonthly(getCatAlloc(c, currentYear, currentMonth), c.period), 0);
+    const totalSinkingM   = sinkCats.reduce((s, c) => s + toMonthly(getCatAlloc(c, currentYear, currentMonth), c.period), 0);
+    const totalAllocatedM = totalExpenseM + totalSinkingM;
     const unassignedM     = totalIncomeM - totalAllocatedM;
     const pct             = totalIncomeM > 0 ? Math.min(100, (totalAllocatedM / totalIncomeM) * 100) : 0;
 
-    // Assignment banner
-    const banner    = document.getElementById('assign-banner');
-    const bar       = document.getElementById('assign-bar');
-    const titleEl   = document.getElementById('assign-title');
-    const subEl     = document.getElementById('assign-sub');
+    const banner  = document.getElementById('assign-banner');
+    const bar     = document.getElementById('assign-bar');
+    const titleEl = document.getElementById('assign-title');
+    const subEl   = document.getElementById('assign-sub');
 
     if (totalIncomeM > 0) {
         banner.style.display = 'block';
-        bar.style.width      = pct + '%';
-
+        bar.style.width = pct + '%';
         const uAmtTs = fromMonthly(Math.abs(unassignedM), ts);
-        const pl     = PERIOD_LABELS[ts];
-
-        if (Math.abs(unassignedM) < 0.50) {
-            banner.style.cssText  = 'background:#edf5ed; border:1px solid var(--accent); border-radius:var(--radius); padding:13px 15px; margin-bottom:4px; margin-top:10px;';
-            bar.style.background  = 'var(--accent)';
-            titleEl.style.color   = 'var(--accent)';
-            titleEl.textContent   = '✓ Every dollar assigned — great work!';
-            subEl.textContent     = fmt(totalIncomeM) + ' income fully allocated.';
+        const pl = PERIOD_LABELS[ts];
+        if (Math.abs(unassignedM) < 0.005) {
+            banner.style.cssText = 'background:#edf5ed; border:1px solid var(--accent); border-radius:var(--radius); padding:13px 15px; margin-bottom:4px; margin-top:10px;';
+            bar.style.background = 'var(--accent)';
+            titleEl.style.color  = 'var(--accent)';
+            titleEl.textContent  = '✓ Every dollar assigned — great work!';
+            subEl.textContent    = fmt(totalIncomeM) + ' income fully allocated.';
         } else if (unassignedM > 0) {
-            banner.style.cssText  = 'background:#fffdf0; border:1px solid #e8c94a; border-radius:var(--radius); padding:13px 15px; margin-bottom:4px; margin-top:10px;';
-            bar.style.background  = 'var(--warn)';
-            titleEl.style.color   = 'var(--warn)';
-            titleEl.textContent   = `${fmtDec(uAmtTs)} / ${pl} not yet assigned`;
-            subEl.textContent     = `${pct.toFixed(0)}% of income allocated. Add expense or sinking fund categories to assign the rest.`;
+            banner.style.cssText = 'background:#fffdf0; border:1px solid #e8c94a; border-radius:var(--radius); padding:13px 15px; margin-bottom:4px; margin-top:10px;';
+            bar.style.background = 'var(--warn)';
+            titleEl.style.color  = 'var(--warn)';
+            titleEl.textContent  = `${fmtDec(uAmtTs)} / ${pl} not yet assigned`;
+            subEl.textContent    = `${pct.toFixed(0)}% of income allocated. Add expense or saving/sinking fund categories to assign the rest.`;
         } else {
-            banner.style.cssText  = 'background:#fff5f3; border:1px solid var(--danger); border-radius:var(--radius); padding:13px 15px; margin-bottom:4px; margin-top:10px;';
-            bar.style.background  = 'var(--danger)';
-            titleEl.style.color   = 'var(--danger)';
-            titleEl.textContent   = `${fmtDec(uAmtTs)} / ${pl} over-allocated`;
-            subEl.textContent     = `Your expense + sinking fund allocations exceed your income. Reduce some to balance.`;
+            banner.style.cssText = 'background:#fff5f3; border:1px solid var(--danger); border-radius:var(--radius); padding:13px 15px; margin-bottom:4px; margin-top:10px;';
+            bar.style.background = 'var(--danger)';
+            titleEl.style.color  = 'var(--danger)';
+            titleEl.textContent  = `${fmtDec(uAmtTs)} / ${pl} over-allocated`;
+            subEl.textContent    = 'Your allocations exceed your income. Reduce some to balance.';
         }
     } else {
         banner.style.display = 'none';
     }
 
-    // Income section
+    renderMonthSummary(totalIncomeM);
     renderCatSection('income-list', incomeCats, 'income', ts);
-    const incTotalEl = document.getElementById('income-total');
-    if (incomeCats.length > 0) {
-        incTotalEl.style.display = 'flex';
-        document.getElementById('income-total-val').textContent =
-            fmtDec(fromMonthly(totalIncomeM, ts)) + ' / ' + PERIOD_LABELS[ts];
-    } else {
-        incTotalEl.style.display = 'none';
-    }
-
-    // Expense + sinking sections
     renderCatSection('expense-list', expenseCats, 'expense', ts);
     renderCatSection('sinking-list', sinkCats, 'sinking', ts);
 
-    renderHeader();
+    const incTotalEl = document.getElementById('income-total');
+    if (incomeCats.length > 0) {
+        incTotalEl.style.display = 'flex';
+        document.getElementById('income-total-val').textContent = fmt(fromMonthly(totalIncomeM, ts)) + ' / ' + PERIOD_LABELS[ts];
+    } else incTotalEl.style.display = 'none';
+
+    const expTotalEl = document.getElementById('expense-total');
+    if (expenseCats.length > 0) {
+        expTotalEl.style.display = 'flex';
+        document.getElementById('expense-total-val').textContent = fmt(fromMonthly(totalExpenseM, ts)) + ' / ' + PERIOD_LABELS[ts];
+    } else expTotalEl.style.display = 'none';
+
+    const sinkTotalEl = document.getElementById('sinking-total');
+    if (sinkCats.length > 0) {
+        sinkTotalEl.style.display = 'flex';
+        document.getElementById('sinking-total-val').textContent = fmt(fromMonthly(totalSinkingM, ts)) + ' / ' + PERIOD_LABELS[ts];
+    } else sinkTotalEl.style.display = 'none';
+
+    renderHeader(totalIncomeM, totalAllocatedM);
+}
+
+function renderMonthSummary(totalIncomeM) {
+    const el = document.getElementById('month-summary');
+    if (!el) return;
+
+    const allTxns = getTxnsForMonth(currentYear, currentMonth);
+    const totalSpent = allTxns
+        .filter(t => t.type === 'outflow')
+        .reduce((s, t) => s + (parseFloat(t.amt) || 0), 0);
+
+    const sinkCats = state.categories.filter(c => c.type === 'sinking');
+    let totalSaved = 0;
+    sinkCats.forEach(cat => {
+        const inflows = allTxns.filter(t => t.catId == cat.id && t.type === 'inflow').reduce((s, t) => s + (parseFloat(t.amt) || 0), 0);
+        totalSaved += inflows;
+    });
+
+    const leftToSpend = totalIncomeM - totalSpent - totalSaved;
+
+    el.innerHTML = `
+        <div class="ms-card">
+            <div class="ms-label">Spent This Month</div>
+            <div class="ms-val" style="color:var(--danger)">${fmt(totalSpent)}</div>
+        </div>
+        <div class="ms-card">
+            <div class="ms-label">Left to Spend</div>
+            <div class="ms-val" style="color:${leftToSpend >= 0 ? 'var(--accent)' : 'var(--danger)'}">${leftToSpend < 0 ? '–' : ''}${fmt(Math.abs(leftToSpend))}</div>
+        </div>
+    `;
 }
 
 function renderCatSection(elId, cats, type, ts) {
@@ -1055,26 +1296,24 @@ function renderCatSection(elId, cats, type, ts) {
     if (!el) return;
 
     if (cats.length === 0) {
-        const names = { income: 'income sources', expense: 'expense categories', sinking: 'sinking funds' };
+        const names = { income: 'income sources', expense: 'expense categories', sinking: 'saving/sinking funds' };
         el.innerHTML = `<div class="empty-state" style="padding:10px 0;">No ${names[type]} yet — tap <strong>Add Category</strong> below.</div>`;
         return;
     }
 
     const borderClass = { income: 'border-income', expense: 'border-expense', sinking: 'border-sinking' }[type];
 
-    el.innerHTML = cats.map(cat => {
-        // Allocation shown in view timescale
-        const allocMonthly  = toMonthly(cat.allocation || 0, cat.period || 'monthly');
-        const allocInTs     = fromMonthly(allocMonthly, ts);
-        const tsLabel       = PERIOD_LABELS[ts];
+    el.innerHTML = cats.map((cat, idx) => {
+        const monthAlloc   = getCatAlloc(cat, currentYear, currentMonth);
+        const allocMonthly = toMonthly(monthAlloc, cat.period || 'monthly');
+        const allocInTs    = fromMonthly(allocMonthly, ts);
+        const tsLabel      = PERIOD_LABELS[ts];
 
         let extraHTML = '';
-
         if (type === 'expense') {
-            const spent     = getSpentThisPeriod(cat.id);
-            const alloc     = parseFloat(cat.allocation) || 0;
-            const remaining = alloc - spent;
-            const pct       = alloc > 0 ? Math.min(100, (spent / alloc) * 100) : 0;
+            const spent     = getSpentInMonth(cat.id, currentYear, currentMonth);
+            const remaining = allocMonthly - spent;
+            const pct       = allocMonthly > 0 ? Math.min(100, (spent / allocMonthly) * 100) : 0;
             const over      = remaining < 0;
             const catPL     = PERIOD_LABELS[cat.period || 'monthly'];
             const barColor  = over ? 'var(--danger)' : pct > 80 ? 'var(--warn)' : 'var(--accent)';
@@ -1083,22 +1322,63 @@ function renderCatSection(elId, cats, type, ts) {
                     <div class="prog-bar" style="width:${pct}%; background:${barColor}"></div>
                 </div>
                 <div class="prog-note" style="color:${over ? 'var(--danger)' : 'var(--text2)'}">
-                    ${over
-                        ? `${fmtDec(Math.abs(remaining))} over budget this ${catPL}`
-                        : `${fmtDec(remaining)} remaining this ${catPL}`
-                    }
+                    ${over ? `${fmtDec(Math.abs(remaining))} over budget this ${catPL}` : `${fmtDec(remaining)} remaining this ${catPL}`}
                 </div>`;
         } else if (type === 'sinking') {
-            const balance = parseFloat(cat.balance) || 0;
-            extraHTML = `<div class="prog-note" style="margin-top:5px;">Balance: ${fmtDec(balance)}</div>`;
+            const balance = getSinkingCurrentBalance(cat);
+            const balColor = balance < 0 ? 'var(--danger)' : 'var(--sinking)';
+            
+            const prefix = monthKey(currentYear, currentMonth);
+            const allocTxn = state.transactions.find(t => t.catId == cat.id && t.isAlloc && (t.date||'').startsWith(prefix));
+            const currentAllocAmt = allocTxn ? parseFloat(allocTxn.amt) : (monthAlloc || 0);
+
+            extraHTML = `
+                <div class="prog-note" style="margin-top:5px; color:${balColor}">Balance: ${balance < 0 ? '–' : ''}${fmtDec(Math.abs(balance))}</div>
+                <div style="display:flex;align-items:center;gap:6px;margin-top:6px;" onclick="event.stopPropagation()">
+                    <span style="font-size:0.72rem;color:var(--text2);font-weight:600;white-space:nowrap;">Month allocation:</span>
+                    <input type="number" step="0.01" min="0" value="${currentAllocAmt.toFixed(2)}"
+                        style="width:100px;margin:0;padding:5px 8px;font-size:0.8rem;"
+                        onchange="updateSinkingAlloc(${cat.id}, this.value)"
+                        title="Editing this also updates the linked allocation transaction">
+                    ${allocTxn ? `<span style="font-size:0.65rem;color:var(--sinking);font-weight:600;">● txn linked</span>` : `<span style="font-size:0.65rem;color:var(--text2);">no txn yet</span>`}
+                </div>`;
         }
 
+        const catTxns = getTxnsForMonth(currentYear, currentMonth)
+            .filter(t => t.catId == cat.id)
+            .sort((a, b) => b.date.localeCompare(a.date));
+
+        const panelOpen = openCatPanels.has(cat.id);
+        let panelHTML = '';
+        if (catTxns.length > 0) {
+            panelHTML = `<div class="cat-txn-panel ${panelOpen ? 'open' : ''}" id="cat-panel-${cat.id}">
+                <div style="font-size:0.68rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;">${MONTH_NAMES[currentMonth]} Transactions</div>
+                ${catTxns.map(t => {
+                    const sign = t.type === 'inflow' ? '+' : '–';
+                    const col  = t.type === 'inflow' ? 'var(--income)' : 'var(--text)';
+                    const badge = t.isAlloc ? `<span style="font-size:0.6rem;background:#f0ead0;color:var(--sinking);border-radius:4px;padding:1px 5px;font-weight:700;margin-left:4px;">alloc</span>` : '';
+                    return `<div class="cat-txn-item" onclick="openEditTxnModal(${t.id})" title="Click to edit">
+                        <div class="cat-txn-desc">${escapeHTML(t.desc)}${badge}</div>
+                        <div class="cat-txn-meta">${t.date}</div>
+                        <div class="cat-txn-amt" style="color:${col}">${sign}${fmtDec(t.amt)}</div>
+                    </div>`;
+                }).join('')}
+            </div>`;
+        }
+
+        const txnCount = catTxns.length;
+        const txnBadge = txnCount > 0 ? `<span style="font-size:0.65rem;background:var(--accent-light);color:var(--accent2);border-radius:10px;padding:1px 6px;font-weight:700;margin-left:4px;">${txnCount}</span>` : '';
+
         return `
-        <div class="card ${borderClass}">
+        <div class="card ${borderClass}" id="cat-card-${cat.id}">
             <div class="card-row">
-                <div class="card-main">
-                    <div class="card-name">${escapeHTML(cat.name)}</div>
-                    <div class="card-alloc">${fmtDec(allocInTs)} / ${tsLabel}</div>
+                <div class="reorder-btns">
+                    <button class="reorder-btn" onclick="moveCat('${type}',${idx},-1)" ${idx===0?'disabled':''} title="Move up">▲</button>
+                    <button class="reorder-btn" onclick="moveCat('${type}',${idx},1)" ${idx===cats.length-1?'disabled':''} title="Move down">▼</button>
+                </div>
+                <div class="card-main" onclick="toggleCatPanel(${cat.id})">
+                    <div class="card-name">${escapeHTML(cat.name)}${txnBadge}</div>
+                    <div class="card-alloc">${fmt(allocInTs)} / ${tsLabel}</div>
                 </div>
                 <div class="card-actions">
                     <span class="period-badge">${cat.period || 'monthly'}</span>
@@ -1107,31 +1387,104 @@ function renderCatSection(elId, cats, type, ts) {
                 </div>
             </div>
             ${extraHTML}
+            ${panelHTML}
         </div>`;
     }).join('');
+}
+
+function toggleCatPanel(catId) {
+    if (openCatPanels.has(catId)) openCatPanels.delete(catId);
+    else openCatPanels.add(catId);
+    renderBudget();
+}
+
+// ─── SINKING FUND ALLOCATION ↔ TRANSACTION SYNC ──────────────────────
+function updateSinkingAlloc(catId, rawValue) {
+    const amt = parseFloat(rawValue) || 0;
+    const cat = state.categories.find(c => c.id === catId);
+    if (!cat) return;
+
+    setCatAllocForMonth(catId, currentYear, currentMonth, amt);
+    const prefix = monthKey(currentYear, currentMonth);
+    const existingTxn = state.transactions.find(t => t.catId == catId && t.isAlloc && (t.date || '').startsWith(prefix));
+
+    if (existingTxn) {
+        if (amt <= 0) {
+            state.transactions = state.transactions.filter(t => t.id !== existingTxn.id);
+        } else {
+            existingTxn.amt = amt;
+        }
+    } else if (amt > 0) {
+        state.transactions.unshift({
+            id: Date.now(),
+            desc: `${cat.name} — monthly allocation`,
+            catId: catId,
+            amt: amt,
+            date: `${prefix}-01`,
+            type: 'inflow',
+            isAlloc: true
+        });
+    }
+
+    save();
+    renderBudget();
+    showToast(`${cat.name} allocation updated.`, 'var(--sinking)');
+}
+
+function moveCat(type, idx, delta) {
+    const cats = state.categories.filter(c => c.type === type);
+    const others = state.categories.filter(c => c.type !== type);
+    const newIdx = idx + delta;
+    if (newIdx < 0 || newIdx >= cats.length) return;
+    const tmp = cats[idx];
+    cats[idx] = cats[newIdx];
+    cats[newIdx] = tmp;
+    const result = [];
+    let catPtr = 0;
+    state.categories.forEach(c => {
+        if (c.type === type) result.push(cats[catPtr++]);
+        else result.push(c);
+    });
+    state.categories = result;
+    save();
+    renderBudget();
 }
 
 // ─── TRANSACTIONS VIEW ───────────────────────────────────────────────
 function renderTransactions() {
     const el = document.getElementById('txn-list');
     if (!el) return;
-    if (state.transactions.length === 0) {
-        el.innerHTML = '<div class="empty-state">No transactions yet. Use the form above to log one.</div>';
+
+    const labelEl = document.getElementById('txn-list-label');
+    if (labelEl) labelEl.textContent = MONTH_NAMES[currentMonth] + ' ' + currentYear + ' Transactions';
+
+    const monthTxns = getTxnsForMonth(currentYear, currentMonth);
+    const sorted = [...monthTxns].sort((a, b) => {
+        const dc = (b.date || '').localeCompare(a.date || '');
+        return dc !== 0 ? dc : b.id - a.id;
+    });
+
+    if (sorted.length === 0) {
+        el.innerHTML = `<div class="empty-state">No transactions in ${MONTH_NAMES[currentMonth]} ${currentYear}.</div>`;
         return;
     }
-    el.innerHTML = state.transactions.slice(0, 80).map(t => {
+
+    let html = '';
+    sorted.forEach(t => {
         const cat      = state.categories.find(c => c.id == t.catId);
-        const catName  = cat ? escapeHTML(cat.name) : 'Unassigned';
+        const catName  = cat ? escapeHTML(cat.name) : 'Uncategorized';
         const dotColor = cat
-            ? (cat.type === 'income' ? 'var(--income)' : cat.type === 'sinking' ? 'var(--sinking)' : 'var(--accent)')
+            ? (cat.type === 'income'  ? 'var(--income)'  :
+               cat.type === 'sinking' ? 'var(--sinking)' : 'var(--accent)')
             : 'var(--border)';
         const amtColor = t.type === 'inflow' ? 'var(--income)' : 'var(--text)';
         const sign     = t.type === 'inflow' ? '+' : '–';
-        return `
-        <div class="txn-item">
+        const badge    = t.isAlloc ? `<span style="font-size:0.6rem;background:#f0ead0;color:var(--sinking);border-radius:4px;padding:1px 5px;font-weight:700;margin-left:4px;">alloc</span>` : '';
+        html += `
+        <div class="txn-item" id="txn-${t.id}">
             <div class="txn-dot" style="background:${dotColor}"></div>
             <div class="txn-info">
-                <div class="txn-desc">${escapeHTML(t.desc)}</div>
+                <div class="txn-desc">${escapeHTML(t.desc)}${badge}</div>
                 <div class="txn-meta">${catName} · ${t.date}</div>
             </div>
             <div class="txn-amt" style="color:${amtColor}">${sign}${fmtDec(t.amt)}</div>
@@ -1140,13 +1493,15 @@ function renderTransactions() {
                 <button class="icon-btn del" onclick="deleteTransaction(${t.id})" title="Delete">✕</button>
             </div>
         </div>`;
-    }).join('');
+    });
+    el.innerHTML = html;
 }
 
 // ─── CATEGORY SELECTS ────────────────────────────────────────────────
 function populateCatSelects() {
+    const nonIncomeCats = state.categories.filter(c => c.type !== 'income');
     const opts = '<option value="">— No Category —</option>' +
-        state.categories.map(c => `<option value="${c.id}">${escapeHTML(c.name)} (${c.type})</option>`).join('');
+        nonIncomeCats.map(c => `<option value="${c.id}">${escapeHTML(c.name)} (${c.type})</option>`).join('');
     ['txn-cat', 'txn-edit-cat'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.innerHTML = opts;
@@ -1174,7 +1529,7 @@ function openEditCatModal(id) {
     document.getElementById('cat-edit-id').value = id;
     document.getElementById('cat-name').value = cat.name;
     document.getElementById('cat-type').value = cat.type;
-    document.getElementById('cat-allocation').value = cat.allocation || '';
+    document.getElementById('cat-allocation').value = getCatAlloc(cat, currentYear, currentMonth) || '';
     document.getElementById('cat-period').value = cat.period || 'monthly';
     document.getElementById('cat-balance').value = cat.balance || '';
     updateCatModalUI();
@@ -1185,7 +1540,6 @@ function closeCatModal() { document.getElementById('cat-modal').classList.remove
 
 function updateCatModalUI() {
     const type = document.getElementById('cat-type').value;
-    // Balance field only makes sense for expense/sinking
     document.getElementById('balance-wrap').style.display = type === 'income' ? 'none' : 'block';
 }
 
@@ -1199,18 +1553,38 @@ function saveCategory() {
     if (!name) { showToast('Enter a category name.', 'var(--danger)'); return; }
 
     const editId = document.getElementById('cat-edit-id').value;
-    if (editId) {
-        const cat = state.categories.find(c => c.id == editId);
-        if (cat) {
-            cat.name = name; cat.type = type;
-            cat.allocation = allocation; cat.period = period; cat.balance = balance;
-        }
+    const catId = editId ? parseInt(editId) : Date.now();
+    let cat = state.categories.find(c => c.id === catId);
+
+    if (cat) {
+        cat.name = name; cat.type = type; cat.period = period; cat.balance = balance;
     } else {
         if (state.categories.some(c => c.name.toLowerCase() === name.toLowerCase())) {
-            showToast('A category with that name already exists.', 'var(--danger)');
-            return;
+            showToast('A category with that name already exists.', 'var(--danger)'); return;
         }
-        state.categories.push({ id: Date.now(), name, type, allocation, period, balance });
+        cat = { id: catId, name, type, allocations: {}, period, balance };
+        state.categories.push(cat);
+    }
+
+    if (type === 'sinking') {
+        const prefix = monthKey(currentYear, currentMonth);
+        let txn = state.transactions.find(t => t.catId === cat.id && t.isAlloc && (t.date||'').startsWith(prefix));
+        if (allocation > 0) {
+            if (txn) txn.amt = allocation;
+            else state.transactions.push({
+                id: Date.now() + 1,
+                desc: 'Monthly Allocation',
+                catId: cat.id,
+                amt: allocation,
+                date: `${prefix}-01`,
+                type: 'inflow',
+                isAlloc: true
+            });
+        } else if (txn) {
+            state.transactions = state.transactions.filter(t => t.id !== txn.id);
+        }
+    } else {
+        setCatAllocForMonth(catId, currentYear, currentMonth, allocation);
     }
 
     closeCatModal();
@@ -1219,10 +1593,16 @@ function saveCategory() {
 }
 
 function deleteCategory(id) {
-    if (!confirm('Delete this category? Transactions will become unassigned.')) return;
-    state.categories = state.categories.filter(c => c.id !== id);
-    save();
-    render();
+    showConfirmToast('Delete this category? Prior month transactions will be kept as uncategorized.', () => {
+        state.transactions = state.transactions.filter(t => {
+            if (t.catId == id && t.isAlloc) return false; 
+            return true;
+        });
+        state.transactions.forEach(t => { if (t.catId == id) t.catId = ''; });
+        state.categories = state.categories.filter(c => c.id !== id);
+        save();
+        render();
+    });
 }
 
 // ─── TRANSACTION CRUD ────────────────────────────────────────────────
@@ -1233,7 +1613,7 @@ function addTransaction() {
     const flow  = document.getElementById('txn-flow').value;
     const date  = document.getElementById('txn-date').value || todayISO();
 
-    if (!desc)         { showToast('Enter a description.', 'var(--danger)'); return; }
+    if (!desc)              { showToast('Enter a description.', 'var(--danger)'); return; }
     if (isNaN(amt) || amt <= 0) { showToast('Enter a valid amount.', 'var(--danger)'); return; }
 
     state.transactions.unshift({ id: Date.now(), desc, catId: catId || '', amt, date, type: flow });
@@ -1264,12 +1644,19 @@ function saveEditTransaction() {
     const id = parseInt(document.getElementById('txn-edit-id').value);
     const t  = state.transactions.find(t => t.id === id);
     if (!t) return;
-
     t.desc  = document.getElementById('txn-edit-desc').value.trim();
     t.amt   = parseFloat(document.getElementById('txn-edit-amt').value) || 0;
     t.type  = document.getElementById('txn-edit-flow').value;
     t.date  = document.getElementById('txn-edit-date').value;
-    t.catId = document.getElementById('txn-edit-cat').value;
+    
+    const newCatId = document.getElementById('txn-edit-cat').value;
+    if (t.isAlloc && state.categories.find(c => c.id == newCatId)?.type !== 'sinking') t.isAlloc = false;
+    t.catId = newCatId;
+
+    if (t.isAlloc) {
+        const dateParts = (t.date || '').split('-');
+        if (dateParts.length >= 2) setCatAllocForMonth(t.catId, parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, t.amt);
+    }
 
     closeTxnModal();
     save();
@@ -1277,80 +1664,130 @@ function saveEditTransaction() {
     showBudgetToast(t.catId, t.type);
 }
 
-function showConfirmToast(msg, onConfirm) {
-    const el = document.getElementById('toast');
-    
-    // Clear and reset
-    clearTimeout(toastTimer);
-    el.innerHTML = ''; 
-    el.style.background = 'var(--danger)';
-    el.style.display = 'block';
-
-    // Create message span
-    const span = document.createElement('span');
-    span.textContent = msg;
-    el.appendChild(span);
-
-    // Create Yes button
-    const btnYes = document.createElement('button');
-    btnYes.textContent = 'Yes';
-    btnYes.style.cssText = 'margin-left:12px; background:#fff; color:var(--danger); border:none; border-radius:4px; padding:2px 8px; cursor:pointer; font-weight:700;';
-    btnYes.onclick = (e) => {
-        e.stopPropagation();
-        el.style.display = 'none';
-        onConfirm();
-    };
-    
-    // Create No button
-    const btnNo = document.createElement('button');
-    btnNo.textContent = 'No';
-    btnNo.style.cssText = 'margin-left:6px; background:transparent; color:#fff; border:1px solid #fff; border-radius:4px; padding:2px 8px; cursor:pointer;';
-    btnNo.onclick = (e) => {
-        e.stopPropagation();
-        el.style.display = 'none';
-    };
-
-    el.appendChild(btnYes);
-    el.appendChild(btnNo);
-}
-
 function deleteTransaction(id) {
     const txn = state.transactions.find(t => t.id === id);
     if (!txn) return;
-    
-    // Trigger custom confirmation instead of native alert
-    showConfirmToast(`Delete ${txn.desc}?`, () => {
-        const catId = txn.catId;
+    showConfirmToast(`Delete "${txn.desc}"?`, () => {
+        if (txn.isAlloc) {
+            const dateParts = (txn.date || '').split('-');
+            if (dateParts.length >= 2) setCatAllocForMonth(txn.catId, parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, 0);
+        }
         state.transactions = state.transactions.filter(t => t.id !== id);
         save();
         render();
-        showBudgetToast(catId, 'outflow');
     });
 }
 
-// ─── SPENDING CHART ──────────────────────────────────────────────────
-function renderChart() {
-    const days    = parseInt(document.getElementById('spend-ts').value) || 30;
-    const cutoff  = new Date();
-    cutoff.setDate(cutoff.getDate() - days);
-    const cutoffStr = cutoff.toISOString().split('T')[0];
+// ─── SPENDING & DISTRIBUTION CHART ───────────────────────────────────
+const CHART_COLORS = [
+    '#3d5247','#3f7080','#7a6846','#5e8872',
+    '#9cb0a5','#6b92a0','#a8906a','#c4bfb0',
+    '#4a7c64','#5c6e8f','#8f7a5a','#6e9c88',
+    '#2c3a32','#2e515d','#5b4e34','#436353'
+];
 
-    // Only expense categories
-    const catMap = {};
-    state.categories.filter(c => c.type === 'expense').forEach(c => {
-        catMap[c.id] = { name: c.name, spent: 0 };
-    });
+let allSlicesHidden = false;
 
-    state.transactions.forEach(t => {
-        if (t.date >= cutoffStr && catMap[t.catId] && t.type === 'outflow') {
-            catMap[t.catId].spent += parseFloat(t.amt) || 0;
-        }
-    });
+window.toggleAllChartSlices = function() {
+    if (!globalSpendChart) return;
+    allSlicesHidden = !allSlicesHidden;
+    const meta = globalSpendChart.getDatasetMeta(0);
+    meta.data.forEach(d => d.hidden = allSlicesHidden);
+    globalSpendChart.update();
+    updateChartTotalDOM(globalSpendChart);
+};
 
-    const labels = [], data = [];
-    Object.values(catMap).forEach(c => {
-        if (c.spent > 0) { labels.push(c.name); data.push(c.spent); }
+function updateChartTotalDOM(chart) {
+    let sum = 0;
+    chart.data.datasets[0].data.forEach((val, idx) => {
+        if (chart.getDataVisibility(idx)) sum += val;
     });
+    document.getElementById('spend-total-label').innerHTML = `Total: <span>${fmt(sum)}</span>`;
+}
+
+function renderCharts() {
+    const monthTxns = getTxnsForMonth(currentYear, currentMonth);
+    const labels = [], data = [], metaIds = [];
+    let total = 0;
+    
+    const backBtn = document.getElementById('chart-back-btn');
+    const toggleBtn = document.getElementById('chart-toggle-all-btn');
+    const viewDropdown = document.getElementById('chart-view-mode');
+    const viewMode = viewDropdown ? viewDropdown.value : 'expense';
+    
+    if (chartActiveCategoryId) {
+        // --- Drill-down View (Transactions) ---
+        backBtn.style.display = 'inline-block';
+        toggleBtn.style.display = 'none';
+        if (viewDropdown) viewDropdown.style.display = 'none';
+        allSlicesHidden = false;
+
+        const cat = state.categories.find(c => c.id == chartActiveCategoryId);
+        const titleStr = chartActiveCategoryId === '__uncat__' ? 'Uncategorized' : (cat ? cat.name : 'Category');
+        const flowLabel = chartActiveCategoryFlow === 'inflow' ? ' (Saved)' : ' (Spent)';
+        document.querySelector('.chart-card-title').textContent = titleStr + (cat && cat.type === 'sinking' ? flowLabel : '');
+        
+        const catTxns = monthTxns.filter(t => (t.catId || '__uncat__') == chartActiveCategoryId);
+        
+        catTxns.forEach(t => {
+            const val = parseFloat(t.amt) || 0;
+            if (t.type === chartActiveCategoryFlow || (!chartActiveCategoryFlow && t.type === 'outflow')) {
+                labels.push(t.desc || 'Unnamed');
+                data.push(val);
+                metaIds.push(t.id); 
+                total += val;
+            }
+        });
+
+    } else {
+        // --- Main View (Category Distribution) ---
+        backBtn.style.display = 'none';
+        toggleBtn.style.display = 'inline-block';
+        if (viewDropdown) viewDropdown.style.display = 'inline-block';
+        document.querySelector('.chart-card-title').textContent = 'Distribution Overview';
+
+        const catMap = {};
+        state.categories.filter(c => c.type === 'expense').forEach(c => catMap[c.id] = { name: c.name, val: 0, catId: c.id });
+        state.categories.filter(c => c.type === 'sinking').forEach(c => {
+            catMap[c.id + '_in'] = { name: c.name + ' (Saved)', val: 0, catId: c.id, flow: 'inflow' };
+            catMap[c.id + '_out'] = { name: c.name + ' (Spent)', val: 0, catId: c.id, flow: 'outflow' };
+        });
+        catMap['__uncat__'] = { name: 'Uncategorized', val: 0, catId: '__uncat__' };
+
+        monthTxns.forEach(t => {
+            const amt = parseFloat(t.amt) || 0;
+            const cat = state.categories.find(c => c.id == t.catId);
+            
+            if (!cat && t.type === 'outflow') catMap['__uncat__'].val += amt;
+            else if (cat && cat.type === 'expense' && t.type === 'outflow') catMap[cat.id].val += amt;
+            else if (cat && cat.type === 'sinking') {
+                if (t.type === 'inflow') catMap[cat.id + '_in'].val += amt;
+                if (t.type === 'outflow') catMap[cat.id + '_out'].val += amt;
+            }
+        });
+
+        Object.keys(catMap).forEach(key => {
+            if (catMap[key].val > 0) {
+                const cInfo = catMap[key];
+                const catObj = state.categories.find(c => c.id == cInfo.catId);
+                const isUncat = cInfo.catId === '__uncat__';
+                const isExpense = isUncat || (catObj && catObj.type === 'expense');
+                const isSinking = catObj && catObj.type === 'sinking';
+
+                let include = false;
+                if (viewMode === 'all') include = true;
+                else if (viewMode === 'expense' && isExpense) include = true;
+                else if (viewMode === 'sinking' && isSinking) include = true;
+
+                if (include) {
+                    labels.push(cInfo.name);
+                    data.push(Math.round(cInfo.val * 100) / 100);
+                    metaIds.push({ catId: cInfo.catId, flow: cInfo.flow || 'outflow' });
+                    total += cInfo.val;
+                }
+            }
+        });
+    }
 
     const emptyEl = document.getElementById('spend-empty');
     const chartEl = document.getElementById('spendChart');
@@ -1358,62 +1795,84 @@ function renderChart() {
     if (data.length === 0) {
         emptyEl.style.display = 'block';
         chartEl.style.display = 'none';
-        if (globalChart) { globalChart.destroy(); globalChart = null; }
+        document.getElementById('spend-total-label').innerHTML = '';
+        if (globalSpendChart) { globalSpendChart.destroy(); globalSpendChart = null; }
         return;
     }
 
     emptyEl.style.display = 'none';
     chartEl.style.display = 'block';
-
-    if (globalChart) globalChart.destroy();
-
-    globalChart = new Chart(chartEl.getContext('2d'), {
+    
+    if (globalSpendChart) globalSpendChart.destroy();
+    globalSpendChart = new Chart(chartEl.getContext('2d'), {
         type: 'pie',
         plugins: [ChartDataLabels],
         data: {
             labels,
-            datasets: [{
-                data,
-                backgroundColor: [
-                    '#3d5247','#3f7080','#7a6846','#5e8872',
-                    '#9cb0a5','#6b92a0','#a8906a','#c4bfb0'
-                ],
-                borderColor: '#fff',
-                borderWidth: 2
-            }]
+            datasets: [{ data, backgroundColor: CHART_COLORS, borderColor: '#fff', borderWidth: 2 }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: { boxWidth: 11, font: { size: 11, family: 'DM Sans' }, padding: 12 }
+                legend: { 
+                    position: 'bottom', 
+                    labels: { boxWidth: 11, font: { size: 11, family: 'DM Sans' }, padding: 12 },
+                    onClick: function(e, legendItem, legend) {
+                        Chart.defaults.plugins.legend.onClick.call(this, e, legendItem, legend);
+                        setTimeout(() => updateChartTotalDOM(legend.chart), 50);
+                    }
                 },
                 datalabels: {
                     color: '#fff',
                     font: { weight: '700', size: 11, family: 'DM Sans' },
                     formatter: (val, ctx) => {
-                        const sum = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                        const dataset = ctx.chart.data.datasets[0];
+                        const sum = dataset.data.reduce((a, b, i) => a + (ctx.chart.getDataVisibility(i) ? b : 0), 0);
+                        if (sum === 0) return '';
                         const pct = (val * 100 / sum);
                         return pct >= 5 ? pct.toFixed(0) + '%' : '';
                     }
                 },
-                tooltip: {
-                    callbacks: {
-                        label: ctx => ` ${ctx.label}: ${fmtDec(ctx.parsed)}`
+                tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${fmtDec(ctx.parsed)}` } }
+            },
+            onClick: (e, elements) => {
+                if (elements.length > 0) {
+                    const index = elements[0].index;
+                    if (!chartActiveCategoryId) {
+                        const metaInfo = metaIds[index];
+                        if (metaInfo) {
+                            chartActiveCategoryId = metaInfo.catId;
+                            chartActiveCategoryFlow = metaInfo.flow;
+                            renderCharts();
+                        }
+                    } else {
+                        const txnId = metaIds[index];
+                        if (txnId) {
+                            switchTab('transactions', document.querySelectorAll('.tab-btn')[1]);
+                            setTimeout(() => {
+                                const el = document.getElementById('txn-' + txnId);
+                                if (el) {
+                                    el.scrollIntoView({behavior: 'smooth', block: 'center'});
+                                    el.style.backgroundColor = '#eef2ef';
+                                    setTimeout(() => el.style.backgroundColor = '', 2000);
+                                }
+                            }, 100);
+                        }
                     }
                 }
             }
         }
     });
+    updateChartTotalDOM(globalSpendChart);
 }
 
 // ─── CSV EXPORT ──────────────────────────────────────────────────────
 function exportCSV() {
     let csv = 'RecordType,Name,Allocation,Date,CategoryType,Period,Balance,TxnType\n';
     state.categories.forEach(c => {
-        csv += `category,${esc(c.name)},${c.allocation||0},N/A,${c.type},${c.period||'monthly'},${c.balance||0},N/A\n`;
+        const curAlloc = getCatAlloc(c, currentYear, currentMonth);
+        csv += `category,${esc(c.name)},${curAlloc},N/A,${c.type},${c.period||'monthly'},${c.balance||0},N/A\n`;
     });
     state.transactions.forEach(t => {
         const cat = state.categories.find(c => c.id == t.catId);
@@ -1439,6 +1898,36 @@ function copyCsvOut() {
     else { document.execCommand('copy'); done(); }
 }
 
+// ─── CSV TEMPLATE DOWNLOAD ───────────────────────────────────────────
+function downloadCSVTemplate() {
+    const template = [
+        'RecordType,Name,Allocation,Date,CategoryType,Period,Balance,TxnType',
+        '# --- CATEGORY ROWS (RecordType = category) ---',
+        '# CategoryType: expense | income | sinking',
+        '# Period: daily | weekly | biweekly | monthly | annually',
+        '# Balance: starting balance for saving/sinking funds (use 0 for expenses)',
+        'category,Groceries,600,N/A,expense,monthly,0,N/A',
+        'category,Paycheck,3200,N/A,income,monthly,0,N/A',
+        'category,Emergency Fund,300,N/A,sinking,monthly,800,N/A',
+        '# --- TRANSACTION ROWS (RecordType = transaction) ---',
+        '# Date format: YYYY-MM-DD',
+        '# TxnType: outflow | inflow',
+        '# Name (Column 2) = Transaction Description',
+        '# CategoryType (Column 5) = Category Name (must match an existing category)',
+        'transaction,Safeway run,87.43,2025-05-15,Groceries,N/A,N/A,outflow',
+        'transaction,Direct deposit,3200,2025-05-01,Paycheck,N/A,N/A,inflow',
+        'transaction,Monthly Allocation,200,2025-05-01,Emergency Fund,N/A,N/A,inflow'
+    ].join('\n');
+
+    const blob = new Blob([template], { type: 'text/csv' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = 'zenji_import_template.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
 // ─── CSV IMPORT ──────────────────────────────────────────────────────
 function openImportModal() {
     document.getElementById('csv-in-area').value = '';
@@ -1460,10 +1949,10 @@ function importCSV() {
     if (mode === 'replace') { state.categories = []; state.transactions = []; }
 
     const lines = text.split('\n');
-
-    // Pass 1: categories
     for (let i = 1; i < lines.length; i++) {
-        const p = parseCSVLine(lines[i]);
+        const line = lines[i].trim();
+        if (!line || line.startsWith('#')) continue;
+        const p = parseCSVLine(line);
         if (p.length < 2 || p[0].trim() !== 'category') continue;
         const name       = p[1].trim();
         const allocation = parseFloat(p[2]) || 0;
@@ -1471,14 +1960,19 @@ function importCSV() {
         const period     = (p[5] || 'monthly').trim();
         const balance    = parseFloat(p[6]) || 0;
         if (!name) continue;
-        if (!state.categories.some(c => c.name.toLowerCase() === name.toLowerCase())) {
-            state.categories.push({ id: Date.now() + i, name, type: catType, allocation, period, balance });
+        
+        let existing = state.categories.find(c => c.name.toLowerCase() === name.toLowerCase());
+        if (!existing) {
+            const allocs = {};
+            if (allocation > 0) allocs[monthKey(currentYear, currentMonth)] = allocation;
+            state.categories.push({ id: Date.now() + i, name, type: catType, allocations: allocs, period, balance });
         }
     }
 
-    // Pass 2: transactions
     for (let i = 1; i < lines.length; i++) {
-        const p = parseCSVLine(lines[i]);
+        const line = lines[i].trim();
+        if (!line || line.startsWith('#')) continue;
+        const p = parseCSVLine(line);
         if (p.length < 4 || p[0].trim() !== 'transaction') continue;
         const desc    = p[1].trim();
         const amt     = parseFloat(p[2]);
@@ -1489,10 +1983,12 @@ function importCSV() {
 
         let cat = state.categories.find(c => c.name.toLowerCase() === catName.toLowerCase());
         if (!cat && catName) {
-            cat = { id: Date.now() + i + 9000, name: catName, type: 'expense', allocation: 0, period: 'monthly', balance: 0 };
+            cat = { id: Date.now() + i + 9000, name: catName, type: 'expense', allocations: {}, period: 'monthly', balance: 0 };
             state.categories.push(cat);
         }
-        state.transactions.unshift({ id: Date.now() + i, desc, catId: cat ? cat.id : '', amt, date, type: flow });
+        
+        const isAlloc = (cat && cat.type === 'sinking' && flow === 'inflow' && desc.toLowerCase().includes('allocation'));
+        state.transactions.unshift({ id: Date.now() + i, desc, catId: cat ? cat.id : '', amt, date, type: flow, isAlloc });
     }
 
     save();
@@ -1503,12 +1999,8 @@ function importCSV() {
 }
 
 // ─── HELPERS ─────────────────────────────────────────────────────────
-function esc(s) {
-    return s ? `"${String(s).replace(/"/g, '""')}"` : '""';
-}
-function escapeHTML(s) {
-    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+function esc(s) { return s ? `"${String(s).replace(/"/g, '""')}"` : '""'; }
+function escapeHTML(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function todayISO() {
     const d = new Date();
     return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
@@ -1534,14 +2026,7 @@ function parseCSVLine(text) {
 // ─── INIT ─────────────────────────────────────────────────────────────
 document.getElementById('txn-date').value = todayISO();
 render();
-
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-            .then(reg => console.log('SW registered:', reg))
-            .catch(err => console.log('SW failed:', err));
-    });
-}
+renderCharts();
 </script>
 </body>
 </html>
