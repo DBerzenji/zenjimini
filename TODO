@@ -26,3 +26,15 @@
 [] Consider hiding Allocation transactions from the transaction view
 [] Make text higher contrast from background
 [] Make complete list of functions/features expectations to run through when testing the app - make sure nothing gets overlooked.
+[] Look into removing Spent this Month and Left to Spend, the first is redundant with Summaries under category sections the latter is irrelevant.
+[] Make view by more hidden, it doesn't need that prime real estate, people set it once and forget it.
+[] Set the default time-scale for categories to be the time-scale selected (daily, weekly, bi-weekly, monthly, annually etc...)
+[] Add bi-monthky as a time scale.
+[] Remove the toggle all button on the distribution overview
+[] Rename "Normal Spending" to "Monthly Spending" at the distribution overview 
+[] Rename "Sinking ..." to "Saving ..." at the distribution overview
+[] Add functionality to create transaction directly on a category, automatically assigning it there. (this might end up replacing the transaction tab)
+[] Rename "Spending" tab to "Overview"
+[] Get PWA working on Android.
+[] Optimize the code a lot, sloppy stuff.
+[] Increase the scale of most things to be more mobile device friendly. - better yet, let the user customize the scale.
