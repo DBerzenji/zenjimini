@@ -1,7 +1,17 @@
-[] Ensure balance of expenses and sinking funds increase by remaining allocation after the month is over as we move to the next month (also allow the balance to go into the negative). - this can be done by the shift to transactions for sinking fund allocation 
-[] Update the sum in pie charts by what categories are visible/not filtered
-[] Actually, let the allocated dollar amount in a sinking fund be a transaction applied to that sinking fund therefore affecting the balance, and let them be connected so editing the allocated dollar amount will edit the transaction editing the transaction would edit the allocation amount, and the same goes for deleting the transaction or sinking fund.
-[] Let all categories (sinking funds, expense, income) be edited and deleted without affecting prior months.
-[] Sync the month selector between all pages.
-[] Re-add piechart filtering
-[] Unassiged at the top doesn't match unassigned on "Budget" page
+[X] Ensure balance of expenses and sinking funds increase by remaining allocation after the month is over as we move to the next month (also allow the balance to go into the negative). - this can be done by the shift to transactions for sinking fund allocation 
+[X] Actually, let the allocated dollar amount in a sinking fund be a transaction applied to that sinking fund therefore affecting the balance, and let them be connected so editing the allocated dollar amount will edit the transaction editing the transaction would edit the allocation amount, and the same goes for deleting the transaction or sinking fund.
+[X] Sync the month selector between all pages.
+[X] When I click on a transaction in the pie chart, take me to the transaction on the transaction page.
+[X] When clicking on a transaction under it's Category, let me edit the transaction
+[X] Let editing transaction in the Category viewer edit or delete that category's Allocation in Transactions - there is a bug where editing an allocation's transaction, then changing that cateogry's allocation, keeps both the original edited one and the new allocation causing 2 allocation transactions to be applied.
+
+
+
+[] Let me filter/hide invidual or many categories of my choosing on the pie chart
+[1/2] Include Outflow transactions from Savings/Sinking Funds in the Distribution Overview (but make sure it can be filtered out) 
+[] Fix the CSV Template, it doesn't match the same format as when I export and import a CSV. 
+[] Make Distrubtion Overview longer to accomodate all the categories
+[] Still can't filter invidual categories on Distribution Overview 
+[] Make Distribution Overview extremely easy to switch between normal spending, and Sinking fund spending.
+[] Change "No spending or savings found for this month." when no transactions are available for the pie chart
+[] 
