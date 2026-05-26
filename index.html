@@ -1357,7 +1357,7 @@ function renderCatSection(elId, cats, type, ts) {
                 ${catTxns.map(t => {
                     const sign = t.type === 'inflow' ? '+' : '–';
                     const col  = t.type === 'inflow' ? 'var(--income)' : 'var(--text)';
-                    const badge = t.isAlloc ? `<span style="font-size:0.6rem;background:#f0ead0;color:var(--sinking);border-radius:4px;padding:1px 5px;font-weight:700;margin-left:4px;">alloc</span>` : '';
+                    const badge = t.isAlloc ? `<span style="font-size:0.6rem;background:#f0ead0;color:var(--sinking);border-radius:4px;padding:1px 5px;font-weight:700;margin-left:4px;">Linked Sinking Fund Allocation</span>` : '';
                     return `<div class="cat-txn-item" onclick="openEditTxnModal(${t.id})" title="Click to edit">
                         <div class="cat-txn-desc">${escapeHTML(t.desc)}${badge}</div>
                         <div class="cat-txn-meta">${t.date}</div>
@@ -1480,7 +1480,7 @@ function renderTransactions() {
             : 'var(--border)';
         const amtColor = t.type === 'inflow' ? 'var(--income)' : 'var(--text)';
         const sign     = t.type === 'inflow' ? '+' : '–';
-        const badge    = t.isAlloc ? `<span style="font-size:0.6rem;background:#f0ead0;color:var(--sinking);border-radius:4px;padding:1px 5px;font-weight:700;margin-left:4px;">alloc</span>` : '';
+        const badge    = t.isAlloc ? `<span style="font-size:0.6rem;background:#f0ead0;color:var(--sinking);border-radius:4px;padding:1px 5px;font-weight:700;margin-left:4px;">Linked Sinking Fund Allocation</span>` : '';
         html += `
         <div class="txn-item" id="txn-${t.id}">
             <div class="txn-dot" style="background:${dotColor}"></div>
