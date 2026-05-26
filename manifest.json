@@ -1,25 +1,25 @@
 {
   "name": "Zenji",
   "short_name": "Zenji",
-  "start_url": "./",
+  "start_url": "/zenjimini/",
   "display": "standalone",
-  "scope": "./",
+  "scope": "/zenjimini",
   "description": "Zenji budgeting app",
   "background_color": "#f0ede6",
   "theme_color": "#3d5247",
   "icons": [
   {
-    "src": "icon-192.png",
+    "src": "/zenjimini/icon-192.png",
     "sizes": "192x192",
     "type": "image/png"
   },
   {
-    "src": "icon-512.png",
+    "src": "/zenjimini/icon-512.png",
     "sizes": "512x512",
     "type": "image/png"
   },
   {
-    "src": "icon-512-maskable.png",
+    "src": "/zenjimini/icon-512-maskable.png",
     "sizes": "512x512",
     "type": "image/png",
     "purpose": "maskable"
