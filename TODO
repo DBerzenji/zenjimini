@@ -1,0 +1,7 @@
+[] Ensure balance of expenses and sinking funds increase by remaining allocation after the month is over as we move to the next month (also allow the balance to go into the negative). - this can be done by the shift to transactions for sinking fund allocation 
+[] Update the sum in pie charts by what categories are visible/not filtered
+[] Actually, let the allocated dollar amount in a sinking fund be a transaction applied to that sinking fund therefore affecting the balance, and let them be connected so editing the allocated dollar amount will edit the transaction editing the transaction would edit the allocation amount, and the same goes for deleting the transaction or sinking fund.
+[] Let all categories (sinking funds, expense, income) be edited and deleted without affecting prior months.
+[] Sync the month selector between all pages.
+[] Re-add piechart filtering
+[] Unassiged at the top doesn't match unassigned on "Budget" page
