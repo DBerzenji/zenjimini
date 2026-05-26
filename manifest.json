@@ -3,7 +3,7 @@
   "short_name": "Zenji",
   "start_url": "/zenjimini/",
   "display": "standalone",
-  "scope": "/zenjimini",
+  "scope": "/zenjimini/",
   "description": "Zenji budgeting app",
   "background_color": "#f0ede6",
   "theme_color": "#3d5247",
