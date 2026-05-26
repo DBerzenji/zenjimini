@@ -10,7 +10,14 @@
 [X] Fix filtering certain categories on Distribution Overview (currently we get some JS errors when trying to filter categories in or out)
 [X] Category filtering still doesn't work when clicking on them individually
 [X] Make Sinking fund spending fall under the "Normal Spending" dropdown filter; I only want "(Saved)" transactions listed under the  "Sinking Funds" drowndown filter.
-[X] Remove the Toggle All button on the Distribution Overview page
 [X] Fix "txn linked" and "no txn yet" text
 [X] Change "No spending or savings found for this month." when no transactions are available for the pie chart
 [X] Fix the CSV Template under Import, it doesn't match the same format as when I export and import a CSV.
+
+
+[] Simplify and remove the redundancy for sinking fund "$/month" and "Monthly Allocation: $ Transaction linked", one or the other only.
+[] Make the Sinking Fund Balances more visible.
+[] Remove the Toggle All button on the Distribution Overview page
+[] Update Distribution Overview text for Sinking Withdrawals where the category section has (Withdrawal) appended but after clicking it changes to (Spent).
+[] Somehow make the pie chart easier to navigate on the phone, I want to have the hover function from computer... maybe require a double tap on the pie section to open it where the first tap gives the total dollar value?
+
