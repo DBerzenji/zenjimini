@@ -24,5 +24,7 @@
 [] Look into removing transaction page and instead just having transactions under their categories?
 [] Have solutions for deployment to all devices (web-based?)
 [] Consider hiding Allocation transactions from the transaction view
+[] Make text higher contrast from background
+
 
 
