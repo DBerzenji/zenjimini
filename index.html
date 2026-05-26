@@ -427,6 +427,7 @@ textarea {
     outline: none;
     margin-bottom: 8px;
     transition: border-color 0.15s, background 0.15s;
+    appearance: none;
     -webkit-appearance: none;
 }
 input:focus, select:focus, textarea:focus {
@@ -841,10 +842,10 @@ textarea {
         <div class="chart-card-header">
             <span class="chart-card-title">Distribution Overview</span>
             <div style="display:flex; gap:6px; align-items:center;">
-            <select id="chart-view-mode" onchange="chartActiveCategoryId=null; renderCharts();" style="margin:0; padding:4px 8px; font-size:0.75rem; border-radius:6px; width:auto; border:1px solid var(--border); background:var(--surface);">
-            <option value="expense" selected>Normal Spending</option>
-            <option value="sinking">Sinking Funds</option>
-            <option value="all">All Spending</option>
+            <select id="chart-view-mode" onchange="chartActiveCategoryId=null; renderCharts();" style="min-width: 140px;">
+                <option value="expense" selected>Normal Spending</option>
+                <option value="sinking_in">Sinking Deposits</option>
+                <option value="sinking_out">Sinking Withdrawals</option>
             </select>
             <button class="btn-sm ghost" id="chart-toggle-all-btn" onclick="toggleAllChartSlices()" style="padding: 4px 8px; font-size: 0.7rem;">Toggle All</button>
             <button class="btn-sm ghost" id="chart-back-btn" onclick="chartActiveCategoryId=null; renderCharts();" style="display:none; padding: 4px 8px; font-size: 0.7rem;">← Back</button>
@@ -1340,7 +1341,7 @@ function renderCatSection(elId, cats, type, ts) {
                         style="width:100px;margin:0;padding:5px 8px;font-size:0.8rem;"
                         onchange="updateSinkingAlloc(${cat.id}, this.value)"
                         title="Editing this also updates the linked allocation transaction">
-                    ${allocTxn ? `<span style="font-size:0.65rem;color:var(--sinking);font-weight:600;">● txn linked</span>` : `<span style="font-size:0.65rem;color:var(--text2);">no txn yet</span>`}
+                    ${allocTxn ? `<span style="font-size:0.65rem;color:var(--sinking);font-weight:600;">● Transaction Linked</span>` : `<span style="font-size:0.65rem;color:var(--text2);">No Transaction Linked</span>`}
                 </div>`;
         }
 
@@ -1746,47 +1747,54 @@ function renderCharts() {
         if (viewDropdown) viewDropdown.style.display = 'inline-block';
         document.querySelector('.chart-card-title').textContent = 'Distribution Overview';
 
-        const catMap = {};
-        state.categories.filter(c => c.type === 'expense').forEach(c => catMap[c.id] = { name: c.name, val: 0, catId: c.id });
-        state.categories.filter(c => c.type === 'sinking').forEach(c => {
-            catMap[c.id + '_in'] = { name: c.name + ' (Saved)', val: 0, catId: c.id, flow: 'inflow' };
-            catMap[c.id + '_out'] = { name: c.name + ' (Spent)', val: 0, catId: c.id, flow: 'outflow' };
-        });
-        catMap['__uncat__'] = { name: 'Uncategorized', val: 0, catId: '__uncat__' };
+        
+        // --- Main View (Category Distribution) ---
+const catMap = {};
 
-        monthTxns.forEach(t => {
-            const amt = parseFloat(t.amt) || 0;
-            const cat = state.categories.find(c => c.id == t.catId);
-            
-            if (!cat && t.type === 'outflow') catMap['__uncat__'].val += amt;
-            else if (cat && cat.type === 'expense' && t.type === 'outflow') catMap[cat.id].val += amt;
-            else if (cat && cat.type === 'sinking') {
-                if (t.type === 'inflow') catMap[cat.id + '_in'].val += amt;
-                if (t.type === 'outflow') catMap[cat.id + '_out'].val += amt;
-            }
-        });
+// 1. Initialize buckets
+// Normal categories: Grouped by ID, will track Net (Out - In)
+state.categories.filter(c => c.type === 'expense').forEach(c => catMap[c.id] = { name: c.name, val: 0, catId: c.id, view: 'expense' });
+// Sinking funds: Separate buckets
+state.categories.filter(c => c.type === 'sinking').forEach(c => {
+    catMap[c.id + '_in'] = { name: c.name + ' (Deposit)', val: 0, catId: c.id, view: 'sinking_in' };
+    catMap[c.id + '_out'] = { name: c.name + ' (Withdrawal)', val: 0, catId: c.id, view: 'sinking_out' };
+});
+catMap['__uncat__'] = { name: 'Uncategorized', val: 0, catId: '__uncat__', view: 'expense' };
 
-        Object.keys(catMap).forEach(key => {
-            if (catMap[key].val > 0) {
-                const cInfo = catMap[key];
-                const catObj = state.categories.find(c => c.id == cInfo.catId);
-                const isUncat = cInfo.catId === '__uncat__';
-                const isExpense = isUncat || (catObj && catObj.type === 'expense');
-                const isSinking = catObj && catObj.type === 'sinking';
+// 2. Map transactions
+monthTxns.forEach(t => {
+    const amt = parseFloat(t.amt) || 0;
+    const cat = state.categories.find(c => c.id == t.catId);
+    
+    if (cat && cat.type === 'sinking') {
+        if (t.type === 'inflow') catMap[cat.id + '_in'].val += amt;
+        else if (t.type === 'outflow') catMap[cat.id + '_out'].val += amt;
+    } else {
+        // Normal spending: Net effect (Outflow reduces by Inflow)
+        const target = (!cat) ? catMap['__uncat__'] : catMap[cat.id];
+        if (t.type === 'outflow') target.val += amt;
+        else if (t.type === 'inflow') target.val -= amt;
+    }
+});
 
-                let include = false;
-                if (viewMode === 'all') include = true;
-                else if (viewMode === 'expense' && isExpense) include = true;
-                else if (viewMode === 'sinking' && isSinking) include = true;
+// 3. Filter for rendering
+Object.keys(catMap).forEach(key => {
+    const cInfo = catMap[key];
+    if (cInfo.val !== 0) { 
+        let include = false;
+        if (viewMode === 'expense' && cInfo.view === 'expense') include = true;
+        else if (viewMode === 'sinking_in' && cInfo.view === 'sinking_in') include = true;
+        else if (viewMode === 'sinking_out' && cInfo.view === 'sinking_out') include = true;
 
-                if (include) {
-                    labels.push(cInfo.name);
-                    data.push(Math.round(cInfo.val * 100) / 100);
-                    metaIds.push({ catId: cInfo.catId, flow: cInfo.flow || 'outflow' });
-                    total += cInfo.val;
-                }
-            }
-        });
+        if (include) {
+            labels.push(cInfo.name);
+            data.push(Math.round(Math.abs(cInfo.val) * 100) / 100);
+            metaIds.push({ catId: cInfo.catId, flow: cInfo.view === 'sinking_in' ? 'inflow' : 'outflow' });
+            total += Math.abs(cInfo.val);
+        }
+    }
+});
+        
     }
 
     const emptyEl = document.getElementById('spend-empty');
@@ -1816,13 +1824,26 @@ function renderCharts() {
             maintainAspectRatio: false,
             plugins: {
                 legend: { 
-                    position: 'bottom', 
-                    labels: { boxWidth: 11, font: { size: 11, family: 'DM Sans' }, padding: 12 },
-                    onClick: function(e, legendItem, legend) {
-                        Chart.defaults.plugins.legend.onClick.call(this, e, legendItem, legend);
-                        setTimeout(() => updateChartTotalDOM(legend.chart), 50);
-                    }
-                },
+    position: 'bottom', 
+    labels: { boxWidth: 11, font: { size: 11, family: 'DM Sans' }, padding: 12 },
+    onClick: function(e, legendItem, legend) {
+        const index = legendItem.index;
+        const ci = legend.chart;
+        
+        // Toggle visibility state manually
+        if (ci.isDatasetVisible(0)) {
+            const meta = ci.getDatasetMeta(0);
+            const hidden = meta.data[index].hidden === null ? !ci.data.datasets[0].hidden[index] : null;
+            
+            // Toggle slice visibility
+            ci.toggleDataVisibility(index);
+            ci.update(); // Update chart
+            
+            // Recalculate total after update
+            setTimeout(() => updateChartTotalDOM(ci), 50);
+        }
+    }
+},
                 datalabels: {
                     color: '#fff',
                     font: { weight: '700', size: 11, family: 'DM Sans' },
@@ -1902,21 +1923,22 @@ function copyCsvOut() {
 function downloadCSVTemplate() {
     const template = [
         'RecordType,Name,Allocation,Date,CategoryType,Period,Balance,TxnType',
-        '# --- CATEGORY ROWS (RecordType = category) ---',
-        '# CategoryType: expense | income | sinking',
-        '# Period: daily | weekly | biweekly | monthly | annually',
-        '# Balance: starting balance for saving/sinking funds (use 0 for expenses)',
         'category,Groceries,600,N/A,expense,monthly,0,N/A',
         'category,Paycheck,3200,N/A,income,monthly,0,N/A',
         'category,Emergency Fund,300,N/A,sinking,monthly,800,N/A',
-        '# --- TRANSACTION ROWS (RecordType = transaction) ---',
-        '# Date format: YYYY-MM-DD',
-        '# TxnType: outflow | inflow',
-        '# Name (Column 2) = Transaction Description',
-        '# CategoryType (Column 5) = Category Name (must match an existing category)',
         'transaction,Safeway run,87.43,2025-05-15,Groceries,N/A,N/A,outflow',
         'transaction,Direct deposit,3200,2025-05-01,Paycheck,N/A,N/A,inflow',
-        'transaction,Monthly Allocation,200,2025-05-01,Emergency Fund,N/A,N/A,inflow'
+        'transaction,Monthly Allocation,400,2025-05-01,Emergency Fund,N/A,N/A,inflow',
+        'transaction,Tow Truck,200,2025-05-01,Emergency Fund,N/A,N/A,outflow',
+        'Key/Guide/Instructions (Delete before import):',
+        'RecordType (column 1) = category | transaction',
+        'Name (Column 2) = Category Name | Transaction Description',
+        'Allocation (Column 3) = Allocated $ for Category | Transaction $ amount',
+        'Date format (column 4) = YYYY-MM-DD | "N/A" for Category',
+        'CategoryType (column 5) = Category options are expense/income/sinking | Transaction must match a category name or be left blank',
+        'Period (column 6) = Category options are daily/weekly/biweekly/monthly/annually | Transactions = "N/A"',
+        'Balance (column 7) = starting $ balance for sinking funds/savings | use 0 for other expenses | use "N/A" for Transactions',
+        'TxnType (column 8) = outflow | inflow'
     ].join('\n');
 
     const blob = new Blob([template], { type: 'text/csv' });
