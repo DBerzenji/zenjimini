@@ -22,5 +22,6 @@
 [] Somehow make the pie chart easier to navigate on the phone, I want to have the hover function from computer... maybe require a double tap on the pie section to open it where the first tap gives the total dollar value?
 [] Make the initial budget's data the same as what's in the template 
 [] Look into removing transaction page and instead just having transactions under their categories?
+[] Have solutions for deployment to all devices (web-based?)
 
 
