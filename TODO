@@ -40,3 +40,8 @@
 [] Increase the scale of most things to be more mobile device friendly. - better yet, let the user customize the scale.
 [] MAJOR bug time-scale on category allocation transaction is still deposited monthly, adjust!
 [] If transaction name matches other transactions group them together in Overview pie chart
+[] Time scale (daily, weekly, bi-weekly, monthly, annual) adjusts the date scrolling back and forth and the balance of money remaining in each category.
+[] Add recurring expenses with due dates
+
+
+
