@@ -16,20 +16,20 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap');
 
 :root {
-    --bg:      #e8e4dc;
-    --surface: #f5f3ee;
+    --bg:      #f0ede6;
+    --surface: #faf9f5;
     --card:    #ffffff;
-    --text:    #1a2420;
-    --text2:   #4a5c52;
-    --accent:  #2d4238;
-    --accent2: #3d5548;
-    --accent-light: #d8e4db;
-    --income:  #1e5c70;
-    --sinking: #5e4f2e;
-    --danger:  #8f3224;
-    --warn:    #7a5e18;
-    --border:  #c8d0c5;
-    --shadow:  0 2px 14px rgba(40,60,45,0.10);
+    --text:    #242e28;
+    --text2:   #6e7d74;
+    --accent:  #3d5247;
+    --accent2: #4f6858;
+    --accent-light: #e8ede9;
+    --income:  #3f7080;
+    --sinking: #7a6846;
+    --danger:  #a8503e;
+    --warn:    #9c7c32;
+    --border:  #dde2da;
+    --shadow:  0 2px 14px rgba(40,60,45,0.07);
     --radius:  13px;
 }
 
@@ -42,7 +42,7 @@ body {
     color: var(--text);
     -webkit-font-smoothing: antialiased;
     min-height: 100vh;
-    font-size: 16px;
+    font-size: 15px;
 }
 
 /* ── HEADER ──────────────────────────────────── */
@@ -78,15 +78,15 @@ body {
 
 .hstat { text-align: center; }
 .hstat-label {
-    font-size: 0.60rem;
+    font-size: 0.52rem;
     text-transform: uppercase;
     letter-spacing: 0.9px;
     color: var(--text2);
-    font-weight: 700;
+    font-weight: 600;
     line-height: 1.2;
 }
 .hstat-val {
-    font-size: 0.95rem;
+    font-size: 0.88rem;
     font-weight: 700;
     line-height: 1.3;
 }
@@ -106,12 +106,12 @@ body {
 .tabs::-webkit-scrollbar { display: none; }
 
 .tab-btn {
-    padding: 12px 17px;
+    padding: 11px 16px;
     border: none;
     background: none;
     font-family: 'DM Sans', sans-serif;
-    font-weight: 700;
-    font-size: 0.88rem;
+    font-weight: 600;
+    font-size: 0.82rem;
     color: var(--text2);
     cursor: pointer;
     border-bottom: 2px solid transparent;
@@ -136,8 +136,8 @@ body {
 
 /* ── SECTION LABELS ──────────────────────────── */
 .section-label {
-    font-size: 0.66rem;
-    font-weight: 800;
+    font-size: 0.6rem;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 1.2px;
     color: var(--text2);
@@ -174,18 +174,17 @@ body {
 }
 .card-main { flex: 1; min-width: 0; cursor: pointer; }
 .card-name {
-    font-weight: 700;
-    font-size: 0.97rem;
+    font-weight: 600;
+    font-size: 0.92rem;
     line-height: 1.3;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 .card-alloc {
-    font-size: 0.80rem;
+    font-size: 0.75rem;
     color: var(--text2);
     margin-top: 2px;
-    font-weight: 600;
 }
 .card-actions {
     display: flex;
@@ -202,12 +201,12 @@ body {
     margin-right: 2px;
 }
 .reorder-btn {
-    padding: 3px 6px;
+    padding: 2px 5px;
     background: none;
     border: none;
     border-radius: 4px;
     color: var(--text2);
-    font-size: 0.72rem;
+    font-size: 0.65rem;
     cursor: pointer;
     line-height: 1;
     transition: background 0.12s, color 0.12s;
@@ -230,9 +229,9 @@ body {
     min-width: 2px;
 }
 .prog-note {
-    font-size: 0.76rem;
+    font-size: 0.7rem;
     color: var(--text2);
-    font-weight: 600;
+    font-weight: 500;
 }
 
 /* ── CAT TXN PANEL ───────────────────────────── */
@@ -247,17 +246,17 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 7px 4px;
+    padding: 6px 4px;
     border-bottom: 1px solid var(--accent-light);
-    font-size: 0.83rem;
+    font-size: 0.78rem;
     cursor: pointer;
     border-radius: 4px;
     transition: background 0.15s;
 }
 .cat-txn-item:hover { background: #eef2ef; }
 .cat-txn-item:last-child { border-bottom: none; }
-.cat-txn-desc { flex: 1; color: var(--text); font-weight: 600; }
-.cat-txn-meta { color: var(--text2); font-size: 0.75rem; font-weight: 500; }
+.cat-txn-desc { flex: 1; color: var(--text); font-weight: 500; }
+.cat-txn-meta { color: var(--text2); font-size: 0.7rem; }
 .cat-txn-amt { font-weight: 700; white-space: nowrap; }
 
 /* ── ASSIGNMENT BANNER ───────────────────────── */
@@ -346,15 +345,15 @@ body {
     box-shadow: var(--shadow);
 }
 .ms-label {
-    font-size: 0.66rem;
-    font-weight: 800;
+    font-size: 0.6rem;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.9px;
     color: var(--text2);
     margin-bottom: 3px;
 }
 .ms-val {
-    font-size: 1.08rem;
+    font-size: 1rem;
     font-weight: 700;
 }
 
@@ -505,34 +504,29 @@ label.field-label {
 .btn-sm.solid:hover { background: var(--accent2); }
 
 .icon-btn {
-    padding: 6px 9px;
+    padding: 5px 8px;
     background: none;
     border: none;
     border-radius: 6px;
     color: var(--text2);
-    font-size: 0.88rem;
+    font-size: 0.78rem;
     cursor: pointer;
     transition: background 0.12s, color 0.12s;
-    min-width: 32px;
-    min-height: 32px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
 }
 .icon-btn:hover { background: var(--accent-light); color: var(--accent); }
-.icon-btn.del:hover { background: #ffe8e4; color: var(--danger); }
+.icon-btn.del:hover { background: #fff0ee; color: var(--danger); }
 
 /* ── PERIOD BADGE ────────────────────────────── */
 .period-badge {
     display: inline-block;
-    font-size: 0.67rem;
-    font-weight: 800;
+    font-size: 0.63rem;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    padding: 2px 7px;
+    padding: 2px 6px;
     border-radius: 4px;
     background: var(--accent-light);
-    color: var(--accent);
+    color: var(--accent2);
     flex-shrink: 0;
 }
 
@@ -557,14 +551,14 @@ label.field-label {
 }
 .txn-info { flex: 1; min-width: 0; }
 .txn-desc {
-    font-size: 0.90rem;
-    font-weight: 600;
+    font-size: 0.85rem;
+    font-weight: 500;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
-.txn-meta { font-size: 0.75rem; color: var(--text2); margin-top: 1px; font-weight: 500; }
-.txn-amt { font-weight: 700; font-size: 0.93rem; white-space: nowrap; }
+.txn-meta { font-size: 0.7rem; color: var(--text2); margin-top: 1px; }
+.txn-amt { font-weight: 700; font-size: 0.88rem; white-space: nowrap; }
 .txn-actions { display: flex; gap: 2px; }
 
 /* ── CHART ───────────────────────────────────── */
@@ -703,9 +697,9 @@ textarea {
 /* ── DESKTOP REFINEMENTS ─────────────────────── */
 @media (min-width: 640px) {
     .view { padding: 20px; }
-    .card-actions { opacity: 0.6; transition: opacity 0.15s; }
+    .card-actions { opacity: 0.4; transition: opacity 0.15s; }
     .card:hover .card-actions { opacity: 1; }
-    .txn-actions { opacity: 0.4; transition: opacity 0.15s; }
+    .txn-actions { opacity: 0.3; transition: opacity 0.15s; }
     .txn-item:hover .txn-actions { opacity: 1; }
 }
 
@@ -716,82 +710,14 @@ textarea {
 
 /* ── TXN MONTH GROUP ─────────────────────────── */
 .txn-month-header {
-    font-size: 0.68rem;
-    font-weight: 800;
+    font-size: 0.65rem;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 1px;
     color: var(--text2);
     padding: 10px 0 4px;
     border-bottom: 1px solid var(--border);
     margin-bottom: 2px;
-}
-
-/* ── SINKING BALANCE PILL ────────────────────── */
-.sinking-balance-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: #f5ede0;
-    border: 1.5px solid var(--sinking);
-    border-radius: 8px;
-    padding: 6px 12px;
-    margin-top: 8px;
-    margin-bottom: 4px;
-}
-.sinking-balance-pill .sb-label {
-    font-size: 0.70rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    color: var(--sinking);
-}
-.sinking-balance-pill .sb-val {
-    font-size: 1.05rem;
-    font-weight: 800;
-    color: var(--sinking);
-}
-.sinking-balance-pill.negative {
-    background: #fdeae6;
-    border-color: var(--danger);
-}
-.sinking-balance-pill.negative .sb-label,
-.sinking-balance-pill.negative .sb-val {
-    color: var(--danger);
-}
-
-/* ── QUICK-ADD TXN FORM ──────────────────────── */
-.cat-quick-add {
-    margin-top: 10px;
-    padding: 10px 12px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 9px;
-    display: none;
-}
-.cat-quick-add.open { display: block; }
-.cat-quick-add-title {
-    font-size: 0.72rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    color: var(--accent);
-    margin-bottom: 8px;
-}
-.cat-quick-add .input-row { gap: 6px; }
-.cat-quick-add input,
-.cat-quick-add select {
-    margin-bottom: 6px;
-    font-size: 0.82rem;
-    padding: 7px 10px;
-}
-.cat-quick-add-btns {
-    display: flex;
-    gap: 6px;
-    margin-top: 2px;
-}
-.cat-quick-add-btns .btn-primary {
-    font-size: 0.82rem;
-    padding: 8px;
 }
 </style>
 </head>
@@ -1407,24 +1333,21 @@ function renderCatSection(elId, cats, type, ts) {
                 </div>`;
         } else if (type === 'sinking') {
             const balance = getSinkingCurrentBalance(cat);
-            const isNeg = balance < 0;
+            const balColor = balance < 0 ? 'var(--danger)' : 'var(--sinking)';
             
             const prefix = monthKey(currentYear, currentMonth);
             const allocTxn = state.transactions.find(t => t.catId == cat.id && t.isAlloc && (t.date||'').startsWith(prefix));
             const currentAllocAmt = allocTxn ? parseFloat(allocTxn.amt) : (monthAlloc || 0);
 
             extraHTML = `
-                <div class="sinking-balance-pill ${isNeg ? 'negative' : ''}">
-                    <span class="sb-label">Balance</span>
-                    <span class="sb-val">${isNeg ? '–' : ''}${fmtDec(Math.abs(balance))}</span>
-                </div>
-                <div style="display:flex;align-items:center;gap:7px;margin-top:7px;" onclick="event.stopPropagation()">
-                    <span style="font-size:0.75rem;color:var(--text2);font-weight:700;white-space:nowrap;">$/month:</span>
-                    <input type="number" step="0.01" min="0" value="${currentAllocAmt > 0 ? currentAllocAmt.toFixed(2) : ''}"
-                        placeholder="0.00"
-                        style="width:110px;margin:0;padding:6px 9px;font-size:0.82rem;"
+                <div class="prog-note" style="margin-top:5px; color:${balColor}">Balance: ${balance < 0 ? '–' : ''}${fmtDec(Math.abs(balance))}</div>
+                <div style="display:flex;align-items:center;gap:6px;margin-top:6px;" onclick="event.stopPropagation()">
+                    <span style="font-size:0.72rem;color:var(--text2);font-weight:600;white-space:nowrap;">Month allocation:</span>
+                    <input type="number" step="0.01" min="0" value="${currentAllocAmt.toFixed(2)}"
+                        style="width:100px;margin:0;padding:5px 8px;font-size:0.8rem;"
                         onchange="updateSinkingAlloc(${cat.id}, this.value)"
-                        title="Monthly allocation — auto-creates a linked transaction">
+                        title="Editing this also updates the linked allocation transaction">
+                    ${allocTxn ? `<span style="font-size:0.65rem;color:var(--sinking);font-weight:600;">● Transaction Linked</span>` : `<span style="font-size:0.65rem;color:var(--text2);">No Transaction Linked</span>`}
                 </div>`;
         }
 
@@ -1451,29 +1374,7 @@ function renderCatSection(elId, cats, type, ts) {
         }
 
         const txnCount = catTxns.length;
-        const txnBadge = txnCount > 0 ? `<span style="font-size:0.68rem;background:var(--accent-light);color:var(--accent);border-radius:10px;padding:1px 7px;font-weight:800;margin-left:4px;">${txnCount}</span>` : '';
-
-        const quickAddId = `quick-add-${cat.id}`;
-        const defaultFlow = type === 'income' ? 'inflow' : 'outflow';
-        const qaOpen = openQuickAdds.has(cat.id);
-
-        const quickAddHTML = `
-        <div class="cat-quick-add${qaOpen ? ' open' : ''}" id="${quickAddId}" onclick="event.stopPropagation()">
-            <div class="cat-quick-add-title">+ New Transaction for ${escapeHTML(cat.name)}</div>
-            <input type="text" placeholder="Description" id="qa-desc-${cat.id}" style="margin-bottom:6px;">
-            <div class="input-row" style="margin-bottom:6px;">
-                <input type="number" placeholder="Amount ($)" step="0.01" min="0" id="qa-amt-${cat.id}">
-                <select id="qa-flow-${cat.id}">
-                    <option value="outflow" ${defaultFlow==='outflow'?'selected':''}>Outflow (–)</option>
-                    <option value="inflow" ${defaultFlow==='inflow'?'selected':''}>Inflow (+)</option>
-                </select>
-            </div>
-            <input type="date" id="qa-date-${cat.id}" value="${todayISO()}" style="margin-bottom:6px;">
-            <div class="cat-quick-add-btns">
-                <button class="btn-primary" onclick="saveQuickAddTxn(${cat.id})">Save</button>
-                <button class="btn-primary secondary" onclick="closeQuickAdd(${cat.id})">Cancel</button>
-            </div>
-        </div>`;
+        const txnBadge = txnCount > 0 ? `<span style="font-size:0.65rem;background:var(--accent-light);color:var(--accent2);border-radius:10px;padding:1px 6px;font-weight:700;margin-left:4px;">${txnCount}</span>` : '';
 
         return `
         <div class="card ${borderClass}" id="cat-card-${cat.id}">
@@ -1488,13 +1389,11 @@ function renderCatSection(elId, cats, type, ts) {
                 </div>
                 <div class="card-actions">
                     <span class="period-badge">${cat.period || 'monthly'}</span>
-                    <button class="icon-btn" onclick="event.stopPropagation(); toggleQuickAdd(${cat.id})" title="Add transaction">＋</button>
                     <button class="icon-btn" onclick="openEditCatModal(${cat.id})" title="Edit">✎</button>
                     <button class="icon-btn del" onclick="deleteCategory(${cat.id})" title="Delete">✕</button>
                 </div>
             </div>
             ${extraHTML}
-            ${quickAddHTML}
             ${panelHTML}
         </div>`;
     }).join('');
@@ -1504,47 +1403,6 @@ function toggleCatPanel(catId) {
     if (openCatPanels.has(catId)) openCatPanels.delete(catId);
     else openCatPanels.add(catId);
     renderBudget();
-}
-
-// ─── QUICK-ADD TRANSACTION FROM CATEGORY CARD ────────────────────────
-const openQuickAdds = new Set();
-
-function toggleQuickAdd(catId) {
-    const el = document.getElementById('quick-add-' + catId);
-    if (!el) return;
-    if (el.classList.contains('open')) {
-        el.classList.remove('open');
-        openQuickAdds.delete(catId);
-    } else {
-        el.classList.add('open');
-        openQuickAdds.add(catId);
-        setTimeout(() => {
-            const desc = document.getElementById('qa-desc-' + catId);
-            if (desc) desc.focus();
-        }, 50);
-    }
-}
-
-function closeQuickAdd(catId) {
-    const el = document.getElementById('quick-add-' + catId);
-    if (el) el.classList.remove('open');
-    openQuickAdds.delete(catId);
-}
-
-function saveQuickAddTxn(catId) {
-    const desc = document.getElementById('qa-desc-' + catId)?.value.trim();
-    const amt  = parseFloat(document.getElementById('qa-amt-' + catId)?.value);
-    const flow = document.getElementById('qa-flow-' + catId)?.value || 'outflow';
-    const date = document.getElementById('qa-date-' + catId)?.value || todayISO();
-
-    if (!desc) { showToast('Enter a description.', 'var(--danger)'); return; }
-    if (isNaN(amt) || amt <= 0) { showToast('Enter a valid amount.', 'var(--danger)'); return; }
-
-    state.transactions.unshift({ id: Date.now(), desc, catId: catId, amt, date, type: flow });
-    openQuickAdds.delete(catId);
-    save();
-    render();
-    showBudgetToast(catId, flow);
 }
 
 // ─── SINKING FUND ALLOCATION ↔ TRANSACTION SYNC ──────────────────────
