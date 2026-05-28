@@ -729,7 +729,7 @@ textarea {
     <div class="app-logo">Zenji</div>
     <div class="header-stats">
         <div class="hstat">
-            <div class="hstat-label">Monthly Income</div>
+            <div class="hstat-label">Income</div>
             <div class="hstat-val" id="h-income" style="color:var(--income)">$0</div>
         </div>
         <div class="hstat">
@@ -752,19 +752,20 @@ textarea {
 <div class="view active" id="view-budget">
 
     <div class="month-nav">
-        <button class="month-nav-btn" onclick="changeGlobalMonth(-1)">&#8249;</button>
-        <span class="month-nav-label month-label-display">—</span>
-        <button class="month-nav-btn month-next-btn" onclick="changeGlobalMonth(1)">&#8250;</button>
+        <button class="month-nav-btn" onclick="changeGlobalPeriod(-1)">&#8249;</button>
+        <span class="month-nav-label month-label-display" onclick="openDatePicker()" title="Click to jump to a date" style="cursor:pointer;">—</span>
+        <button class="month-nav-btn month-next-btn" onclick="changeGlobalPeriod(1)">&#8250;</button>
     </div>
 
     <div class="month-summary" id="month-summary"></div>
 
     <div class="ts-selector">
         <span class="ts-selector-label">View by</span>
-        <select id="budget-ts" style="margin:0; flex:1;" onchange="renderBudget()">
+        <select id="budget-ts" style="margin:0; flex:1;" onchange="onTimescaleChange()">
             <option value="daily">Daily</option>
             <option value="weekly">Weekly</option>
             <option value="biweekly">Bi-weekly</option>
+            <option value="semimonthly">Semi-monthly</option>
             <option value="monthly" selected>Monthly</option>
             <option value="annually">Annually</option>
         </select>
@@ -808,9 +809,9 @@ textarea {
 <div class="view" id="view-transactions">
 
     <div class="month-nav">
-        <button class="month-nav-btn" onclick="changeGlobalMonth(-1)">&#8249;</button>
-        <span class="month-nav-label month-label-display">—</span>
-        <button class="month-nav-btn month-next-btn" onclick="changeGlobalMonth(1)">&#8250;</button>
+        <button class="month-nav-btn" onclick="changeGlobalPeriod(-1)">&#8249;</button>
+        <span class="month-nav-label month-label-display" onclick="openDatePicker()" title="Click to jump to a date" style="cursor:pointer;">—</span>
+        <button class="month-nav-btn month-next-btn" onclick="changeGlobalPeriod(1)">&#8250;</button>
     </div>
 
     <div class="form-card" style="margin-top:14px;">
@@ -839,9 +840,9 @@ textarea {
 <div class="view" id="view-spending">
 
     <div class="month-nav">
-        <button class="month-nav-btn" onclick="changeGlobalMonth(-1)">&#8249;</button>
-        <span class="month-nav-label month-label-display">—</span>
-        <button class="month-nav-btn month-next-btn" onclick="changeGlobalMonth(1)">&#8250;</button>
+        <button class="month-nav-btn" onclick="changeGlobalPeriod(-1)">&#8249;</button>
+        <span class="month-nav-label month-label-display" onclick="openDatePicker()" title="Click to jump to a date" style="cursor:pointer;">—</span>
+        <button class="month-nav-btn month-next-btn" onclick="changeGlobalPeriod(1)">&#8250;</button>
     </div>
 
     <div class="chart-card">
@@ -1009,6 +1010,10 @@ const TODAY = new Date();
 let currentYear = TODAY.getFullYear();
 let currentMonth = TODAY.getMonth(); 
 
+// Period-aware navigation state
+// currentPeriodStart is a Date object representing the start of the viewed window
+let currentPeriodStart = new Date(TODAY.getFullYear(), TODAY.getMonth(), 1);
+
 const openCatPanels = new Set();
 
 // ─── UTILITIES ──────────────────────────────────────────────────────
@@ -1016,39 +1021,208 @@ const fmt = n => '$' + (Math.round(n * 100) / 100).toLocaleString('en-CA', { min
 const fmtDec = n => '$' + Math.abs(Math.round(n * 100) / 100).toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-const PERIOD_LABELS = { daily: 'day', weekly: 'week', biweekly: '2 wks', monthly: 'month', annually: 'year' };
+const MONTH_ABBR  = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const PERIOD_LABELS = { daily: 'day', weekly: 'week', biweekly: '2 wks', semimonthly: 'half-month', monthly: 'month', annually: 'year' };
 
 function toMonthly(amount, period) {
     const amt = parseFloat(amount) || 0;
     switch (period) {
-        case 'daily':    return amt * 30.44;
-        case 'weekly':   return amt * 4.33;
-        case 'biweekly': return amt * 2.165;
-        case 'annually': return amt / 12;
-        default:         return amt;
+        case 'daily':     return amt * 30.44;
+        case 'weekly':    return amt * 4.33;
+        case 'biweekly':  return amt * 2.165;
+        case 'semimonthly': return amt * 2;
+        case 'annually':  return amt / 12;
+        default:          return amt;
     }
 }
 function fromMonthly(monthlyAmt, targetPeriod) {
     switch (targetPeriod) {
-        case 'daily':    return monthlyAmt / 30.44;
-        case 'weekly':   return monthlyAmt / 4.33;
-        case 'biweekly': return monthlyAmt / 2.165;
-        case 'annually': return monthlyAmt * 12;
-        default:         return monthlyAmt;
+        case 'daily':     return monthlyAmt / 30.44;
+        case 'weekly':    return monthlyAmt / 4.33;
+        case 'biweekly':  return monthlyAmt / 2.165;
+        case 'semimonthly': return monthlyAmt / 2;
+        case 'annually':  return monthlyAmt * 12;
+        default:          return monthlyAmt;
     }
+}
+
+// ─── PERIOD WINDOW HELPERS ──────────────────────────────────────────
+function getTimescale() {
+    return document.getElementById('budget-ts')?.value || 'monthly';
+}
+
+// Clone a date (avoid mutation)
+function cloneDate(d) { return new Date(d.getTime()); }
+
+// Return ISO date string YYYY-MM-DD for a Date object
+function isoDate(d) {
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+// Return end-of-period date (exclusive) given start and timescale
+function getPeriodEnd(startDate, ts) {
+    const d = cloneDate(startDate);
+    switch (ts) {
+        case 'daily':     d.setDate(d.getDate() + 1); break;
+        case 'weekly':    d.setDate(d.getDate() + 7); break;
+        case 'biweekly':  d.setDate(d.getDate() + 14); break;
+        case 'semimonthly':
+            if (d.getDate() < 16) {
+                d.setDate(16); // 1st–15th → end at 16th (exclusive)
+            } else {
+                d.setMonth(d.getMonth() + 1); d.setDate(1); // 16th–end → end at 1st of next month
+            }
+            break;
+        case 'annually':  d.setFullYear(d.getFullYear() + 1); break;
+        default: // monthly
+            d.setMonth(d.getMonth() + 1);
+    }
+    return d;
+}
+
+// Step currentPeriodStart forward/back by one period unit
+function stepPeriodStart(delta, ts) {
+    const d = cloneDate(currentPeriodStart);
+    switch (ts) {
+        case 'daily':     d.setDate(d.getDate() + delta); break;
+        case 'weekly':    d.setDate(d.getDate() + 7 * delta); break;
+        case 'biweekly':  d.setDate(d.getDate() + 14 * delta); break;
+        case 'semimonthly':
+            // Step to the next/prev semi-monthly boundary
+            if (delta > 0) {
+                for (let i = 0; i < delta; i++) {
+                    if (d.getDate() < 16) { d.setDate(16); }
+                    else { d.setMonth(d.getMonth() + 1); d.setDate(1); }
+                }
+            } else {
+                for (let i = 0; i < Math.abs(delta); i++) {
+                    if (d.getDate() >= 16) { d.setDate(1); }
+                    else { d.setMonth(d.getMonth() - 1); d.setDate(16); }
+                }
+            }
+            break;
+        case 'annually':  d.setFullYear(d.getFullYear() + delta); break;
+        default: // monthly
+            d.setMonth(d.getMonth() + delta);
+    }
+    return d;
+}
+
+// Snap period start to a natural boundary when timescale changes
+// If user has manually picked a date, we respect it and only snap for auto-change
+function snapPeriodStart(ts) {
+    const d = cloneDate(currentPeriodStart);
+    switch (ts) {
+        case 'daily':
+            break;
+        case 'weekly': {
+            const dow = d.getDay();
+            d.setDate(d.getDate() - ((dow + 6) % 7));
+            break;
+        }
+        case 'biweekly': {
+            const dow2 = d.getDay();
+            d.setDate(d.getDate() - ((dow2 + 6) % 7));
+            const jan1 = new Date(d.getFullYear(), 0, 1);
+            const weekNum = Math.floor((d - jan1) / (7 * 86400000));
+            if (weekNum % 2 !== 0) d.setDate(d.getDate() - 7);
+            break;
+        }
+        case 'semimonthly':
+            d.setDate(d.getDate() < 16 ? 1 : 16);
+            break;
+        case 'annually':
+            d.setMonth(0); d.setDate(1);
+            break;
+    }
+    return d;
+}
+
+// Format a label for the nav header based on current period
+function formatPeriodLabel(startDate, ts) {
+    const endExcl = getPeriodEnd(startDate, ts);
+    const endIncl = new Date(endExcl.getTime() - 86400000);
+    const sy = startDate.getFullYear(), sm = startDate.getMonth(), sd = startDate.getDate();
+    const ey = endIncl.getFullYear(), em = endIncl.getMonth(), ed = endIncl.getDate();
+    switch (ts) {
+        case 'daily':
+            return `${MONTH_ABBR[sm]} ${sd}, ${sy}`;
+        case 'weekly':
+        case 'biweekly':
+            if (sy === ey) {
+                if (sm === em) return `${MONTH_ABBR[sm]} ${sd}–${ed}, ${sy}`;
+                return `${MONTH_ABBR[sm]} ${sd} – ${MONTH_ABBR[em]} ${ed}, ${sy}`;
+            }
+            return `${MONTH_ABBR[sm]} ${sd}, ${sy} – ${MONTH_ABBR[em]} ${ed}, ${ey}`;
+        case 'semimonthly':
+            if (sm === em) return `${MONTH_ABBR[sm]} ${sd}–${ed}, ${sy}`;
+            return `${MONTH_ABBR[sm]} ${sd} – ${MONTH_ABBR[em]} ${ed}, ${sy}`;
+        case 'annually':
+            return `${sy}`;
+        default: // monthly
+            return `${MONTH_NAMES[sm]} ${sy}`;
+    }
+}
+
+// Sync currentYear/currentMonth (used by legacy code paths like sinking fund alloc)
+function syncLegacyMonth() {
+    currentYear  = currentPeriodStart.getFullYear();
+    currentMonth = currentPeriodStart.getMonth();
 }
 
 function monthKey(y, m) { return `${y}-${String(m+1).padStart(2,'0')}`; }
 
+// Get transactions within the current period window [startDate, endDate)
+function getTxnsForPeriod(startDate, endDate) {
+    const startISO = isoDate(startDate);
+    const endISO   = isoDate(endDate);
+    return state.transactions.filter(t => {
+        const d = t.date || '';
+        return d >= startISO && d < endISO;
+    });
+}
+
+// Legacy: get transactions for a calendar month (used by sinking calc, charts)
 function getTxnsForMonth(y, m) {
     const prefix = monthKey(y, m);
     return state.transactions.filter(t => (t.date || '').startsWith(prefix));
 }
 
+function getSpentInPeriod(catId, startDate, endDate) {
+    return getTxnsForPeriod(startDate, endDate)
+        .filter(t => t.catId == catId && t.type === 'outflow')
+        .reduce((sum, t) => sum + (parseFloat(t.amt) || 0), 0);
+}
+
+// Keep legacy month-based spent for sinking / header (always monthly)
 function getSpentInMonth(catId, y, m) {
     return getTxnsForMonth(y, m)
         .filter(t => t.catId == catId && t.type === 'outflow')
         .reduce((sum, t) => sum + (parseFloat(t.amt) || 0), 0);
+}
+
+// How many days does a period span?
+function periodDays(ts) {
+    switch (ts) {
+        case 'daily':     return 1;
+        case 'weekly':    return 7;
+        case 'biweekly':    return 14;
+        case 'semimonthly': return 15.22;
+        case 'annually':    return 365.25;
+        default:          return 30.44;
+    }
+}
+
+// Pro-rate a monthly allocation to the current period window
+function allocForPeriod(monthlyAlloc, ts, startDate) {
+    if (ts === 'monthly')   return monthlyAlloc;
+    if (ts === 'annually')  return monthlyAlloc * 12;
+    if (ts === 'semimonthly') return monthlyAlloc / 2;
+    // For sub-month periods: pro-rate based on actual days in period vs days in month
+    const endDate = getPeriodEnd(startDate, ts);
+    const days = (endDate - startDate) / 86400000;
+    const daysInMonth = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0).getDate();
+    return monthlyAlloc * (days / daysInMonth);
 }
 
 // Get allocation for expense/income with forward inheritance
@@ -1153,19 +1327,61 @@ function switchTab(id, btn) {
     btn.classList.add('active');
 }
 
-// ─── MONTH NAVIGATION ────────────────────────────────────────────────
-function changeGlobalMonth(delta) {
-    currentMonth += delta;
-    if (currentMonth > 11) { currentMonth = 0; currentYear++; }
-    if (currentMonth < 0)  { currentMonth = 11; currentYear--; }
+// ─── PERIOD NAVIGATION ───────────────────────────────────────────────
+function changeGlobalPeriod(delta) {
+    const ts = getTimescale();
+    currentPeriodStart = stepPeriodStart(delta, ts);
+    syncLegacyMonth();
     chartActiveCategoryId = null;
     chartActiveCategoryFlow = null;
     render();
     renderCharts();
 }
 
+// Keep old name as alias for any remaining direct calls
+function changeGlobalMonth(delta) { changeGlobalPeriod(delta); }
+
+function onTimescaleChange() {
+    // Snap current period start to natural boundary for new timescale
+    const ts = getTimescale();
+    currentPeriodStart = snapPeriodStart(ts);
+    syncLegacyMonth();
+    chartActiveCategoryId = null;
+    chartActiveCategoryFlow = null;
+    render();
+    renderCharts();
+}
+
+// ─── DATE PICKER ─────────────────────────────────────────────────────
+function openDatePicker() {
+    const input = document.getElementById('date-picker-input');
+    input.value = isoDate(currentPeriodStart);
+    document.getElementById('date-picker-modal').classList.add('open');
+    setTimeout(() => input.focus(), 120);
+}
+
+function closeDatePicker() {
+    document.getElementById('date-picker-modal').classList.remove('open');
+}
+
+function applyDatePicker() {
+    const val = document.getElementById('date-picker-input').value;
+    if (!val) return;
+    const parts = val.split('-');
+    if (parts.length !== 3) return;
+    // Set period start to chosen date, bypassing snap so user's custom date is respected
+    currentPeriodStart = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+    syncLegacyMonth();
+    chartActiveCategoryId = null;
+    chartActiveCategoryFlow = null;
+    closeDatePicker();
+    render();
+    renderCharts();
+}
+
 function updateMonthLabels() {
-    const text = MONTH_NAMES[currentMonth] + ' ' + currentYear;
+    const ts = getTimescale();
+    const text = formatPeriodLabel(currentPeriodStart, ts);
     document.querySelectorAll('.month-label-display').forEach(el => el.textContent = text);
 }
 
@@ -1178,9 +1394,9 @@ function render() {
 }
 
 // ─── HEADER STATS ────────────────────────────────────────────────────
-function renderHeader(totalIncomeM, totalAllocatedM) {
-    const unassigned = totalIncomeM - totalAllocatedM;
-    document.getElementById('h-income').textContent = fmt(totalIncomeM);
+function renderHeader(totalIncomeTs, totalAllocatedTs) {
+    const unassigned = totalIncomeTs - totalAllocatedTs;
+    document.getElementById('h-income').textContent = fmt(totalIncomeTs);
     const uEl = document.getElementById('h-unassigned');
     if (Math.abs(unassigned) < 0.005) {
         uEl.textContent   = '$0.00';
@@ -1196,18 +1412,30 @@ function renderHeader(totalIncomeM, totalAllocatedM) {
 
 // ─── BUDGET VIEW ─────────────────────────────────────────────────────
 function renderBudget() {
-    const ts = document.getElementById('budget-ts')?.value || 'monthly';
+    const ts = getTimescale();
+
+    syncLegacyMonth();
+    updateMonthLabels();
+
+    const periodEnd = getPeriodEnd(currentPeriodStart, ts);
 
     const incomeCats  = state.categories.filter(c => c.type === 'income');
     const expenseCats = state.categories.filter(c => c.type === 'expense');
     const sinkCats    = state.categories.filter(c => c.type === 'sinking');
 
+    // All totals still computed in monthly terms for header/assignment banner
     const totalIncomeM    = incomeCats.reduce((s, c) => s + toMonthly(getCatAlloc(c, currentYear, currentMonth), c.period), 0);
     const totalExpenseM   = expenseCats.reduce((s, c) => s + toMonthly(getCatAlloc(c, currentYear, currentMonth), c.period), 0);
     const totalSinkingM   = sinkCats.reduce((s, c) => s + toMonthly(getCatAlloc(c, currentYear, currentMonth), c.period), 0);
     const totalAllocatedM = totalExpenseM + totalSinkingM;
     const unassignedM     = totalIncomeM - totalAllocatedM;
     const pct             = totalIncomeM > 0 ? Math.min(100, (totalAllocatedM / totalIncomeM) * 100) : 0;
+
+    // Period-scaled amounts for display in banner
+    const totalIncomeTs = allocForPeriod(totalIncomeM, ts, currentPeriodStart);
+    const unassignedTs  = allocForPeriod(Math.abs(unassignedM), ts, currentPeriodStart);
+    const totalAllocatedTs = allocForPeriod(totalAllocatedM, ts, currentPeriodStart);
+
 
     const banner  = document.getElementById('assign-banner');
     const bar     = document.getElementById('assign-bar');
@@ -1217,32 +1445,31 @@ function renderBudget() {
     if (totalIncomeM > 0) {
         banner.style.display = 'block';
         bar.style.width = pct + '%';
-        const uAmtTs = fromMonthly(Math.abs(unassignedM), ts);
         const pl = PERIOD_LABELS[ts];
         if (Math.abs(unassignedM) < 0.005) {
             banner.style.cssText = 'background:#edf5ed; border:1px solid var(--accent); border-radius:var(--radius); padding:13px 15px; margin-bottom:4px; margin-top:10px;';
             bar.style.background = 'var(--accent)';
             titleEl.style.color  = 'var(--accent)';
             titleEl.textContent  = '✓ Every dollar assigned — great work!';
-            subEl.textContent    = fmt(totalIncomeM) + ' income fully allocated.';
+            subEl.textContent    = fmt(totalIncomeTs) + ' income fully allocated.';
         } else if (unassignedM > 0) {
             banner.style.cssText = 'background:#fffdf0; border:1px solid #e8c94a; border-radius:var(--radius); padding:13px 15px; margin-bottom:4px; margin-top:10px;';
             bar.style.background = 'var(--warn)';
             titleEl.style.color  = 'var(--warn)';
-            titleEl.textContent  = `${fmtDec(uAmtTs)} / ${pl} not yet assigned`;
+            titleEl.textContent  = `${fmtDec(unassignedTs)} / ${pl} not yet assigned`;
             subEl.textContent    = `${pct.toFixed(0)}% of income allocated. Add expense or saving/sinking fund categories to assign the rest.`;
         } else {
             banner.style.cssText = 'background:#fff5f3; border:1px solid var(--danger); border-radius:var(--radius); padding:13px 15px; margin-bottom:4px; margin-top:10px;';
             bar.style.background = 'var(--danger)';
             titleEl.style.color  = 'var(--danger)';
-            titleEl.textContent  = `${fmtDec(uAmtTs)} / ${pl} over-allocated`;
+            titleEl.textContent  = `${fmtDec(unassignedTs)} / ${pl} over-allocated`;
             subEl.textContent    = 'Your allocations exceed your income. Reduce some to balance.';
         }
     } else {
         banner.style.display = 'none';
     }
 
-    renderMonthSummary(totalIncomeM);
+    renderMonthSummary(totalIncomeM, currentPeriodStart, periodEnd, ts);
     renderCatSection('income-list', incomeCats, 'income', ts);
     renderCatSection('expense-list', expenseCats, 'expense', ts);
     renderCatSection('sinking-list', sinkCats, 'sinking', ts);
@@ -1250,45 +1477,51 @@ function renderBudget() {
     const incTotalEl = document.getElementById('income-total');
     if (incomeCats.length > 0) {
         incTotalEl.style.display = 'flex';
-        document.getElementById('income-total-val').textContent = fmt(fromMonthly(totalIncomeM, ts)) + ' / ' + PERIOD_LABELS[ts];
+        document.getElementById('income-total-val').textContent = fmt(allocForPeriod(totalIncomeM, ts, currentPeriodStart)) + ' / ' + PERIOD_LABELS[ts];
     } else incTotalEl.style.display = 'none';
 
     const expTotalEl = document.getElementById('expense-total');
     if (expenseCats.length > 0) {
         expTotalEl.style.display = 'flex';
-        document.getElementById('expense-total-val').textContent = fmt(fromMonthly(totalExpenseM, ts)) + ' / ' + PERIOD_LABELS[ts];
+        document.getElementById('expense-total-val').textContent = fmt(allocForPeriod(totalExpenseM, ts, currentPeriodStart)) + ' / ' + PERIOD_LABELS[ts];
     } else expTotalEl.style.display = 'none';
 
     const sinkTotalEl = document.getElementById('sinking-total');
     if (sinkCats.length > 0) {
         sinkTotalEl.style.display = 'flex';
-        document.getElementById('sinking-total-val').textContent = fmt(fromMonthly(totalSinkingM, ts)) + ' / ' + PERIOD_LABELS[ts];
+        document.getElementById('sinking-total-val').textContent = fmt(allocForPeriod(totalSinkingM, ts, currentPeriodStart)) + ' / ' + PERIOD_LABELS[ts];
     } else sinkTotalEl.style.display = 'none';
 
-    renderHeader(totalIncomeM, totalAllocatedM);
+    //Edited this to pass period-scaled totals for header, so it reflects current view instead of always monthly
+    renderHeader(totalIncomeTs, totalAllocatedTs);
 }
 
-function renderMonthSummary(totalIncomeM) {
+function renderMonthSummary(totalIncomeM, startDate, endDate, ts) {
     const el = document.getElementById('month-summary');
     if (!el) return;
 
-    const allTxns = getTxnsForMonth(currentYear, currentMonth);
-    const totalSpent = allTxns
+    const periodTxns = getTxnsForPeriod(startDate, endDate);
+    const totalSpent = periodTxns
         .filter(t => t.type === 'outflow')
         .reduce((s, t) => s + (parseFloat(t.amt) || 0), 0);
 
     const sinkCats = state.categories.filter(c => c.type === 'sinking');
     let totalSaved = 0;
     sinkCats.forEach(cat => {
-        const inflows = allTxns.filter(t => t.catId == cat.id && t.type === 'inflow').reduce((s, t) => s + (parseFloat(t.amt) || 0), 0);
+        const inflows = periodTxns.filter(t => t.catId == cat.id && t.type === 'inflow').reduce((s, t) => s + (parseFloat(t.amt) || 0), 0);
         totalSaved += inflows;
     });
 
-    const leftToSpend = totalIncomeM - totalSpent - totalSaved;
+    // Pro-rate income to this period for "Left to Spend"
+    const periodIncome = allocForPeriod(totalIncomeM, ts, startDate);
+    const leftToSpend = periodIncome - totalSpent - totalSaved;
+    const pl = PERIOD_LABELS[ts];
+
+    const PERIOD_SPENT_LABEL = { daily: 'Today', weekly: 'This Week', biweekly: 'This Fortnight', semimonthly: 'This Half-Month', monthly: 'This Month', annually: 'This Year' };
 
     el.innerHTML = `
         <div class="ms-card">
-            <div class="ms-label">Spent This Month</div>
+            <div class="ms-label">${PERIOD_SPENT_LABEL[ts] || 'Spent'}</div>
             <div class="ms-val" style="color:var(--danger)">${fmt(totalSpent)}</div>
         </div>
         <div class="ms-card">
@@ -1302,6 +1535,8 @@ function renderCatSection(elId, cats, type, ts) {
     const el = document.getElementById(elId);
     if (!el) return;
 
+    const periodEnd = getPeriodEnd(currentPeriodStart, ts);
+
     if (cats.length === 0) {
         const names = { income: 'income sources', expense: 'expense categories', sinking: 'saving/sinking funds' };
         el.innerHTML = `<div class="empty-state" style="padding:10px 0;">No ${names[type]} yet — tap <strong>Add Category</strong> below.</div>`;
@@ -1309,18 +1544,21 @@ function renderCatSection(elId, cats, type, ts) {
     }
 
     const borderClass = { income: 'border-income', expense: 'border-expense', sinking: 'border-sinking' }[type];
+    const pl = PERIOD_LABELS[ts];
 
     el.innerHTML = cats.map((cat, idx) => {
         const monthAlloc   = getCatAlloc(cat, currentYear, currentMonth);
         const allocMonthly = toMonthly(monthAlloc, cat.period || 'monthly');
-        const allocInTs    = fromMonthly(allocMonthly, ts);
-        const tsLabel      = PERIOD_LABELS[ts];
+        // Allocation scaled to current view period
+        const allocInTs    = allocForPeriod(allocMonthly, ts, currentPeriodStart);
+        const tsLabel      = pl;
 
         let extraHTML = '';
         if (type === 'expense') {
-            const spent     = getSpentInMonth(cat.id, currentYear, currentMonth);
-            const remaining = allocMonthly - spent;
-            const pct       = allocMonthly > 0 ? Math.min(100, (spent / allocMonthly) * 100) : 0;
+            // Spending within the current period window
+            const spent     = getSpentInPeriod(cat.id, currentPeriodStart, periodEnd);
+            const remaining = allocInTs - spent;
+            const pct       = allocInTs > 0 ? Math.min(100, (spent / allocInTs) * 100) : 0;
             const over      = remaining < 0;
             const catPL     = PERIOD_LABELS[cat.period || 'monthly'];
             const barColor  = over ? 'var(--danger)' : pct > 80 ? 'var(--warn)' : 'var(--accent)';
@@ -1329,7 +1567,7 @@ function renderCatSection(elId, cats, type, ts) {
                     <div class="prog-bar" style="width:${pct}%; background:${barColor}"></div>
                 </div>
                 <div class="prog-note" style="color:${over ? 'var(--danger)' : 'var(--text2)'}">
-                    ${over ? `${fmtDec(Math.abs(remaining))} over budget this ${catPL}` : `${fmtDec(remaining)} remaining this ${catPL}`}
+                    ${over ? `${fmtDec(Math.abs(remaining))} over budget this ${tsLabel}` : `${fmtDec(remaining)} remaining this ${tsLabel}`}
                 </div>`;
         } else if (type === 'sinking') {
             const balance = getSinkingCurrentBalance(cat);
@@ -1351,15 +1589,21 @@ function renderCatSection(elId, cats, type, ts) {
                 </div>`;
         }
 
-        const catTxns = getTxnsForMonth(currentYear, currentMonth)
+        // Show transactions within the current period window
+        const catTxns = getTxnsForPeriod(currentPeriodStart, periodEnd)
             .filter(t => t.catId == cat.id)
             .sort((a, b) => b.date.localeCompare(a.date));
+
+        // Panel header label based on timescale
+        const panelHeader = ts === 'monthly'
+            ? `${MONTH_NAMES[currentMonth]} Transactions`
+            : `${formatPeriodLabel(currentPeriodStart, ts)} Transactions`;
 
         const panelOpen = openCatPanels.has(cat.id);
         let panelHTML = '';
         if (catTxns.length > 0) {
             panelHTML = `<div class="cat-txn-panel ${panelOpen ? 'open' : ''}" id="cat-panel-${cat.id}">
-                <div style="font-size:0.68rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;">${MONTH_NAMES[currentMonth]} Transactions</div>
+                <div style="font-size:0.68rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;">${panelHeader}</div>
                 ${catTxns.map(t => {
                     const sign = t.type === 'inflow' ? '+' : '–';
                     const col  = t.type === 'inflow' ? 'var(--income)' : 'var(--text)';
@@ -1462,17 +1706,20 @@ function renderTransactions() {
     const el = document.getElementById('txn-list');
     if (!el) return;
 
-    const labelEl = document.getElementById('txn-list-label');
-    if (labelEl) labelEl.textContent = MONTH_NAMES[currentMonth] + ' ' + currentYear + ' Transactions';
+    const ts = getTimescale();
+    const periodEnd = getPeriodEnd(currentPeriodStart, ts);
 
-    const monthTxns = getTxnsForMonth(currentYear, currentMonth);
-    const sorted = [...monthTxns].sort((a, b) => {
+    const labelEl = document.getElementById('txn-list-label');
+    if (labelEl) labelEl.textContent = formatPeriodLabel(currentPeriodStart, ts) + ' Transactions';
+
+    const periodTxns = getTxnsForPeriod(currentPeriodStart, periodEnd);
+    const sorted = [...periodTxns].sort((a, b) => {
         const dc = (b.date || '').localeCompare(a.date || '');
         return dc !== 0 ? dc : b.id - a.id;
     });
 
     if (sorted.length === 0) {
-        el.innerHTML = `<div class="empty-state">No transactions in ${MONTH_NAMES[currentMonth]} ${currentYear}.</div>`;
+        el.innerHTML = `<div class="empty-state">No transactions in ${formatPeriodLabel(currentPeriodStart, ts)}.</div>`;
         return;
     }
 
@@ -1713,7 +1960,9 @@ function updateChartTotalDOM(chart) {
 }
 
 function renderCharts() {
-    const monthTxns = getTxnsForMonth(currentYear, currentMonth);
+    const ts = getTimescale();
+    const periodEnd = getPeriodEnd(currentPeriodStart, ts);
+    const monthTxns = getTxnsForPeriod(currentPeriodStart, periodEnd);
     const labels = [], data = [], metaIds = [];
     let total = 0;
     
@@ -2056,6 +2305,21 @@ document.getElementById('txn-date').value = todayISO();
 render();
 renderCharts();
 </script>
+
+<!-- ── DATE PICKER MODAL ──────────────────────────────────────────── -->
+<div class="modal-bg" id="date-picker-modal" onclick="if(event.target===this)closeDatePicker()">
+    <div class="modal-box">
+        <div class="modal-handle"></div>
+        <div class="modal-title">Jump to Date</div>
+        <p style="font-size:0.8rem; color:var(--text2); margin:0 0 12px;">Choose the start date for your budget period. The view will align to this date.</p>
+        <label class="field-label">Start date</label>
+        <input type="date" id="date-picker-input" style="margin-bottom:16px;">
+        <div class="modal-actions">
+            <button class="btn-primary secondary" onclick="closeDatePicker()">Cancel</button>
+            <button class="btn-primary" onclick="applyDatePicker()">Go to Date</button>
+        </div>
+    </div>
+</div>
 
 <script>
 if ('serviceWorker' in navigator) {
