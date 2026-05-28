@@ -49,4 +49,14 @@
 [] Remove the underline from the date field indicating it's clickable.
 [] Update Div.Toast to be accurate with variety of time-scales
 [] Remove the Quick Add Transaction button to Income categories
+[] Let delete notification text-wrap so it doesn't go off the screen
+[] Add semi-monthly dropdown option to Category creation.
+[] Update "budget allocation (for selected month)" to be for the time-scale.
+[] Adjust prog.notes from the Sinking Fund that incorrectly states that period's expense and contributions; it doesn't consider the set allocation, which should be considered an inflow transaction.
+[] Toast prompt for Sinking fund transactions is inaccurate and weird, stats two numbers and they're off.
+[] Changing the sinking fund allocation time-scale doesn't update the sinking fund's balance.
+[] MAJOR BUG, If my time-scale view is bi-weekly, but I set a sinking fund's allcoation to be 500/monthly, that 500 will be deposited/transacted into the balance of that sinking fund increasing it by 500, but I actually want it to increase by the allocation's timescale adjusted to my view's timescale, so 500/monthly allocation would be roughly $250/bi-weekly on my view; and this should automatically adjust when I change my time-scale view to other options.
+[] Make the tabs to switch between budget, transaction, and overview sticky to the top even when I scroll down 
+[] Don't carry over allocation values backwards. - Don't overwrite any values/amounts/allocations.
+[] When advancing to a new time-period prompt the user if they want to copy over the last budget, or start again blank.
 

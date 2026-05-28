@@ -955,7 +955,7 @@ textarea {
             <option value="income">Income</option>
             <option value="sinking">Saving/Sinking Fund</option>
         </select>
-        <label class="field-label">Budget allocation (for selected month)</label>
+        <label class="field-label">Budget allocation/target</label>
         <div class="input-row" style="margin-bottom:8px;">
             <input type="number" id="cat-allocation" placeholder="Amount ($)" step="0.01" min="0">
             <select id="cat-period">
@@ -1085,9 +1085,7 @@ let currentYear = TODAY.getFullYear();
 let currentMonth = TODAY.getMonth(); 
 
 // Period-aware navigation state
-// currentPeriodStart is a Date object representing the start of the viewed window
 let currentPeriodStart = new Date(TODAY.getFullYear(), TODAY.getMonth(), 1);
-
 const openCatPanels = new Set();
 
 // ─── UTILITIES ──────────────────────────────────────────────────────
@@ -1125,15 +1123,12 @@ function getTimescale() {
     return document.getElementById('budget-ts')?.value || 'monthly';
 }
 
-// Clone a date (avoid mutation)
 function cloneDate(d) { return new Date(d.getTime()); }
 
-// Return ISO date string YYYY-MM-DD for a Date object
 function isoDate(d) {
     return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
 }
 
-// Return end-of-period date (exclusive) given start and timescale
 function getPeriodEnd(startDate, ts) {
     const d = cloneDate(startDate);
     switch (ts) {
@@ -1142,19 +1137,18 @@ function getPeriodEnd(startDate, ts) {
         case 'biweekly':  d.setDate(d.getDate() + 14); break;
         case 'semimonthly':
             if (d.getDate() < 16) {
-                d.setDate(16); // 1st–15th → end at 16th (exclusive)
+                d.setDate(16); 
             } else {
-                d.setMonth(d.getMonth() + 1); d.setDate(1); // 16th–end → end at 1st of next month
+                d.setMonth(d.getMonth() + 1); d.setDate(1); 
             }
             break;
         case 'annually':  d.setFullYear(d.getFullYear() + 1); break;
-        default: // monthly
+        default:
             d.setMonth(d.getMonth() + 1);
     }
     return d;
 }
 
-// Step currentPeriodStart forward/back by one period unit
 function stepPeriodStart(delta, ts) {
     const d = cloneDate(currentPeriodStart);
     switch (ts) {
@@ -1162,7 +1156,6 @@ function stepPeriodStart(delta, ts) {
         case 'weekly':    d.setDate(d.getDate() + 7 * delta); break;
         case 'biweekly':  d.setDate(d.getDate() + 14 * delta); break;
         case 'semimonthly':
-            // Step to the next/prev semi-monthly boundary
             if (delta > 0) {
                 for (let i = 0; i < delta; i++) {
                     if (d.getDate() < 16) { d.setDate(16); }
@@ -1176,14 +1169,12 @@ function stepPeriodStart(delta, ts) {
             }
             break;
         case 'annually':  d.setFullYear(d.getFullYear() + delta); break;
-        default: // monthly
+        default:
             d.setMonth(d.getMonth() + delta);
     }
     return d;
 }
 
-// Snap period start to a natural boundary when timescale changes
-// If user has manually picked a date, we respect it and only snap for auto-change
 function snapPeriodStart(ts) {
     const d = cloneDate(currentPeriodStart);
     switch (ts) {
@@ -1206,13 +1197,12 @@ function snapPeriodStart(ts) {
             d.setDate(d.getDate() < 16 ? 1 : 16);
             break;
         case 'annually':
-            d.setMonth(0); d.setDate(1);
+            d.setDate(1); d.setMonth(0);
             break;
     }
     return d;
 }
 
-// Format a label for the nav header based on current period
 function formatPeriodLabel(startDate, ts) {
     const endExcl = getPeriodEnd(startDate, ts);
     const endIncl = new Date(endExcl.getTime() - 86400000);
@@ -1233,12 +1223,11 @@ function formatPeriodLabel(startDate, ts) {
             return `${MONTH_ABBR[sm]} ${sd} – ${MONTH_ABBR[em]} ${ed}, ${sy}`;
         case 'annually':
             return `${sy}`;
-        default: // monthly
+        default:
             return `${MONTH_NAMES[sm]} ${sy}`;
     }
 }
 
-// Sync currentYear/currentMonth (used by legacy code paths like sinking fund alloc)
 function syncLegacyMonth() {
     currentYear  = currentPeriodStart.getFullYear();
     currentMonth = currentPeriodStart.getMonth();
@@ -1246,7 +1235,6 @@ function syncLegacyMonth() {
 
 function monthKey(y, m) { return `${y}-${String(m+1).padStart(2,'0')}`; }
 
-// Get transactions within the current period window [startDate, endDate)
 function getTxnsForPeriod(startDate, endDate) {
     const startISO = isoDate(startDate);
     const endISO   = isoDate(endDate);
@@ -1256,7 +1244,6 @@ function getTxnsForPeriod(startDate, endDate) {
     });
 }
 
-// Legacy: get transactions for a calendar month (used by sinking calc, charts)
 function getTxnsForMonth(y, m) {
     const prefix = monthKey(y, m);
     return state.transactions.filter(t => (t.date || '').startsWith(prefix));
@@ -1268,57 +1255,51 @@ function getSpentInPeriod(catId, startDate, endDate) {
         .reduce((sum, t) => sum + (parseFloat(t.amt) || 0), 0);
 }
 
-// Keep legacy month-based spent for sinking / header (always monthly)
 function getSpentInMonth(catId, y, m) {
     return getTxnsForMonth(y, m)
         .filter(t => t.catId == catId && t.type === 'outflow')
         .reduce((sum, t) => sum + (parseFloat(t.amt) || 0), 0);
 }
 
-// How many days does a period span?
 function periodDays(ts) {
     switch (ts) {
         case 'daily':     return 1;
         case 'weekly':    return 7;
-        case 'biweekly':    return 14;
+        case 'biweekly':  return 14;
         case 'semimonthly': return 15.22;
-        case 'annually':    return 365.25;
+        case 'annually':  return 365.25;
         default:          return 30.44;
     }
 }
 
-// Pro-rate a monthly allocation to the current period window
 function allocForPeriod(monthlyAlloc, ts, startDate) {
     if (ts === 'monthly')   return monthlyAlloc;
     if (ts === 'annually')  return monthlyAlloc * 12;
     if (ts === 'semimonthly') return monthlyAlloc / 2;
-    // For sub-month periods: pro-rate based on actual days in period vs days in month
     const endDate = getPeriodEnd(startDate, ts);
     const days = (endDate - startDate) / 86400000;
     const daysInMonth = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0).getDate();
     return monthlyAlloc * (days / daysInMonth);
 }
 
-// Get allocation for expense/income with forward inheritance
+function catAllocForTs(cat, y, m, ts, startDate) {
+    const stored = getCatAlloc(cat, y, m);
+    const catPeriod = cat.period || 'monthly';
+    if (catPeriod === ts) return stored;
+    const monthly = toMonthly(stored, catPeriod);
+    return allocForPeriod(monthly, ts, startDate);
+}
+
 function getStandardAlloc(cat, y, m) {
-    if (cat.allocations && cat.allocations[monthKey(y,m)] !== undefined) return parseFloat(cat.allocations[monthKey(y,m)]);
-    let cy = y, cm = m;
-    while(cy >= 2020) {
-        cm--; if (cm < 0) { cm = 11; cy--; }
-        if (cat.allocations && cat.allocations[monthKey(cy,cm)] !== undefined) return parseFloat(cat.allocations[monthKey(cy,cm)]);
+    if (cat.allocations && cat.allocations[monthKey(y,m)] !== undefined) {
+        return parseFloat(cat.allocations[monthKey(y,m)]);
     }
     return 0;
 }
 
-// Sinking allocations are derived directly from flagged transactions
-function getSinkingAlloc(catId, y, m) {
-    const prefix = monthKey(y, m);
-    const txns = state.transactions.filter(t => t.catId == catId && t.isAlloc && (t.date||'').startsWith(prefix));
-    return txns.reduce((sum, t) => sum + (parseFloat(t.amt) || 0), 0);
-}
-
+// All categories now use standard monthly allocations
 function getCatAlloc(cat, y, m) {
-    return cat.type === 'sinking' ? getSinkingAlloc(cat.id, y, m) : getStandardAlloc(cat, y, m);
+    return getStandardAlloc(cat, y, m);
 }
 
 function setCatAllocForMonth(catId, y, m, amount) {
@@ -1329,14 +1310,33 @@ function setCatAllocForMonth(catId, y, m, amount) {
     }
 }
 
-function getSinkingCurrentBalance(cat) {
+function getSinkingCurrentBalance(cat, endDateISO) {
     let bal = parseFloat(cat.balance) || 0;
     state.transactions.filter(t => t.catId == cat.id).forEach(t => {
+        if (endDateISO && (t.date || '') >= endDateISO) return;
         const a = parseFloat(t.amt) || 0;
         if (t.type === 'inflow') bal += a;
         else bal -= a;
     });
     return bal;
+}
+
+function isMonthBlank(y, m) {
+    const key = monthKey(y, m);
+    return !state.categories.some(c => c.allocations && c.allocations[key] !== undefined);
+}
+
+function copyBudget(fromY, fromM, toY, toM) {
+    const fromKey = monthKey(fromY, fromM);
+    const toKey = monthKey(toY, toM);
+    state.categories.forEach(c => {
+        if (c.allocations && c.allocations[fromKey] !== undefined) {
+            c.allocations[toKey] = c.allocations[fromKey];
+        }
+    });
+    save();
+    render();
+    showToast('Budget copied.', 'var(--accent)');
 }
 
 function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
@@ -1355,16 +1355,28 @@ function showToast(msg, color) {
 function showBudgetToast(catId, txnType) {
     const cat = state.categories.find(c => c.id == catId);
     if (!cat || cat.type === 'income') return;
+    const ts = getTimescale();
+    const pl = PERIOD_LABELS[ts];
+    
     if (cat.type === 'sinking') {
-        const bal = getSinkingCurrentBalance(cat);
-        showToast(`${cat.name} balance: ${fmtDec(bal)}`, 'var(--sinking)');
+        const periodEnd = getPeriodEnd(currentPeriodStart, ts);
+        const bal = getSinkingCurrentBalance(cat, isoDate(periodEnd));
+        const periodInflows = getTxnsForPeriod(currentPeriodStart, periodEnd)
+            .filter(t => t.catId == catId && t.type === 'inflow')
+            .reduce((sum, t) => sum + (parseFloat(t.amt) || 0), 0);
+        const periodOutflows = getTxnsForPeriod(currentPeriodStart, periodEnd)
+            .filter(t => t.catId == catId && t.type === 'outflow')
+            .reduce((sum, t) => sum + (parseFloat(t.amt) || 0), 0);
+        const netThisPeriod = periodInflows - periodOutflows;
+        showToast(`${cat.name} balance: ${fmtDec(bal)}  ·  ${netThisPeriod >= 0 ? '+' : '–'}${fmtDec(Math.abs(netThisPeriod))} this ${pl}`, 'var(--sinking)');
         return;
     }
-    const alloc = getCatAlloc(cat, currentYear, currentMonth);
-    if (!alloc) return;
-    const spent     = getSpentInMonth(catId, currentYear, currentMonth);
-    const remaining = alloc - spent;
-    const pl        = PERIOD_LABELS[cat.period || 'monthly'];
+    
+    const allocInTs = catAllocForTs(cat, currentYear, currentMonth, ts, currentPeriodStart);
+    if (!allocInTs) return;
+    const periodEnd  = getPeriodEnd(currentPeriodStart, ts);
+    const spent      = getSpentInPeriod(catId, currentPeriodStart, periodEnd);
+    const remaining  = allocInTs - spent;
     if (remaining >= 0) {
         showToast(`${cat.name}: ${fmtDec(remaining)} left this ${pl}`, 'var(--accent)');
     } else {
@@ -1403,20 +1415,24 @@ function switchTab(id, btn) {
 
 // ─── PERIOD NAVIGATION ───────────────────────────────────────────────
 function changeGlobalPeriod(delta) {
+    const oldY = currentYear, oldM = currentMonth;
     const ts = getTimescale();
     currentPeriodStart = stepPeriodStart(delta, ts);
     syncLegacyMonth();
+    
+    if (isMonthBlank(currentYear, currentMonth) && !isMonthBlank(oldY, oldM)) {
+        showConfirmToast('Copy previous budget allocations?', () => copyBudget(oldY, oldM, currentYear, currentMonth));
+    }
+
     chartActiveCategoryId = null;
     chartActiveCategoryFlow = null;
     render();
     renderCharts();
 }
 
-// Keep old name as alias for any remaining direct calls
 function changeGlobalMonth(delta) { changeGlobalPeriod(delta); }
 
 function onTimescaleChange() {
-    // Snap current period start to natural boundary for new timescale
     const ts = getTimescale();
     currentPeriodStart = snapPeriodStart(ts);
     syncLegacyMonth();
@@ -1443,9 +1459,15 @@ function applyDatePicker() {
     if (!val) return;
     const parts = val.split('-');
     if (parts.length !== 3) return;
-    // Set period start to chosen date, bypassing snap so user's custom date is respected
+    
+    const oldY = currentYear, oldM = currentMonth;
     currentPeriodStart = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
     syncLegacyMonth();
+    
+    if (isMonthBlank(currentYear, currentMonth) && !isMonthBlank(oldY, oldM)) {
+        showConfirmToast('Copy previous budget allocations?', () => copyBudget(oldY, oldM, currentYear, currentMonth));
+    }
+
     chartActiveCategoryId = null;
     chartActiveCategoryFlow = null;
     closeDatePicker();
@@ -1497,19 +1519,17 @@ function renderBudget() {
     const expenseCats = state.categories.filter(c => c.type === 'expense');
     const sinkCats    = state.categories.filter(c => c.type === 'sinking');
 
-    // All totals still computed in monthly terms for header/assignment banner
+    const totalIncomeTs    = incomeCats.reduce((s, c) => s + catAllocForTs(c, currentYear, currentMonth, ts, currentPeriodStart), 0);
+    const totalExpenseTs   = expenseCats.reduce((s, c) => s + catAllocForTs(c, currentYear, currentMonth, ts, currentPeriodStart), 0);
+    const totalSinkingTs   = sinkCats.reduce((s, c) => s + catAllocForTs(c, currentYear, currentMonth, ts, currentPeriodStart), 0);
+    const totalAllocatedTs = totalExpenseTs + totalSinkingTs;
+    const unassignedTs     = totalIncomeTs - totalAllocatedTs;
+
     const totalIncomeM    = incomeCats.reduce((s, c) => s + toMonthly(getCatAlloc(c, currentYear, currentMonth), c.period), 0);
-    const totalExpenseM   = expenseCats.reduce((s, c) => s + toMonthly(getCatAlloc(c, currentYear, currentMonth), c.period), 0);
-    const totalSinkingM   = sinkCats.reduce((s, c) => s + toMonthly(getCatAlloc(c, currentYear, currentMonth), c.period), 0);
-    const totalAllocatedM = totalExpenseM + totalSinkingM;
+    const totalAllocatedM = expenseCats.reduce((s, c) => s + toMonthly(getCatAlloc(c, currentYear, currentMonth), c.period), 0)
+                          + sinkCats.reduce((s, c) => s + toMonthly(getCatAlloc(c, currentYear, currentMonth), c.period), 0);
     const unassignedM     = totalIncomeM - totalAllocatedM;
     const pct             = totalIncomeM > 0 ? Math.min(100, (totalAllocatedM / totalIncomeM) * 100) : 0;
-
-    // Period-scaled amounts for display in banner
-    const totalIncomeTs = allocForPeriod(totalIncomeM, ts, currentPeriodStart);
-    const unassignedTs  = allocForPeriod(Math.abs(unassignedM), ts, currentPeriodStart);
-    const totalAllocatedTs = allocForPeriod(totalAllocatedM, ts, currentPeriodStart);
-
 
     const banner  = document.getElementById('assign-banner');
     const bar     = document.getElementById('assign-bar');
@@ -1543,7 +1563,7 @@ function renderBudget() {
         banner.style.display = 'none';
     }
 
-    renderMonthSummary(totalIncomeM, currentPeriodStart, periodEnd, ts);
+    renderMonthSummary(totalIncomeTs, currentPeriodStart, periodEnd, ts);
     renderCatSection('income-list', incomeCats, 'income', ts);
     renderCatSection('expense-list', expenseCats, 'expense', ts);
     renderCatSection('sinking-list', sinkCats, 'sinking', ts);
@@ -1551,26 +1571,25 @@ function renderBudget() {
     const incTotalEl = document.getElementById('income-total');
     if (incomeCats.length > 0) {
         incTotalEl.style.display = 'flex';
-        document.getElementById('income-total-val').textContent = fmt(allocForPeriod(totalIncomeM, ts, currentPeriodStart)) + ' / ' + PERIOD_LABELS[ts];
+        document.getElementById('income-total-val').textContent = fmt(totalIncomeTs) + ' / ' + PERIOD_LABELS[ts];
     } else incTotalEl.style.display = 'none';
 
     const expTotalEl = document.getElementById('expense-total');
     if (expenseCats.length > 0) {
         expTotalEl.style.display = 'flex';
-        document.getElementById('expense-total-val').textContent = fmt(allocForPeriod(totalExpenseM, ts, currentPeriodStart)) + ' / ' + PERIOD_LABELS[ts];
+        document.getElementById('expense-total-val').textContent = fmt(totalExpenseTs) + ' / ' + PERIOD_LABELS[ts];
     } else expTotalEl.style.display = 'none';
 
     const sinkTotalEl = document.getElementById('sinking-total');
     if (sinkCats.length > 0) {
         sinkTotalEl.style.display = 'flex';
-        document.getElementById('sinking-total-val').textContent = fmt(allocForPeriod(totalSinkingM, ts, currentPeriodStart)) + ' / ' + PERIOD_LABELS[ts];
+        document.getElementById('sinking-total-val').textContent = fmt(totalSinkingTs) + ' / ' + PERIOD_LABELS[ts];
     } else sinkTotalEl.style.display = 'none';
 
-    //Edited this to pass period-scaled totals for header, so it reflects current view instead of always monthly
     renderHeader(totalIncomeTs, totalAllocatedTs);
 }
 
-function renderMonthSummary(totalIncomeM, startDate, endDate, ts) {
+function renderMonthSummary(totalIncomeTs, startDate, endDate, ts) {
     const el = document.getElementById('month-summary');
     if (!el) return;
 
@@ -1586,10 +1605,7 @@ function renderMonthSummary(totalIncomeM, startDate, endDate, ts) {
         totalSaved += inflows;
     });
 
-    // Pro-rate income to this period for "Left to Spend"
-    const periodIncome = allocForPeriod(totalIncomeM, ts, startDate);
-    const leftToSpend = periodIncome - totalSpent - totalSaved;
-    const pl = PERIOD_LABELS[ts];
+    const leftToSpend = totalIncomeTs - totalSpent - totalSaved;
 
     const PERIOD_SPENT_LABEL = { daily: 'Today', weekly: 'This Week', biweekly: 'This Fortnight', semimonthly: 'This Half-Month', monthly: 'This Month', annually: 'This Year' };
 
@@ -1621,20 +1637,15 @@ function renderCatSection(elId, cats, type, ts) {
     const pl = PERIOD_LABELS[ts];
 
     el.innerHTML = cats.map((cat, idx) => {
-        const monthAlloc   = getCatAlloc(cat, currentYear, currentMonth);
-        const allocMonthly = toMonthly(monthAlloc, cat.period || 'monthly');
-        // Allocation scaled to current view period
-        const allocInTs    = allocForPeriod(allocMonthly, ts, currentPeriodStart);
-        const tsLabel      = pl;
+        const allocInTs = catAllocForTs(cat, currentYear, currentMonth, ts, currentPeriodStart);
+        const tsLabel   = pl;
 
         let extraHTML = '';
         if (type === 'expense') {
-            // Spending within the current period window
             const spent     = getSpentInPeriod(cat.id, currentPeriodStart, periodEnd);
             const remaining = allocInTs - spent;
             const pct       = allocInTs > 0 ? Math.min(100, (spent / allocInTs) * 100) : 0;
             const over      = remaining < 0;
-            const catPL     = PERIOD_LABELS[cat.period || 'monthly'];
             const barColor  = over ? 'var(--danger)' : pct > 80 ? 'var(--warn)' : 'var(--accent)';
             extraHTML = `
                 <div class="prog-wrap">
@@ -1643,27 +1654,52 @@ function renderCatSection(elId, cats, type, ts) {
                 <div class="prog-note" style="color:${over ? 'var(--danger)' : 'var(--text2)'}">
                     ${over ? `${fmtDec(Math.abs(remaining))} over budget this ${tsLabel}` : `${fmtDec(remaining)} remaining this ${tsLabel}`}
                 </div>`;
+                
         } else if (type === 'sinking') {
-            const balance = getSinkingCurrentBalance(cat);
+            const periodEndISO = isoDate(periodEnd);
+            const balance = getSinkingCurrentBalance(cat, periodEndISO);
             const isNeg = balance < 0;
-            
-            const prefix = monthKey(currentYear, currentMonth);
-            const allocTxn = state.transactions.find(t => t.catId == cat.id && t.isAlloc && (t.date||'').startsWith(prefix));
-            const currentAllocAmt = allocTxn ? parseFloat(allocTxn.amt) : (monthAlloc || 0);
+
+            const periodInflows  = getTxnsForPeriod(currentPeriodStart, periodEnd)
+                .filter(t => t.catId == cat.id && t.type === 'inflow')
+                .reduce((sum, t) => sum + (parseFloat(t.amt) || 0), 0);
+            const periodOutflows = getTxnsForPeriod(currentPeriodStart, periodEnd)
+                .filter(t => t.catId == cat.id && t.type === 'outflow')
+                .reduce((sum, t) => sum + (parseFloat(t.amt) || 0), 0);
+                
+            const netThisPeriod  = periodInflows - periodOutflows;
+            const netLabel       = netThisPeriod >= 0
+                ? `+${fmtDec(netThisPeriod)} this ${tsLabel}`
+                : `\u2013${fmtDec(Math.abs(netThisPeriod))} this ${tsLabel}`;
+
+            let progHTML = '';
+            if (allocInTs > 0) {
+                const pct = Math.min(100, (periodInflows / allocInTs) * 100);
+                const met = periodInflows >= allocInTs;
+                progHTML = `
+                    <div class="prog-wrap">
+                        <div class="prog-bar" style="width:${pct}%; background:var(--sinking)"></div>
+                    </div>
+                    <div class="prog-note" style="color:var(--text2); font-size:0.7rem;">
+                        ${met ? `Goal met: ${fmtDec(periodInflows)} saved` : `${fmtDec(allocInTs - periodInflows)} more to reach ${tsLabel} target`}
+                    </div>`;
+            }
 
             extraHTML = `
-                <div class="sinking-balance-pill ${isNeg ? 'negative' : ''}">
-                    <span class="sb-label">Balance</span>
-                    <span class="sb-val">${isNeg ? '–' : ''}${fmtDec(Math.abs(balance))}</span>
-                </div>`;
+                <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+                    <div class="sinking-balance-pill ${isNeg ? 'negative' : ''}">
+                        <span class="sb-label">Balance</span>
+                        <span class="sb-val">${isNeg ? '\u2013' : ''}${fmtDec(Math.abs(balance))}</span>
+                    </div>
+                    <div class="prog-note" style="color:${netThisPeriod >= 0 ? 'var(--text2)' : 'var(--danger)'}; margin-bottom: 6px; text-align:right;">${netLabel}</div>
+                </div>
+                ${progHTML}`;
         }
 
-        // Show transactions within the current period window
         const catTxns = getTxnsForPeriod(currentPeriodStart, periodEnd)
             .filter(t => t.catId == cat.id)
             .sort((a, b) => b.date.localeCompare(a.date));
 
-        // Panel header label based on timescale
         const panelHeader = ts === 'monthly'
             ? `${MONTH_NAMES[currentMonth]} Transactions`
             : `${formatPeriodLabel(currentPeriodStart, ts)} Transactions`;
@@ -1676,9 +1712,8 @@ function renderCatSection(elId, cats, type, ts) {
                 ${catTxns.map(t => {
                     const sign = t.type === 'inflow' ? '+' : '–';
                     const col  = t.type === 'inflow' ? 'var(--income)' : 'var(--text)';
-                    const badge = t.isAlloc ? `<span style="font-size:0.6rem;background:#f0ead0;color:var(--sinking);border-radius:4px;padding:1px 5px;font-weight:700;margin-left:4px;">Linked Sinking Fund Allocation</span>` : '';
                     return `<div class="cat-txn-item" onclick="openEditTxnModal(${t.id})" title="Click to edit">
-                        <div class="cat-txn-desc">${escapeHTML(t.desc)}${badge}</div>
+                        <div class="cat-txn-desc">${escapeHTML(t.desc)}</div>
                         <div class="cat-txn-meta">${t.date}</div>
                         <div class="cat-txn-amt" style="color:${col}">${sign}${fmtDec(t.amt)}</div>
                     </div>`;
@@ -1690,7 +1725,7 @@ function renderCatSection(elId, cats, type, ts) {
         const txnBadge = txnCount > 0 ? `<span style="font-size:0.68rem;background:var(--accent-light);color:var(--accent);border-radius:10px;padding:1px 7px;font-weight:800;margin-left:4px;">${txnCount}</span>` : '';
 
         const quickAddId = `quick-add-${cat.id}`;
-        const defaultFlow = type === 'income' ? 'inflow' : 'outflow';
+        const defaultFlow = type === 'expense' ? 'outflow' : 'inflow';
         const qaOpen = openQuickAdds.has(cat.id);
 
         const quickAddHTML = `
@@ -1783,39 +1818,6 @@ function saveQuickAddTxn(catId) {
     showBudgetToast(catId, flow);
 }
 
-// ─── SINKING FUND ALLOCATION ↔ TRANSACTION SYNC ──────────────────────
-function updateSinkingAlloc(catId, rawValue) {
-    const amt = parseFloat(rawValue) || 0;
-    const cat = state.categories.find(c => c.id === catId);
-    if (!cat) return;
-
-    setCatAllocForMonth(catId, currentYear, currentMonth, amt);
-    const prefix = monthKey(currentYear, currentMonth);
-    const existingTxn = state.transactions.find(t => t.catId == catId && t.isAlloc && (t.date || '').startsWith(prefix));
-
-    if (existingTxn) {
-        if (amt <= 0) {
-            state.transactions = state.transactions.filter(t => t.id !== existingTxn.id);
-        } else {
-            existingTxn.amt = amt;
-        }
-    } else if (amt > 0) {
-        state.transactions.unshift({
-            id: Date.now(),
-            desc: `${cat.name} — monthly allocation`,
-            catId: catId,
-            amt: amt,
-            date: `${prefix}-01`,
-            type: 'inflow',
-            isAlloc: true
-        });
-    }
-
-    save();
-    renderBudget();
-    showToast(`${cat.name} allocation updated.`, 'var(--sinking)');
-}
-
 function moveCat(type, idx, delta) {
     const cats = state.categories.filter(c => c.type === type);
     const others = state.categories.filter(c => c.type !== type);
@@ -1867,12 +1869,12 @@ function renderTransactions() {
             : 'var(--border)';
         const amtColor = t.type === 'inflow' ? 'var(--income)' : 'var(--text)';
         const sign     = t.type === 'inflow' ? '+' : '–';
-        const badge    = t.isAlloc ? `<span style="font-size:0.6rem;background:#f0ead0;color:var(--sinking);border-radius:4px;padding:1px 5px;font-weight:700;margin-left:4px;">Linked Sinking Fund Allocation</span>` : '';
+        
         html += `
         <div class="txn-item" id="txn-${t.id}">
             <div class="txn-dot" style="background:${dotColor}"></div>
             <div class="txn-info">
-                <div class="txn-desc">${escapeHTML(t.desc)}${badge}</div>
+                <div class="txn-desc">${escapeHTML(t.desc)}</div>
                 <div class="txn-meta">${catName} · ${t.date}</div>
             </div>
             <div class="txn-amt" style="color:${amtColor}">${sign}${fmtDec(t.amt)}</div>
@@ -1904,7 +1906,9 @@ function openAddCatModal() {
     document.getElementById('cat-type').value = 'expense';
     document.getElementById('cat-allocation').value = '';
     document.getElementById('cat-period').value = 'monthly';
-    document.getElementById('cat-balance').value = '';
+    const balField = document.getElementById('cat-balance');
+    balField.value = '';
+    balField.disabled = false;
     updateCatModalUI();
     document.getElementById('cat-modal').classList.add('open');
     setTimeout(() => document.getElementById('cat-name').focus(), 100);
@@ -1919,7 +1923,9 @@ function openEditCatModal(id) {
     document.getElementById('cat-type').value = cat.type;
     document.getElementById('cat-allocation').value = getCatAlloc(cat, currentYear, currentMonth) || '';
     document.getElementById('cat-period').value = cat.period || 'monthly';
-    document.getElementById('cat-balance').value = cat.balance || '';
+    const balField = document.getElementById('cat-balance');
+    balField.value = cat.balance || 0;
+    balField.disabled = true;
     updateCatModalUI();
     document.getElementById('cat-modal').classList.add('open');
 }
@@ -1928,7 +1934,7 @@ function closeCatModal() { document.getElementById('cat-modal').classList.remove
 
 function updateCatModalUI() {
     const type = document.getElementById('cat-type').value;
-    document.getElementById('balance-wrap').style.display = type === 'income' ? 'none' : 'block';
+    document.getElementById('balance-wrap').style.display = type === 'sinking' ? 'block' : 'none';
 }
 
 function saveCategory() {
@@ -1945,7 +1951,7 @@ function saveCategory() {
     let cat = state.categories.find(c => c.id === catId);
 
     if (cat) {
-        cat.name = name; cat.type = type; cat.period = period; cat.balance = balance;
+        cat.name = name; cat.type = type; cat.period = period;
     } else {
         if (state.categories.some(c => c.name.toLowerCase() === name.toLowerCase())) {
             showToast('A category with that name already exists.', 'var(--danger)'); return;
@@ -1954,26 +1960,7 @@ function saveCategory() {
         state.categories.push(cat);
     }
 
-    if (type === 'sinking') {
-        const prefix = monthKey(currentYear, currentMonth);
-        let txn = state.transactions.find(t => t.catId === cat.id && t.isAlloc && (t.date||'').startsWith(prefix));
-        if (allocation > 0) {
-            if (txn) txn.amt = allocation;
-            else state.transactions.push({
-                id: Date.now() + 1,
-                desc: 'Monthly Allocation',
-                catId: cat.id,
-                amt: allocation,
-                date: `${prefix}-01`,
-                type: 'inflow',
-                isAlloc: true
-            });
-        } else if (txn) {
-            state.transactions = state.transactions.filter(t => t.id !== txn.id);
-        }
-    } else {
-        setCatAllocForMonth(catId, currentYear, currentMonth, allocation);
-    }
+    setCatAllocForMonth(catId, currentYear, currentMonth, allocation);
 
     closeCatModal();
     save();
@@ -1982,10 +1969,6 @@ function saveCategory() {
 
 function deleteCategory(id) {
     showConfirmToast('Delete this category? Prior month transactions will be kept as uncategorized.', () => {
-        state.transactions = state.transactions.filter(t => {
-            if (t.catId == id && t.isAlloc) return false; 
-            return true;
-        });
         state.transactions.forEach(t => { if (t.catId == id) t.catId = ''; });
         state.categories = state.categories.filter(c => c.id !== id);
         save();
@@ -2036,15 +2019,7 @@ function saveEditTransaction() {
     t.amt   = parseFloat(document.getElementById('txn-edit-amt').value) || 0;
     t.type  = document.getElementById('txn-edit-flow').value;
     t.date  = document.getElementById('txn-edit-date').value;
-    
-    const newCatId = document.getElementById('txn-edit-cat').value;
-    if (t.isAlloc && state.categories.find(c => c.id == newCatId)?.type !== 'sinking') t.isAlloc = false;
-    t.catId = newCatId;
-
-    if (t.isAlloc) {
-        const dateParts = (t.date || '').split('-');
-        if (dateParts.length >= 2) setCatAllocForMonth(t.catId, parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, t.amt);
-    }
+    t.catId = document.getElementById('txn-edit-cat').value;
 
     closeTxnModal();
     save();
@@ -2056,10 +2031,6 @@ function deleteTransaction(id) {
     const txn = state.transactions.find(t => t.id === id);
     if (!txn) return;
     showConfirmToast(`Delete "${txn.desc}"?`, () => {
-        if (txn.isAlloc) {
-            const dateParts = (txn.date || '').split('-');
-            if (dateParts.length >= 2) setCatAllocForMonth(txn.catId, parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, 0);
-        }
         state.transactions = state.transactions.filter(t => t.id !== id);
         save();
         render();
@@ -2106,7 +2077,6 @@ function renderCharts() {
     const viewMode = viewDropdown ? viewDropdown.value : 'expense';
     
     if (chartActiveCategoryId) {
-        // --- Drill-down View (Transactions) ---
         backBtn.style.display = 'inline-block';
         toggleBtn.style.display = 'none';
         if (viewDropdown) viewDropdown.style.display = 'none';
@@ -2130,27 +2100,20 @@ function renderCharts() {
         });
 
     } else {
-        // --- Main View (Category Distribution) ---
         backBtn.style.display = 'none';
         toggleBtn.style.display = 'inline-block';
         if (viewDropdown) viewDropdown.style.display = 'inline-block';
         document.querySelector('.chart-card-title').textContent = 'Distribution Overview';
 
-        
-        // --- Main View (Category Distribution) ---
 const catMap = {};
 
-// 1. Initialize buckets
-// Normal categories: Grouped by ID, will track Net (Out - In)
 state.categories.filter(c => c.type === 'expense').forEach(c => catMap[c.id] = { name: c.name, val: 0, catId: c.id, view: 'expense' });
-// Sinking funds: Separate buckets
 state.categories.filter(c => c.type === 'sinking').forEach(c => {
     catMap[c.id + '_in'] = { name: c.name + ' (Deposit)', val: 0, catId: c.id, view: 'sinking_in' };
     catMap[c.id + '_out'] = { name: c.name + ' (Withdrawal)', val: 0, catId: c.id, view: 'sinking_out' };
 });
 catMap['__uncat__'] = { name: 'Uncategorized', val: 0, catId: '__uncat__', view: 'expense' };
 
-// 2. Map transactions
 monthTxns.forEach(t => {
     const amt = parseFloat(t.amt) || 0;
     const cat = state.categories.find(c => c.id == t.catId);
@@ -2159,14 +2122,12 @@ monthTxns.forEach(t => {
         if (t.type === 'inflow') catMap[cat.id + '_in'].val += amt;
         else if (t.type === 'outflow') catMap[cat.id + '_out'].val += amt;
     } else {
-        // Normal spending: Net effect (Outflow reduces by Inflow)
         const target = (!cat) ? catMap['__uncat__'] : catMap[cat.id];
         if (t.type === 'outflow') target.val += amt;
         else if (t.type === 'inflow') target.val -= amt;
     }
 });
 
-// 3. Filter for rendering
 Object.keys(catMap).forEach(key => {
     const cInfo = catMap[key];
     if (cInfo.val !== 0) { 
@@ -2218,17 +2179,9 @@ Object.keys(catMap).forEach(key => {
     onClick: function(e, legendItem, legend) {
         const index = legendItem.index;
         const ci = legend.chart;
-        
-        // Toggle visibility state manually
         if (ci.isDatasetVisible(0)) {
-            const meta = ci.getDatasetMeta(0);
-            const hidden = meta.data[index].hidden === null ? !ci.data.datasets[0].hidden[index] : null;
-            
-            // Toggle slice visibility
             ci.toggleDataVisibility(index);
-            ci.update(); // Update chart
-            
-            // Recalculate total after update
+            ci.update(); 
             setTimeout(() => updateChartTotalDOM(ci), 50);
         }
     }
@@ -2317,7 +2270,7 @@ function downloadCSVTemplate() {
         'category,Emergency Fund,300,N/A,sinking,monthly,800,N/A',
         'transaction,Safeway run,87.43,2025-05-15,Groceries,N/A,N/A,outflow',
         'transaction,Direct deposit,3200,2025-05-01,Paycheck,N/A,N/A,inflow',
-        'transaction,Monthly Allocation,400,2025-05-01,Emergency Fund,N/A,N/A,inflow',
+        'transaction,Manual Allocation,400,2025-05-01,Emergency Fund,N/A,N/A,inflow',
         'transaction,Tow Truck,200,2025-05-01,Emergency Fund,N/A,N/A,outflow',
         'Key/Guide/Instructions (Delete before import):',
         'RecordType (column 1) = category | transaction',
@@ -2398,8 +2351,7 @@ function importCSV() {
             state.categories.push(cat);
         }
         
-        const isAlloc = (cat && cat.type === 'sinking' && flow === 'inflow' && desc.toLowerCase().includes('allocation'));
-        state.transactions.unshift({ id: Date.now() + i, desc, catId: cat ? cat.id : '', amt, date, type: flow, isAlloc });
+        state.transactions.unshift({ id: Date.now() + i, desc, catId: cat ? cat.id : '', amt, date, type: flow });
     }
 
     save();
@@ -2440,7 +2392,6 @@ render();
 renderCharts();
 </script>
 
-<!-- ── DATE PICKER MODAL ──────────────────────────────────────────── -->
 <div class="modal-bg" id="date-picker-modal" onclick="if(event.target===this)closeDatePicker()">
     <div class="modal-box">
         <div class="modal-handle"></div>
