@@ -48,7 +48,5 @@
 [] Make Sinking Fund starting balance an invisible transaction - likely how we'll handle the monthly allocation transacitons. That way going forward the starting balance field is blank; ONLY upon creating a sinking fund can the balance be set.
 [] Remove the underline from the date field indicating it's clickable.
 [] Update Div.Toast to be accurate with variety of time-scales
-
-
-
+[] Remove the Quick Add Transaction button to Income categories
 
