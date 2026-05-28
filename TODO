@@ -15,7 +15,7 @@
 [X] Fix the CSV Template under Import, it doesn't match the same format as when I export and import a CSV.
 
 
-[] Simplify and remove the redundancy for sinking fund "$/month" and "Monthly Allocation: $ Transaction linked", one or the other only.
+[Done in Accessible Branch] Simplify and remove the redundancy for sinking fund "$/month" and "Monthly Allocation: $ Transaction linked", one or the other only.
 [] Make the Sinking Fund Balances more visible.
 [] Remove the Toggle All button on the Distribution Overview page
 [] Update Distribution Overview text for Sinking Withdrawals where the category section has (Withdrawal) appended but after clicking it changes to (Spent).
@@ -42,6 +42,13 @@
 [] If transaction name matches other transactions group them together in Overview pie chart
 [] Time scale (daily, weekly, bi-weekly, monthly, annual) adjusts the date scrolling back and forth and the balance of money remaining in each category.
 [] Add recurring expenses with due dates
+[] Add delete to the transactions under category view; either upon editing an already created transaction let there be a delete button, or add a delete button to the far right side, just like all the other transactions and categories.
+[] MAJOR bug, editing the allocation transaction's amount and then editing the allocation directly from the cateogry de-synces the original transaction.
+[] Remove Current Balance option on Expense Category creation - just like Income.
+[] Make Sinking Fund starting balance an invisible transaction - likely how we'll handle the monthly allocation transacitons. That way going forward the starting balance field is blank; ONLY upon creating a sinking fund can the balance be set.
+[] Remove the underline from the date field indicating it's clickable.
+[] Update Div.Toast to be accurate with variety of time-scales
+
 
 
 
