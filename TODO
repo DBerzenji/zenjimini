@@ -13,50 +13,59 @@
 [X] Fix "txn linked" and "no txn yet" text
 [X] Change "No spending or savings found for this month." when no transactions are available for the pie chart
 [X] Fix the CSV Template under Import, it doesn't match the same format as when I export and import a CSV.
+[X] Simplify and remove the redundancy for sinking fund "$/month" and "Monthly Allocation: $ Transaction linked", one or the other only.
+[X] Make the Sinking Fund Balances more visible.
+[X] Update Distribution Overview text for Sinking Withdrawals where the category section has (Withdrawal) appended but after clicking it changes to (Spent).
+[X] Have solutions for deployment to all devices (web-based?)
+[X] Consider hiding Allocation transactions from the transaction view
+[X] Make text higher contrast from background
+[X] Look into removing Spent this Month and Left to Spend, the first is redundant with Summaries under category sections the latter is irrelevant.
+[X] Look into making "view by" more hidden, it doesn't need that prime real estate, people set it once and forget it.
+[X] Add bi-monthky as a time scale.
+[X] Add functionality to create transaction directly on a category, automatically assigning it there. (this might end up replacing the transaction tab)
+[X] Remove the underline from the date field indicating it's clickable.
+[X] Update Div.Toast to be accurate with variety of time-scales
+[X] MAJOR bug, editing the allocation transaction's amount and then editing the allocation directly from the cateogry de-synces the original transaction.
+[X] Remove Current Balance option on Expense Category creation - just like Income.
+[X] Make Sinking Fund starting balance an invisible transaction - likely how we'll handle the monthly allocation transacitons. That way going forward the starting 
+[X] Time scale (daily, weekly, bi-weekly, semi-monthly, monthly, annual) adjusts the date scrolling back and forth and the balance of money remaining in each category.
+[X] Get PWA working on Android.
+[X] Increase the scale of most things to be more mobile device friendly. - better yet, let the user customize the scale.
+[X] MAJOR bug time-scale on category allocation transaction is still deposited monthly, adjust!
+[X] Changing the sinking fund allocation time-scale doesn't update the sinking fund's balance.
+[X] MAJOR BUG, If my time-scale view is bi-weekly, but I set a sinking fund's allcoation to be 500/monthly, that 500 will be deposited/transacted into the balance of that sinking fund increasing it by 500, but I actually want it to increase by the allocation's timescale adjusted to my view's timescale, so 500/monthly allocation would be roughly $250/bi-weekly on my view; and this should automatically adjust when I change my time-scale view to other options.
+[X] Don't carry over allocation values backwards. - Don't overwrite any values/amounts/allocations.
+[X] When advancing to a new time-period prompt the user if they want to copy over the last budget, or start again blank.
+[X] Update "budget allocation (for selected month)" to be for the time-scale.
+[X] Adjust prog.notes from the Sinking Fund that incorrectly states that period's expense and contributions; it doesn't consider the set allocation, which should be 
 
 
-[Done in Accessible Branch] Simplify and remove the redundancy for sinking fund "$/month" and "Monthly Allocation: $ Transaction linked", one or the other only.
-[] Make the Sinking Fund Balances more visible.
+<Later>
+[] Look into removing transaction page and instead just having transactions under their categories?
+[] Make complete list of functions/features expectations to run through when testing the app - make sure nothing gets overlooked.
+[] Look into making the tabs to switch between budget, transaction, and overview sticky to the top even when I scroll down
+[] Optimize the code a lot, sloppy stuff.
+</Later>
+
+
+[] Move "view by" to the bottom of each page, it doesn't need to be at the top where you'll always see it.
+[] Remove "This Month" with sum of money under the date picker
+[] Move the "Import" and "Export" button to the same panel that the tabs to switch between budget, transactions, and spending are.
+[] Move "Left to Spend" to the top banner next to "Unassigned", and rename it to "Spent"
 [] Remove the Toggle All button on the Distribution Overview page
-[] Update Distribution Overview text for Sinking Withdrawals where the category section has (Withdrawal) appended but after clicking it changes to (Spent).
 [] Somehow make the pie chart easier to navigate on the phone, I want to have the hover function from computer... maybe require a double tap on the pie section to open it where the first tap gives the total dollar value?
 [] Make the initial budget's data the same as what's in the template 
-[] Look into removing transaction page and instead just having transactions under their categories?
-[] Have solutions for deployment to all devices (web-based?)
-[] Consider hiding Allocation transactions from the transaction view
-[] Make text higher contrast from background
-[] Make complete list of functions/features expectations to run through when testing the app - make sure nothing gets overlooked.
-[] Look into removing Spent this Month and Left to Spend, the first is redundant with Summaries under category sections the latter is irrelevant.
-[] Make view by more hidden, it doesn't need that prime real estate, people set it once and forget it.
-[] Set the default time-scale for categories to be the time-scale selected (daily, weekly, bi-weekly, monthly, annually etc...)
-[] Add bi-monthky as a time scale.
-[] Remove the toggle all button on the distribution overview
+[] Add semi-monthly dropdown time option to Category creation.
+[] Set the default time-scale for categories to be the time-scale selected (daily, weekly, bi-weekly, semi-monthly, monthly, annually etc...)
 [] Rename "Normal Spending" to "Monthly Spending" at the distribution overview 
 [] Rename "Sinking ..." to "Saving ..." at the distribution overview
-[] Add functionality to create transaction directly on a category, automatically assigning it there. (this might end up replacing the transaction tab)
 [] Rename "Spending" tab to "Overview"
-[] Get PWA working on Android.
-[] Optimize the code a lot, sloppy stuff.
-[] Increase the scale of most things to be more mobile device friendly. - better yet, let the user customize the scale.
-[] MAJOR bug time-scale on category allocation transaction is still deposited monthly, adjust!
 [] If transaction name matches other transactions group them together in Overview pie chart
-[] Time scale (daily, weekly, bi-weekly, monthly, annual) adjusts the date scrolling back and forth and the balance of money remaining in each category.
 [] Add recurring expenses with due dates
 [] Add delete to the transactions under category view; either upon editing an already created transaction let there be a delete button, or add a delete button to the far right side, just like all the other transactions and categories.
-[] MAJOR bug, editing the allocation transaction's amount and then editing the allocation directly from the cateogry de-synces the original transaction.
-[] Remove Current Balance option on Expense Category creation - just like Income.
-[] Make Sinking Fund starting balance an invisible transaction - likely how we'll handle the monthly allocation transacitons. That way going forward the starting balance field is blank; ONLY upon creating a sinking fund can the balance be set.
-[] Remove the underline from the date field indicating it's clickable.
-[] Update Div.Toast to be accurate with variety of time-scales
+balance field is blank; ONLY upon creating a sinking fund can the balance be set.
+[] When editing a Sinking Fund, don't show the "Balance" field - when the field is uneditable don't show it at all.
 [] Remove the Quick Add Transaction button to Income categories
 [] Let delete notification text-wrap so it doesn't go off the screen
-[] Add semi-monthly dropdown option to Category creation.
-[] Update "budget allocation (for selected month)" to be for the time-scale.
-[] Adjust prog.notes from the Sinking Fund that incorrectly states that period's expense and contributions; it doesn't consider the set allocation, which should be considered an inflow transaction.
+considered an inflow transaction.
 [] Toast prompt for Sinking fund transactions is inaccurate and weird, stats two numbers and they're off.
-[] Changing the sinking fund allocation time-scale doesn't update the sinking fund's balance.
-[] MAJOR BUG, If my time-scale view is bi-weekly, but I set a sinking fund's allcoation to be 500/monthly, that 500 will be deposited/transacted into the balance of that sinking fund increasing it by 500, but I actually want it to increase by the allocation's timescale adjusted to my view's timescale, so 500/monthly allocation would be roughly $250/bi-weekly on my view; and this should automatically adjust when I change my time-scale view to other options.
-[] Make the tabs to switch between budget, transaction, and overview sticky to the top even when I scroll down 
-[] Don't carry over allocation values backwards. - Don't overwrite any values/amounts/allocations.
-[] When advancing to a new time-period prompt the user if they want to copy over the last budget, or start again blank.
-
