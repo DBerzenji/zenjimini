@@ -38,6 +38,16 @@
 [X] When advancing to a new time-period prompt the user if they want to copy over the last budget, or start again blank.
 [X] Update "budget allocation (for selected month)" to be for the time-scale.
 [X] Adjust prog.notes from the Sinking Fund that incorrectly states that period's expense and contributions; it doesn't consider the set allocation, which should be 
+[X] Move "view by" to bottom of each page (actually moved to inside date picker).
+[X] Fix: Make pie chart mobile-navigable (e.g., tap for value, double-tap to open). - SEXY AF
+[X] Remove "Toggle All" button on Distribution Overview page.
+[X] Rename "Left to Spend" to "Spent".
+[X] Move "Import"/"Export" buttons to accomodate "left to spend"
+[X] Move "Left to Spend" to top banner next to "Unassigned".
+[X] Remove "This Month" (with money sum) under date picker.
+[X] Remove "Quick Add Transaction" button on Income categories.
+[X] Fix: Let delete notification text-wrap to prevent overflow.
+
 
 
 <Later>
@@ -48,12 +58,9 @@
 </Later>
 
 
-[] Move "view by" to the bottom of each page, it doesn't need to be at the top where you'll always see it.
 [] Remove "This Month" with sum of money under the date picker
 [] Move the "Import" and "Export" button to the same panel that the tabs to switch between budget, transactions, and spending are.
 [] Move "Left to Spend" to the top banner next to "Unassigned", and rename it to "Spent"
-[] Remove the Toggle All button on the Distribution Overview page
-[] Somehow make the pie chart easier to navigate on the phone, I want to have the hover function from computer... maybe require a double tap on the pie section to open it where the first tap gives the total dollar value?
 [] Make the initial budget's data the same as what's in the template 
 [] Add semi-monthly dropdown time option to Category creation.
 [] Set the default time-scale for categories to be the time-scale selected (daily, weekly, bi-weekly, semi-monthly, monthly, annually etc...)
@@ -69,3 +76,26 @@ balance field is blank; ONLY upon creating a sinking fund can the balance be set
 [] Let delete notification text-wrap so it doesn't go off the screen
 considered an inflow transaction.
 [] Toast prompt for Sinking fund transactions is inaccurate and weird, stats two numbers and they're off.
+
+
+<!-- Grouped by Gemini below -->
+
+UI/UX Optimization
+
+Renaming
+[] Rename "Normal Spending" to "Monthly Spending" (Distribution Overview).
+[] Rename "Sinking ..." to "Saving ..." (Distribution Overview).
+[] Rename "Spending" tab to "Overview".
+
+Data & Functionality
+[] Add semi-monthly dropdown option to Category creation.
+[] Add recurring expenses with due dates.
+[] Add delete button to transactions under category view.
+[] Set default category time-scale to match current user selection.
+[] Sync initial budget data to match template.
+[] Group transactions with matching names in Overview pie chart.
+[] Fix: Balance field logic for Sinking Funds (only set on creation; hide field entirely when uneditable).
+[] Fix: Inaccurate/weird toast prompt for Sinking fund transactions.
+[] Fix: Ensure inflow transactions are handled correctly.
+
+<!-- End Gemini Grouping -->

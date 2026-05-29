@@ -49,10 +49,10 @@ body {
 .app-header {
     background: var(--card);
     border-bottom: 1px solid var(--border);
-    padding: 0 16px;
-    display: flex;
+    padding: 0 8px 0 16px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
     align-items: center;
-    gap: 10px;
     height: 56px;
     position: sticky;
     top: 0;
@@ -65,13 +65,13 @@ body {
     font-size: 1.35rem;
     color: var(--accent);
     letter-spacing: -0.3px;
-    flex-shrink: 0;
+    justify-self: start;
 }
 
 .header-stats {
+    grid-column: 2;
     display: flex;
     gap: 12px;
-    flex: 1;
     justify-content: center;
     flex-wrap: wrap;
 }
@@ -91,19 +91,36 @@ body {
     line-height: 1.3;
 }
 
-.header-btns { display: flex; gap: 6px; flex-shrink: 0; }
+.header-actions {
+    grid-column: 3;
+    justify-self: end;
+}
 
 /* ── TABS ────────────────────────────────────── */
 .tabs {
     background: var(--card);
     border-bottom: 1px solid var(--border);
     display: flex;
-    padding: 0 12px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 0 8px 0 12px;
+}
+.tab-btns {
+    display: flex;
+    flex: 1;
+    min-width: 0;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
 }
-.tabs::-webkit-scrollbar { display: none; }
+.tab-btns::-webkit-scrollbar { display: none; }
+.tab-actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+    padding: 6px 0;
+}
 
 .tab-btn {
     padding: 12px 17px;
@@ -331,33 +348,6 @@ body {
     color: var(--text);
 }
 
-/* ── MONTH SUMMARY BAR ───────────────────────── */
-.month-summary {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-    margin-bottom: 10px;
-}
-.ms-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 10px 13px;
-    box-shadow: var(--shadow);
-}
-.ms-label {
-    font-size: 0.66rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.9px;
-    color: var(--text2);
-    margin-bottom: 3px;
-}
-.ms-val {
-    font-size: 1rem;
-    font-weight: 700;
-}
-
 /* ── ADD CATEGORY TRIGGER ────────────────────── */
 .add-cat-btn {
     width: 100%;
@@ -381,24 +371,6 @@ body {
     border-color: var(--accent);
     color: var(--accent);
     background: var(--accent-light);
-}
-
-/* ── TIMESCALE SELECTOR ──────────────────────── */
-.ts-selector {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 9px 13px;
-    margin-bottom: 4px;
-}
-.ts-selector-label {
-    font-size: 0.75rem;
-    color: var(--text2);
-    font-weight: 600;
-    white-space: nowrap;
 }
 
 /* ── TRANSACTION FORM ────────────────────────── */
@@ -602,6 +574,14 @@ label.field-label {
     font-weight: 700;
     color: var(--text);
 }
+.chart-slice-hint {
+    font-size: 0.78rem;
+    color: var(--text2);
+    font-weight: 600;
+    text-align: center;
+    min-height: 1.25em;
+    margin: -4px 0 8px;
+}
 .chart-wrap {
     position: relative;
     display: flex;
@@ -611,7 +591,7 @@ label.field-label {
     height: auto;
     padding-bottom: 10px;
 }
-#spendChart { max-width: 100%; max-height: none; }
+#spendChart { max-width: 100%; max-height: none; touch-action: manipulation; }
 
 /* ── MODAL ───────────────────────────────────── */
 .modal-bg {
@@ -686,9 +666,23 @@ textarea {
     font-size: 0.82rem;
     display: none;
     z-index: 2000;
-    white-space: nowrap;
+    max-width: min(92vw, 400px);
+    text-align: center;
+    line-height: 1.4;
     box-shadow: 0 4px 18px rgba(40,60,45,0.2);
     pointer-events: auto !important;
+}
+#toast.toast-confirm {
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 8px 10px;
+    padding: 12px 16px;
+    border-radius: 12px;
+}
+#toast.toast-confirm .toast-msg {
+    flex: 1 1 100%;
+    word-break: break-word;
 }
 
 /* ── EMPTY STATE ─────────────────────────────── */
@@ -810,17 +804,25 @@ textarea {
             <div class="hstat-label">Unassigned</div>
             <div class="hstat-val" id="h-unassigned">$0</div>
         </div>
+        <div class="hstat">
+            <div class="hstat-label">Spent</div>
+            <div class="hstat-val" id="h-left-to-spend">$0</div>
+        </div>
     </div>
-    <div class="header-btns">
-        <button class="btn-sm ghost" onclick="openImportModal()">Import</button>
+    <div class="header-actions">
         <button class="btn-sm solid" onclick="exportCSV()">Export</button>
     </div>
 </header>
 
 <nav class="tabs">
-    <button class="tab-btn active" onclick="switchTab('budget', this)">Budget</button>
-    <button class="tab-btn" onclick="switchTab('transactions', this)">Transactions</button>
-    <button class="tab-btn" onclick="switchTab('spending', this); renderCharts();">Spending</button>
+    <div class="tab-btns">
+        <button class="tab-btn active" onclick="switchTab('budget', this)">Budget</button>
+        <button class="tab-btn" onclick="switchTab('transactions', this)">Transactions</button>
+        <button class="tab-btn" onclick="switchTab('spending', this); renderCharts();">Spending</button>
+    </div>
+    <div class="tab-actions">
+        <button class="btn-sm ghost" onclick="openImportModal()">Import</button>
+    </div>
 </nav>
 
 <div class="view active" id="view-budget">
@@ -829,20 +831,6 @@ textarea {
         <button class="month-nav-btn" onclick="changeGlobalPeriod(-1)">&#8249;</button>
         <span class="month-nav-label month-label-display" onclick="openDatePicker()" title="Click to jump to a date" style="cursor:pointer;">—</span>
         <button class="month-nav-btn month-next-btn" onclick="changeGlobalPeriod(1)">&#8250;</button>
-    </div>
-
-    <div class="month-summary" id="month-summary"></div>
-
-    <div class="ts-selector">
-        <span class="ts-selector-label">View by</span>
-        <select id="budget-ts" style="margin:0; flex:1;" onchange="onTimescaleChange()">
-            <option value="daily">Daily</option>
-            <option value="weekly">Weekly</option>
-            <option value="biweekly">Bi-weekly</option>
-            <option value="semimonthly">Semi-monthly</option>
-            <option value="monthly" selected>Monthly</option>
-            <option value="annually">Annually</option>
-        </select>
     </div>
 
     <div class="assign-banner" id="assign-banner" style="display:none; margin-top:10px;">
@@ -928,11 +916,11 @@ textarea {
                 <option value="sinking_in">Sinking Deposits</option>
                 <option value="sinking_out">Sinking Withdrawals</option>
             </select>
-            <button class="btn-sm ghost" id="chart-toggle-all-btn" onclick="toggleAllChartSlices()" style="padding: 4px 8px; font-size: 0.7rem;">Toggle All</button>
             <button class="btn-sm ghost" id="chart-back-btn" onclick="chartActiveCategoryId=null; renderCharts();" style="display:none; padding: 4px 8px; font-size: 0.7rem;">← Back</button>
             </div>
         </div>
         <div class="chart-total-label" id="spend-total-label"></div>
+        <div class="chart-slice-hint" id="chart-slice-hint" aria-live="polite"></div>
         <div class="chart-wrap" id="chart-wrap" style="cursor: pointer;">
             <canvas id="spendChart"></canvas>
         </div>
@@ -1079,6 +1067,158 @@ state.categories.forEach(c => {
 let globalSpendChart = null;
 let chartActiveCategoryId = null;
 let chartActiveCategoryFlow = null;
+let chartSliceMetaIds = [];
+let chartTapState = { index: -1, time: 0 };
+let chartTouchJustHandled = false;
+const CHART_DOUBLE_TAP_MS = 450;
+
+function isChartTouchMode() {
+    return window.matchMedia('(pointer: coarse)').matches
+        || (navigator.maxTouchPoints > 0 && window.matchMedia('(max-width: 640px)').matches);
+}
+
+function chartPointerFromEvent(chart, evt) {
+    const touch = evt.changedTouches && evt.changedTouches[0];
+    const src = touch || evt;
+    return { clientX: src.clientX, clientY: src.clientY };
+}
+
+function chartCanvasXY(chart, clientX, clientY) {
+    const rect = chart.canvas.getBoundingClientRect();
+    return { x: clientX - rect.left, y: clientY - rect.top };
+}
+
+function getChartSliceIndex(chart, evt) {
+    const { clientX, clientY } = chartPointerFromEvent(chart, evt);
+    const fake = { clientX, clientY, target: chart.canvas };
+    const elements = chart.getElementsAtEventForMode(fake, 'nearest', { intersect: true }, false);
+    return elements.length > 0 ? elements[0].index : -1;
+}
+
+function getLegendIndexAt(chart, evt) {
+    const legend = chart.legend;
+    if (!legend || !legend.legendHitBoxes || !legend.legendHitBoxes.length) return -1;
+    const { clientX, clientY } = chartPointerFromEvent(chart, evt);
+    const { x, y } = chartCanvasXY(chart, clientX, clientY);
+    const pad = 8;
+    for (let i = 0; i < legend.legendHitBoxes.length; i++) {
+        const box = legend.legendHitBoxes[i];
+        if (x >= box.left - pad && x <= box.left + box.width + pad
+            && y >= box.top - pad && y <= box.top + box.height + pad) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+function toggleChartLegendSlice(chart, index) {
+    if (chart.isDatasetVisible(0)) {
+        chart.toggleDataVisibility(index);
+        chart.update();
+        setTimeout(() => updateChartTotalDOM(chart), 50);
+    }
+}
+
+function clearChartSlicePreview(chart) {
+    const hint = document.getElementById('chart-slice-hint');
+    if (hint) hint.textContent = '';
+    chartTapState = { index: -1, time: 0 };
+    if (chart) {
+        chart.setActiveElements([]);
+        if (chart.tooltip) chart.tooltip.setActiveElements([], { x: 0, y: 0 });
+        chart.update('none');
+    }
+}
+
+function previewChartSlice(chart, index, clientX, clientY) {
+    const label = chart.data.labels[index];
+    const val = chart.data.datasets[0].data[index];
+    let sum = 0;
+    chart.data.datasets[0].data.forEach((v, i) => {
+        if (chart.getDataVisibility(i)) sum += v;
+    });
+    const pct = sum ? ((val * 100) / sum).toFixed(1) : '0';
+    const hint = document.getElementById('chart-slice-hint');
+    if (hint) hint.textContent = `${label}: ${fmtDec(val)} (${pct}%) · double-tap to open`;
+    chart.setActiveElements([{ datasetIndex: 0, index }]);
+    const canvas = chart.canvas;
+    const rect = canvas.getBoundingClientRect();
+    const pos = (clientX != null && clientY != null)
+        ? { x: clientX - rect.left, y: clientY - rect.top }
+        : { x: rect.width / 2, y: rect.height / 2 };
+    if (chart.tooltip) chart.tooltip.setActiveElements([{ datasetIndex: 0, index }], pos);
+    chart.update('none');
+}
+
+function openChartSlice(index) {
+    if (!globalSpendChart || index < 0 || index >= chartSliceMetaIds.length) return;
+    clearChartSlicePreview(globalSpendChart);
+    if (!chartActiveCategoryId) {
+        const metaInfo = chartSliceMetaIds[index];
+        if (metaInfo) {
+            chartActiveCategoryId = metaInfo.catId;
+            chartActiveCategoryFlow = metaInfo.flow;
+            renderCharts();
+        }
+    } else {
+        const txnId = chartSliceMetaIds[index];
+        if (txnId) {
+            switchTab('transactions', document.querySelectorAll('.tab-btn')[1]);
+            setTimeout(() => {
+                const el = document.getElementById('txn-' + txnId);
+                if (el) {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    el.style.backgroundColor = '#eef2ef';
+                    setTimeout(() => el.style.backgroundColor = '', 2000);
+                }
+            }, 100);
+        }
+    }
+}
+
+function handleChartSliceTap(chart, evt) {
+    const legendIdx = getLegendIndexAt(chart, evt);
+    if (legendIdx >= 0) {
+        clearChartSlicePreview(chart);
+        toggleChartLegendSlice(chart, legendIdx);
+        return 'legend';
+    }
+    const index = getChartSliceIndex(chart, evt);
+    if (index < 0) {
+        clearChartSlicePreview(chart);
+        return 'none';
+    }
+    const { clientX, clientY } = chartPointerFromEvent(chart, evt);
+    if (!isChartTouchMode()) {
+        openChartSlice(index);
+        return 'slice';
+    }
+    const now = Date.now();
+    if (index === chartTapState.index && now - chartTapState.time < CHART_DOUBLE_TAP_MS) {
+        chartTapState = { index: -1, time: 0 };
+        openChartSlice(index);
+    } else {
+        chartTapState = { index, time: now };
+        previewChartSlice(chart, index, clientX, clientY);
+    }
+    return 'slice';
+}
+
+function bindChartTouchHandlers() {
+    const wrap = document.getElementById('chart-wrap');
+    if (!wrap || wrap._chartTouchBound) return;
+    wrap._chartTouchBound = true;
+    wrap.addEventListener('touchend', (e) => {
+        if (!globalSpendChart || e.changedTouches.length !== 1) return;
+        if (!e.target.closest('#spendChart')) return;
+        const handled = handleChartSliceTap(globalSpendChart, e);
+        if (handled === 'slice' || handled === 'legend') {
+            e.preventDefault();
+            chartTouchJustHandled = true;
+            setTimeout(() => { chartTouchJustHandled = false; }, 400);
+        }
+    }, { passive: false });
+}
 
 const TODAY = new Date();
 let currentYear = TODAY.getFullYear();
@@ -1086,6 +1226,8 @@ let currentMonth = TODAY.getMonth();
 
 // Period-aware navigation state
 let currentPeriodStart = new Date(TODAY.getFullYear(), TODAY.getMonth(), 1);
+let lastTimescale = 'monthly';
+let anchorMonth = TODAY.getMonth();
 const openCatPanels = new Set();
 
 // ─── UTILITIES ──────────────────────────────────────────────────────
@@ -1143,7 +1285,12 @@ function getPeriodEnd(startDate, ts) {
             }
             break;
         case 'annually':  d.setFullYear(d.getFullYear() + 1); break;
+        case 'monthly':
+            d.setDate(1);
+            d.setMonth(d.getMonth() + 1);
+            break;
         default:
+            d.setDate(1);
             d.setMonth(d.getMonth() + 1);
     }
     return d;
@@ -1169,7 +1316,12 @@ function stepPeriodStart(delta, ts) {
             }
             break;
         case 'annually':  d.setFullYear(d.getFullYear() + delta); break;
+        case 'monthly':
+            d.setDate(1);
+            d.setMonth(d.getMonth() + delta);
+            break;
         default:
+            d.setDate(1);
             d.setMonth(d.getMonth() + delta);
     }
     return d;
@@ -1198,6 +1350,9 @@ function snapPeriodStart(ts) {
             break;
         case 'annually':
             d.setDate(1); d.setMonth(0);
+            break;
+        case 'monthly':
+            d.setDate(1);
             break;
     }
     return d;
@@ -1345,6 +1500,7 @@ function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
 let toastTimer;
 function showToast(msg, color) {
     const el = document.getElementById('toast');
+    el.className = '';
     el.textContent = msg;
     el.style.background = color || 'var(--accent)';
     el.style.display = 'block';
@@ -1387,19 +1543,21 @@ function showBudgetToast(catId, txnType) {
 function showConfirmToast(msg, onConfirm) {
     const el = document.getElementById('toast');
     clearTimeout(toastTimer);
+    el.className = 'toast-confirm';
     el.innerHTML = '';
     el.style.background = 'var(--danger)';
-    el.style.display = 'block';
+    el.style.display = 'flex';
     const span = document.createElement('span');
+    span.className = 'toast-msg';
     span.textContent = msg;
     el.appendChild(span);
     const btnYes = document.createElement('button');
     btnYes.textContent = 'Yes';
-    btnYes.style.cssText = 'margin-left:12px; background:#fff; color:var(--danger); border:none; border-radius:4px; padding:2px 8px; cursor:pointer; font-weight:700;';
+    btnYes.style.cssText = 'background:#fff; color:var(--danger); border:none; border-radius:4px; padding:2px 10px; cursor:pointer; font-weight:700; flex-shrink:0;';
     btnYes.onclick = e => { e.stopPropagation(); el.style.display = 'none'; onConfirm(); };
     const btnNo = document.createElement('button');
     btnNo.textContent = 'No';
-    btnNo.style.cssText = 'margin-left:6px; background:transparent; color:#fff; border:1px solid #fff; border-radius:4px; padding:2px 8px; cursor:pointer;';
+    btnNo.style.cssText = 'background:transparent; color:#fff; border:1px solid #fff; border-radius:4px; padding:2px 10px; cursor:pointer; flex-shrink:0;';
     btnNo.onclick = e => { e.stopPropagation(); el.style.display = 'none'; };
     el.appendChild(btnYes);
     el.appendChild(btnNo);
@@ -1434,10 +1592,21 @@ function changeGlobalMonth(delta) { changeGlobalPeriod(delta); }
 
 function onTimescaleChange() {
     const ts = getTimescale();
+    if (ts === 'annually' && lastTimescale !== 'annually') {
+        anchorMonth = currentPeriodStart.getMonth();
+    }
     currentPeriodStart = snapPeriodStart(ts);
+    if (ts === 'monthly' && lastTimescale === 'annually') {
+        currentPeriodStart = new Date(currentPeriodStart.getFullYear(), anchorMonth, 1);
+    }
+    lastTimescale = ts;
     syncLegacyMonth();
     chartActiveCategoryId = null;
     chartActiveCategoryFlow = null;
+    const pickerModal = document.getElementById('date-picker-modal');
+    if (pickerModal?.classList.contains('open')) {
+        document.getElementById('date-picker-input').value = isoDate(currentPeriodStart);
+    }
     render();
     renderCharts();
 }
@@ -1462,6 +1631,7 @@ function applyDatePicker() {
     
     const oldY = currentYear, oldM = currentMonth;
     currentPeriodStart = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+    currentPeriodStart = snapPeriodStart(getTimescale());
     syncLegacyMonth();
     
     if (isMonthBlank(currentYear, currentMonth) && !isMonthBlank(oldY, oldM)) {
@@ -1490,7 +1660,7 @@ function render() {
 }
 
 // ─── HEADER STATS ────────────────────────────────────────────────────
-function renderHeader(totalIncomeTs, totalAllocatedTs) {
+function renderHeader(totalIncomeTs, totalAllocatedTs, leftToSpend) {
     const unassigned = totalIncomeTs - totalAllocatedTs;
     document.getElementById('h-income').textContent = fmt(totalIncomeTs);
     const uEl = document.getElementById('h-unassigned');
@@ -1504,6 +1674,9 @@ function renderHeader(totalIncomeTs, totalAllocatedTs) {
         uEl.textContent   = '–' + fmt(Math.abs(unassigned));
         uEl.style.color   = 'var(--danger)';
     }
+    const lEl = document.getElementById('h-left-to-spend');
+    lEl.textContent = (leftToSpend < 0 ? '–' : '') + fmt(Math.abs(leftToSpend));
+    lEl.style.color = leftToSpend >= 0 ? 'var(--accent)' : 'var(--danger)';
 }
 
 // ─── BUDGET VIEW ─────────────────────────────────────────────────────
@@ -1563,7 +1736,6 @@ function renderBudget() {
         banner.style.display = 'none';
     }
 
-    renderMonthSummary(totalIncomeTs, currentPeriodStart, periodEnd, ts);
     renderCatSection('income-list', incomeCats, 'income', ts);
     renderCatSection('expense-list', expenseCats, 'expense', ts);
     renderCatSection('sinking-list', sinkCats, 'sinking', ts);
@@ -1586,39 +1758,18 @@ function renderBudget() {
         document.getElementById('sinking-total-val').textContent = fmt(totalSinkingTs) + ' / ' + PERIOD_LABELS[ts];
     } else sinkTotalEl.style.display = 'none';
 
-    renderHeader(totalIncomeTs, totalAllocatedTs);
-}
-
-function renderMonthSummary(totalIncomeTs, startDate, endDate, ts) {
-    const el = document.getElementById('month-summary');
-    if (!el) return;
-
-    const periodTxns = getTxnsForPeriod(startDate, endDate);
+    const periodTxns = getTxnsForPeriod(currentPeriodStart, periodEnd);
     const totalSpent = periodTxns
         .filter(t => t.type === 'outflow')
         .reduce((s, t) => s + (parseFloat(t.amt) || 0), 0);
-
-    const sinkCats = state.categories.filter(c => c.type === 'sinking');
     let totalSaved = 0;
     sinkCats.forEach(cat => {
         const inflows = periodTxns.filter(t => t.catId == cat.id && t.type === 'inflow').reduce((s, t) => s + (parseFloat(t.amt) || 0), 0);
         totalSaved += inflows;
     });
-
     const leftToSpend = totalIncomeTs - totalSpent - totalSaved;
 
-    const PERIOD_SPENT_LABEL = { daily: 'Today', weekly: 'This Week', biweekly: 'This Fortnight', semimonthly: 'This Half-Month', monthly: 'This Month', annually: 'This Year' };
-
-    el.innerHTML = `
-        <div class="ms-card">
-            <div class="ms-label">${PERIOD_SPENT_LABEL[ts] || 'Spent'}</div>
-            <div class="ms-val" style="color:var(--danger)">${fmt(totalSpent)}</div>
-        </div>
-        <div class="ms-card">
-            <div class="ms-label">Left to Spend</div>
-            <div class="ms-val" style="color:${leftToSpend >= 0 ? 'var(--accent)' : 'var(--danger)'}">${leftToSpend < 0 ? '–' : ''}${fmt(Math.abs(leftToSpend))}</div>
-        </div>
-    `;
+    renderHeader(totalIncomeTs, totalAllocatedTs, leftToSpend);
 }
 
 function renderCatSection(elId, cats, type, ts) {
@@ -1700,9 +1851,7 @@ function renderCatSection(elId, cats, type, ts) {
             .filter(t => t.catId == cat.id)
             .sort((a, b) => b.date.localeCompare(a.date));
 
-        const panelHeader = ts === 'monthly'
-            ? `${MONTH_NAMES[currentMonth]} Transactions`
-            : `${formatPeriodLabel(currentPeriodStart, ts)} Transactions`;
+        const panelHeader = `${formatPeriodLabel(currentPeriodStart, ts)} Transactions`;
 
         const panelOpen = openCatPanels.has(cat.id);
         let panelHTML = '';
@@ -1724,11 +1873,12 @@ function renderCatSection(elId, cats, type, ts) {
         const txnCount = catTxns.length;
         const txnBadge = txnCount > 0 ? `<span style="font-size:0.68rem;background:var(--accent-light);color:var(--accent);border-radius:10px;padding:1px 7px;font-weight:800;margin-left:4px;">${txnCount}</span>` : '';
 
+        const showQuickAdd = type !== 'income';
         const quickAddId = `quick-add-${cat.id}`;
         const defaultFlow = type === 'expense' ? 'outflow' : 'inflow';
         const qaOpen = openQuickAdds.has(cat.id);
 
-        const quickAddHTML = `
+        const quickAddHTML = showQuickAdd ? `
         <div class="cat-quick-add${qaOpen ? ' open' : ''}" id="${quickAddId}" onclick="event.stopPropagation()">
             <div class="cat-quick-add-title">+ New Transaction for ${escapeHTML(cat.name)}</div>
             <input type="text" placeholder="Description" id="qa-desc-${cat.id}" style="margin-bottom:6px;">
@@ -1744,7 +1894,7 @@ function renderCatSection(elId, cats, type, ts) {
                 <button class="btn-primary" onclick="saveQuickAddTxn(${cat.id})">Save</button>
                 <button class="btn-primary secondary" onclick="closeQuickAdd(${cat.id})">Cancel</button>
             </div>
-        </div>`;
+        </div>` : '';
 
         return `
         <div class="card ${borderClass}" id="cat-card-${cat.id}">
@@ -1759,7 +1909,7 @@ function renderCatSection(elId, cats, type, ts) {
                 </div>
                 <div class="card-actions">
                     <span class="period-badge">${cat.period || 'monthly'}</span>
-                    <button class="icon-btn" onclick="event.stopPropagation(); toggleQuickAdd(${cat.id})" title="Add transaction">＋</button>
+                    ${showQuickAdd ? `<button class="icon-btn" onclick="event.stopPropagation(); toggleQuickAdd(${cat.id})" title="Add transaction">＋</button>` : ''}
                     <button class="icon-btn" onclick="openEditCatModal(${cat.id})" title="Edit">✎</button>
                     <button class="icon-btn del" onclick="deleteCategory(${cat.id})" title="Delete">✕</button>
                 </div>
@@ -2045,17 +2195,6 @@ const CHART_COLORS = [
     '#2c3a32','#2e515d','#5b4e34','#436353'
 ];
 
-let allSlicesHidden = false;
-
-window.toggleAllChartSlices = function() {
-    if (!globalSpendChart) return;
-    allSlicesHidden = !allSlicesHidden;
-    const meta = globalSpendChart.getDatasetMeta(0);
-    meta.data.forEach(d => d.hidden = allSlicesHidden);
-    globalSpendChart.update();
-    updateChartTotalDOM(globalSpendChart);
-};
-
 function updateChartTotalDOM(chart) {
     let sum = 0;
     chart.data.datasets[0].data.forEach((val, idx) => {
@@ -2072,15 +2211,12 @@ function renderCharts() {
     let total = 0;
     
     const backBtn = document.getElementById('chart-back-btn');
-    const toggleBtn = document.getElementById('chart-toggle-all-btn');
     const viewDropdown = document.getElementById('chart-view-mode');
     const viewMode = viewDropdown ? viewDropdown.value : 'expense';
     
     if (chartActiveCategoryId) {
         backBtn.style.display = 'inline-block';
-        toggleBtn.style.display = 'none';
         if (viewDropdown) viewDropdown.style.display = 'none';
-        allSlicesHidden = false;
 
         const cat = state.categories.find(c => c.id == chartActiveCategoryId);
         const titleStr = chartActiveCategoryId === '__uncat__' ? 'Uncategorized' : (cat ? cat.name : 'Category');
@@ -2101,7 +2237,6 @@ function renderCharts() {
 
     } else {
         backBtn.style.display = 'none';
-        toggleBtn.style.display = 'inline-block';
         if (viewDropdown) viewDropdown.style.display = 'inline-block';
         document.querySelector('.chart-card-title').textContent = 'Distribution Overview';
 
@@ -2161,6 +2296,9 @@ Object.keys(catMap).forEach(key => {
     emptyEl.style.display = 'none';
     chartEl.style.display = 'block';
     
+    chartSliceMetaIds = metaIds;
+    clearChartSlicePreview(null);
+
     if (globalSpendChart) globalSpendChart.destroy();
     globalSpendChart = new Chart(chartEl.getContext('2d'), {
         type: 'pie',
@@ -2177,13 +2315,7 @@ Object.keys(catMap).forEach(key => {
     position: 'bottom', 
     labels: { boxWidth: 11, font: { size: 11, family: 'DM Sans' }, padding: 12 },
     onClick: function(e, legendItem, legend) {
-        const index = legendItem.index;
-        const ci = legend.chart;
-        if (ci.isDatasetVisible(0)) {
-            ci.toggleDataVisibility(index);
-            ci.update(); 
-            setTimeout(() => updateChartTotalDOM(ci), 50);
-        }
+        toggleChartLegendSlice(legend.chart, legendItem.index);
     }
 },
                 datalabels: {
@@ -2200,33 +2332,13 @@ Object.keys(catMap).forEach(key => {
                 tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${fmtDec(ctx.parsed)}` } }
             },
             onClick: (e, elements) => {
-                if (elements.length > 0) {
-                    const index = elements[0].index;
-                    if (!chartActiveCategoryId) {
-                        const metaInfo = metaIds[index];
-                        if (metaInfo) {
-                            chartActiveCategoryId = metaInfo.catId;
-                            chartActiveCategoryFlow = metaInfo.flow;
-                            renderCharts();
-                        }
-                    } else {
-                        const txnId = metaIds[index];
-                        if (txnId) {
-                            switchTab('transactions', document.querySelectorAll('.tab-btn')[1]);
-                            setTimeout(() => {
-                                const el = document.getElementById('txn-' + txnId);
-                                if (el) {
-                                    el.scrollIntoView({behavior: 'smooth', block: 'center'});
-                                    el.style.backgroundColor = '#eef2ef';
-                                    setTimeout(() => el.style.backgroundColor = '', 2000);
-                                }
-                            }, 100);
-                        }
-                    }
-                }
+                if (chartTouchJustHandled) return;
+                if (isChartTouchMode()) return;
+                if (elements.length > 0) openChartSlice(elements[0].index);
             }
         }
     });
+    bindChartTouchHandlers();
     updateChartTotalDOM(globalSpendChart);
 }
 
@@ -2396,7 +2508,16 @@ renderCharts();
     <div class="modal-box">
         <div class="modal-handle"></div>
         <div class="modal-title">Jump to Date</div>
-        <p style="font-size:0.8rem; color:var(--text2); margin:0 0 12px;">Choose the start date for your budget period. The view will align to this date.</p>
+        <p style="font-size:0.8rem; color:var(--text2); margin:0 0 12px;">Set the period start date and how you want to view your budget.</p>
+        <label class="field-label">View by</label>
+        <select id="budget-ts" onchange="onTimescaleChange()">
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="biweekly">Bi-weekly</option>
+            <option value="semimonthly">Semi-monthly</option>
+            <option value="monthly" selected>Monthly</option>
+            <option value="annually">Annually</option>
+        </select>
         <label class="field-label">Start date</label>
         <input type="date" id="date-picker-input" style="margin-bottom:16px;">
         <div class="modal-actions">
