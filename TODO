@@ -68,4 +68,5 @@
 [] Optimize the code a lot, sloppy stuff.
 [] Make the initial budget's data the same as what's in the template 
 [] Add recurring expenses with due dates.
+[] Add a "Clear Budget" button, that can clear just Transactions or all Categories and Transactions.
 
