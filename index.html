@@ -49,10 +49,11 @@ body {
 .app-header {
     background: var(--card);
     border-bottom: 1px solid var(--border);
-    padding: 0 8px 0 16px;
+    padding: 0 12px;
     display: grid;
     grid-template-columns: 1fr auto 1fr;
     align-items: center;
+    gap: 10px;
     height: 56px;
     position: sticky;
     top: 0;
@@ -66,17 +67,22 @@ body {
     color: var(--accent);
     letter-spacing: -0.3px;
     justify-self: start;
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 .header-stats {
     grid-column: 2;
     display: flex;
-    gap: 12px;
-    justify-content: center;
-    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    justify-self: center;
 }
 
-.hstat { text-align: center; }
+.hstat {
+    text-align: center;
+    padding: 0 2px;
+}
 .hstat-label {
     font-size: 0.60rem;
     text-transform: uppercase;
@@ -94,6 +100,7 @@ body {
 .header-actions {
     grid-column: 3;
     justify-self: end;
+    flex-shrink: 0;
 }
 
 /* ── TABS ────────────────────────────────────── */
@@ -101,29 +108,23 @@ body {
     background: var(--card);
     border-bottom: 1px solid var(--border);
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    padding: 0 8px 0 12px;
+    justify-content: center;
+    padding: 0 12px;
 }
 .tab-btns {
     display: flex;
-    flex: 1;
-    min-width: 0;
+    justify-content: center;
+    align-items: stretch;
+    gap: 6px;
+    max-width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
 }
 .tab-btns::-webkit-scrollbar { display: none; }
-.tab-actions {
-    display: flex;
-    gap: 6px;
-    flex-shrink: 0;
-    padding: 6px 0;
-}
-
 .tab-btn {
-    padding: 12px 17px;
+    flex: 0 0 auto;
+    padding: 12px 12px;
     border: none;
     background: none;
     font-family: 'DM Sans', sans-serif;
@@ -139,6 +140,15 @@ body {
 .tab-btn.active {
     color: var(--accent);
     border-bottom-color: var(--accent);
+}
+
+@media (min-width: 520px) {
+    .app-header { padding: 0 16px; }
+    .header-stats { gap: 10px; }
+    .hstat { padding: 0 6px; }
+    .tabs { padding: 0 16px; }
+    .tab-btns { gap: 10px; }
+    .tab-btn { padding: 12px 18px; }
 }
 
 /* ── VIEWS ───────────────────────────────────── */
@@ -818,10 +828,7 @@ textarea {
     <div class="tab-btns">
         <button class="tab-btn active" onclick="switchTab('budget', this)">Budget</button>
         <button class="tab-btn" onclick="switchTab('transactions', this)">Transactions</button>
-        <button class="tab-btn" onclick="switchTab('spending', this); renderCharts();">Spending</button>
-    </div>
-    <div class="tab-actions">
-        <button class="btn-sm ghost" onclick="openImportModal()">Import</button>
+        <button class="tab-btn" onclick="switchTab('spending', this); renderCharts();">Overview</button>
     </div>
 </nav>
 
@@ -866,6 +873,7 @@ textarea {
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
         Add Category
     </button>
+    <button class="add-cat-btn" onclick="openImportModal()">Import</button>
 </div>
 
 <div class="view" id="view-transactions">
@@ -912,9 +920,9 @@ textarea {
             <span class="chart-card-title">Distribution Overview</span>
             <div style="display:flex; gap:6px; align-items:center;">
             <select id="chart-view-mode" onchange="chartActiveCategoryId=null; renderCharts();" style="min-width: 140px;">
-                <option value="expense" selected>Normal Spending</option>
-                <option value="sinking_in">Sinking Deposits</option>
-                <option value="sinking_out">Sinking Withdrawals</option>
+                <option value="expense" selected>Scheduled Spending</option>
+                <option value="sinking_in">Saving Deposits</option>
+                <option value="sinking_out">Saving Withdrawals</option>
             </select>
             <button class="btn-sm ghost" id="chart-back-btn" onclick="chartActiveCategoryId=null; renderCharts();" style="display:none; padding: 4px 8px; font-size: 0.7rem;">← Back</button>
             </div>
@@ -1237,6 +1245,17 @@ const fmtDec = n => '$' + Math.abs(Math.round(n * 100) / 100).toLocaleString('en
 const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 const MONTH_ABBR  = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const PERIOD_LABELS = { daily: 'day', weekly: 'week', biweekly: '2 wks', semimonthly: 'half-month', monthly: 'month', annually: 'year' };
+const TIMESCALE_DISPLAY = {
+    daily: 'Daily', weekly: 'Weekly', biweekly: 'Bi-weekly',
+    semimonthly: 'Semi-monthly', monthly: 'Monthly', annually: 'Annually'
+};
+
+function updateChartExpenseOptionLabel() {
+    const opt = document.querySelector('#chart-view-mode option[value="expense"]');
+    if (!opt) return;
+    const name = TIMESCALE_DISPLAY[getTimescale()] || 'Monthly';
+    opt.textContent = name + ' spending';
+}
 
 function toMonthly(amount, period) {
     const amt = parseFloat(amount) || 0;
@@ -1660,7 +1679,7 @@ function render() {
 }
 
 // ─── HEADER STATS ────────────────────────────────────────────────────
-function renderHeader(totalIncomeTs, totalAllocatedTs, leftToSpend) {
+function renderHeader(totalIncomeTs, totalAllocatedTs, netSpent) {
     const unassigned = totalIncomeTs - totalAllocatedTs;
     document.getElementById('h-income').textContent = fmt(totalIncomeTs);
     const uEl = document.getElementById('h-unassigned');
@@ -1674,9 +1693,9 @@ function renderHeader(totalIncomeTs, totalAllocatedTs, leftToSpend) {
         uEl.textContent   = '–' + fmt(Math.abs(unassigned));
         uEl.style.color   = 'var(--danger)';
     }
-    const lEl = document.getElementById('h-left-to-spend');
-    lEl.textContent = (leftToSpend < 0 ? '–' : '') + fmt(Math.abs(leftToSpend));
-    lEl.style.color = leftToSpend >= 0 ? 'var(--accent)' : 'var(--danger)';
+    const sEl = document.getElementById('h-left-to-spend');
+    sEl.textContent = (netSpent < 0 ? '–' : '') + fmt(Math.abs(netSpent));
+    sEl.style.color = netSpent > 0 ? 'var(--danger)' : 'var(--accent)';
 }
 
 // ─── BUDGET VIEW ─────────────────────────────────────────────────────
@@ -1759,17 +1778,15 @@ function renderBudget() {
     } else sinkTotalEl.style.display = 'none';
 
     const periodTxns = getTxnsForPeriod(currentPeriodStart, periodEnd);
-    const totalSpent = periodTxns
+    const totalOutflows = periodTxns
         .filter(t => t.type === 'outflow')
         .reduce((s, t) => s + (parseFloat(t.amt) || 0), 0);
-    let totalSaved = 0;
-    sinkCats.forEach(cat => {
-        const inflows = periodTxns.filter(t => t.catId == cat.id && t.type === 'inflow').reduce((s, t) => s + (parseFloat(t.amt) || 0), 0);
-        totalSaved += inflows;
-    });
-    const leftToSpend = totalIncomeTs - totalSpent - totalSaved;
+    const totalInflows = periodTxns
+        .filter(t => t.type === 'inflow')
+        .reduce((s, t) => s + (parseFloat(t.amt) || 0), 0);
+    const netSpent = totalOutflows - totalInflows;
 
-    renderHeader(totalIncomeTs, totalAllocatedTs, leftToSpend);
+    renderHeader(totalIncomeTs, totalAllocatedTs, netSpent);
 }
 
 function renderCatSection(elId, cats, type, ts) {
@@ -2204,6 +2221,7 @@ function updateChartTotalDOM(chart) {
 }
 
 function renderCharts() {
+    updateChartExpenseOptionLabel();
     const ts = getTimescale();
     const periodEnd = getPeriodEnd(currentPeriodStart, ts);
     const monthTxns = getTxnsForPeriod(currentPeriodStart, periodEnd);
@@ -2500,6 +2518,7 @@ function parseCSVLine(text) {
 
 // ─── INIT ─────────────────────────────────────────────────────────────
 document.getElementById('txn-date').value = todayISO();
+updateChartExpenseOptionLabel();
 render();
 renderCharts();
 </script>

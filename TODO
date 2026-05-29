@@ -47,7 +47,11 @@
 [X] Remove "This Month" (with money sum) under date picker.
 [X] Remove "Quick Add Transaction" button on Income categories.
 [X] Fix: Let delete notification text-wrap to prevent overflow.
-
+[X] Centre the 3 navigation tabs
+[X] Centre the Income, Unassigned, Spent figures
+[X] Rename "Normal Spending" to <Time-Scale> "Spending" (Distribution Overview).
+[X] Rename "Sinking ..." to "Saving ..." (Distribution Overview).
+[X] Rename "Spending" tab to "Overview".
 
 
 <Later>
@@ -58,9 +62,6 @@
 </Later>
 
 
-[] Remove "This Month" with sum of money under the date picker
-[] Move the "Import" and "Export" button to the same panel that the tabs to switch between budget, transactions, and spending are.
-[] Move "Left to Spend" to the top banner next to "Unassigned", and rename it to "Spent"
 [] Make the initial budget's data the same as what's in the template 
 [] Add semi-monthly dropdown time option to Category creation.
 [] Set the default time-scale for categories to be the time-scale selected (daily, weekly, bi-weekly, semi-monthly, monthly, annually etc...)
@@ -83,9 +84,6 @@ considered an inflow transaction.
 UI/UX Optimization
 
 Renaming
-[] Rename "Normal Spending" to "Monthly Spending" (Distribution Overview).
-[] Rename "Sinking ..." to "Saving ..." (Distribution Overview).
-[] Rename "Spending" tab to "Overview".
 
 Data & Functionality
 [] Add semi-monthly dropdown option to Category creation.
