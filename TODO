@@ -58,44 +58,14 @@
 [X] Fix: Balance field logic for Sinking Funds (only set on creation; hide field entirely when uneditable).
 [X] Fix: Ensurethe Toast Notification on for transactions on Sinking Funds are showing the accurate Balance a no other numbers like the Transaction Amount.
 [X] Group transactions with matching names in Overview pie chart.
+[X] Look into making the tabs to switch between budget, transaction, and overview sticky to the top even when I scroll down - Looked into, it's a no because mobile doesn't like it.
 
 
 
 
-<Later>
 [] Look into removing transaction page and instead just having transactions under their categories?
 [] Make complete list of functions/features expectations to run through when testing the app - make sure nothing gets overlooked.
-[] Look into making the tabs to switch between budget, transaction, and overview sticky to the top even when I scroll down
 [] Optimize the code a lot, sloppy stuff.
-</Later>
-
-
 [] Make the initial budget's data the same as what's in the template 
-[] Add semi-monthly dropdown time option to Category creation.
-[] Set the default time-scale for categories to be the time-scale selected (daily, weekly, bi-weekly, semi-monthly, monthly, annually etc...)
-[] Rename "Normal Spending" to "Monthly Spending" at the distribution overview 
-[] Rename "Sinking ..." to "Saving ..." at the distribution overview
-[] Rename "Spending" tab to "Overview"
-[] If transaction name matches other transactions group them together in Overview pie chart
-[] Add recurring expenses with due dates
-[] Add delete to the transactions under category view; either upon editing an already created transaction let there be a delete button, or add a delete button to the far right side, just like all the other transactions and categories.
-balance field is blank; ONLY upon creating a sinking fund can the balance be set.
-[] When editing a Sinking Fund, don't show the "Balance" field - when the field is uneditable don't show it at all.
-[] Remove the Quick Add Transaction button to Income categories
-[] Let delete notification text-wrap so it doesn't go off the screen
-considered an inflow transaction.
-[] Toast prompt for Sinking fund transactions is inaccurate and weird, stats two numbers and they're off.
-
-
-<!-- Grouped by Gemini below -->
-
-UI/UX Optimization
-
-Renaming
-
-Data & Functionality
-[] Sync initial budget data to match template.
 [] Add recurring expenses with due dates.
 
-
-<!-- End Gemini Grouping -->
