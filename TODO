@@ -52,6 +52,14 @@
 [X] Rename "Normal Spending" to <Time-Scale> "Spending" (Distribution Overview).
 [X] Rename "Sinking ..." to "Saving ..." (Distribution Overview).
 [X] Rename "Spending" tab to "Overview".
+[X] Add semi-monthly dropdown option to Category creation.
+[X] Add delete button to transactions under category view.
+[X] Set the default value of category time-scale to match current user selection.
+[X] Fix: Balance field logic for Sinking Funds (only set on creation; hide field entirely when uneditable).
+[X] Fix: Ensurethe Toast Notification on for transactions on Sinking Funds are showing the accurate Balance a no other numbers like the Transaction Amount.
+[X] Group transactions with matching names in Overview pie chart.
+
+
 
 
 <Later>
@@ -86,14 +94,8 @@ UI/UX Optimization
 Renaming
 
 Data & Functionality
-[] Add semi-monthly dropdown option to Category creation.
-[] Add recurring expenses with due dates.
-[] Add delete button to transactions under category view.
-[] Set default category time-scale to match current user selection.
 [] Sync initial budget data to match template.
-[] Group transactions with matching names in Overview pie chart.
-[] Fix: Balance field logic for Sinking Funds (only set on creation; hide field entirely when uneditable).
-[] Fix: Inaccurate/weird toast prompt for Sinking fund transactions.
-[] Fix: Ensure inflow transactions are handled correctly.
+[] Add recurring expenses with due dates.
+
 
 <!-- End Gemini Grouping -->

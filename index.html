@@ -924,8 +924,8 @@ textarea {
                 <option value="sinking_in">Saving Deposits</option>
                 <option value="sinking_out">Saving Withdrawals</option>
             </select>
-            <button class="btn-sm ghost" id="chart-back-btn" onclick="chartActiveCategoryId=null; renderCharts();" style="display:none; padding: 4px 8px; font-size: 0.7rem;">← Back</button>
-            </div>
+            <button class="btn-sm ghost" id="chart-back-btn" onclick="chartBackOneLevel()" style="display:none; padding: 4px 8px; font-size: 0.7rem;">← Back</button>
+        </div>
         </div>
         <div class="chart-total-label" id="spend-total-label"></div>
         <div class="chart-slice-hint" id="chart-slice-hint" aria-live="polite"></div>
@@ -958,6 +958,7 @@ textarea {
                 <option value="daily">Daily</option>
                 <option value="weekly">Weekly</option>
                 <option value="biweekly">Bi-weekly</option>
+                <option value="semimonthly">Semi-monthly</option>
                 <option value="monthly" selected>Monthly</option>
                 <option value="annually">Annually</option>
             </select>
@@ -1075,6 +1076,8 @@ state.categories.forEach(c => {
 let globalSpendChart = null;
 let chartActiveCategoryId = null;
 let chartActiveCategoryFlow = null;
+let chartActiveGroupIds = null;
+let chartActiveGroupLabel = null;
 let chartSliceMetaIds = [];
 let chartTapState = { index: -1, time: 0 };
 let chartTouchJustHandled = false;
@@ -1158,6 +1161,17 @@ function previewChartSlice(chart, index, clientX, clientY) {
     chart.update('none');
 }
 
+function chartBackOneLevel() {
+    if (chartActiveGroupIds) {
+        chartActiveGroupIds = null;
+        chartActiveGroupLabel = null;
+    } else {
+        chartActiveCategoryId = null;
+        chartActiveCategoryFlow = null;
+    }
+    renderCharts();
+}
+
 function openChartSlice(index) {
     if (!globalSpendChart || index < 0 || index >= chartSliceMetaIds.length) return;
     clearChartSlicePreview(globalSpendChart);
@@ -1169,11 +1183,15 @@ function openChartSlice(index) {
             renderCharts();
         }
     } else {
-        const txnId = chartSliceMetaIds[index];
-        if (txnId) {
+        const meta = chartSliceMetaIds[index];
+        if (meta && meta.grouped) {
+            chartActiveGroupIds = meta.ids;
+            chartActiveGroupLabel = meta.label;
+            renderCharts();
+        } else if (meta) {
             switchTab('transactions', document.querySelectorAll('.tab-btn')[1]);
             setTimeout(() => {
-                const el = document.getElementById('txn-' + txnId);
+                const el = document.getElementById('txn-' + meta);
                 if (el) {
                     el.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     el.style.backgroundColor = '#eef2ef';
@@ -1543,7 +1561,7 @@ function showBudgetToast(catId, txnType) {
             .filter(t => t.catId == catId && t.type === 'outflow')
             .reduce((sum, t) => sum + (parseFloat(t.amt) || 0), 0);
         const netThisPeriod = periodInflows - periodOutflows;
-        showToast(`${cat.name} balance: ${fmtDec(bal)}  ·  ${netThisPeriod >= 0 ? '+' : '–'}${fmtDec(Math.abs(netThisPeriod))} this ${pl}`, 'var(--sinking)');
+        showToast(`${cat.name} balance: ${fmtDec(bal)} this ${pl}`, 'var(--sinking)');
         return;
     }
     
@@ -1602,7 +1620,9 @@ function changeGlobalPeriod(delta) {
     }
 
     chartActiveCategoryId = null;
-    chartActiveCategoryFlow = null;
+chartActiveCategoryFlow = null;
+chartActiveGroupIds = null;
+chartActiveGroupLabel = null;
     render();
     renderCharts();
 }
@@ -1621,7 +1641,9 @@ function onTimescaleChange() {
     lastTimescale = ts;
     syncLegacyMonth();
     chartActiveCategoryId = null;
-    chartActiveCategoryFlow = null;
+chartActiveCategoryFlow = null;
+chartActiveGroupIds = null;
+chartActiveGroupLabel = null;
     const pickerModal = document.getElementById('date-picker-modal');
     if (pickerModal?.classList.contains('open')) {
         document.getElementById('date-picker-input').value = isoDate(currentPeriodStart);
@@ -1658,7 +1680,9 @@ function applyDatePicker() {
     }
 
     chartActiveCategoryId = null;
-    chartActiveCategoryFlow = null;
+chartActiveCategoryFlow = null;
+chartActiveGroupIds = null;
+chartActiveGroupLabel = null;
     closeDatePicker();
     render();
     renderCharts();
@@ -1882,6 +1906,7 @@ function renderCatSection(elId, cats, type, ts) {
                         <div class="cat-txn-desc">${escapeHTML(t.desc)}</div>
                         <div class="cat-txn-meta">${t.date}</div>
                         <div class="cat-txn-amt" style="color:${col}">${sign}${fmtDec(t.amt)}</div>
+                        <button class="icon-btn del" onclick="event.stopPropagation(); deleteTransaction(${t.id})" title="Delete">✕</button>
                     </div>`;
                 }).join('')}
             </div>`;
@@ -2101,7 +2126,8 @@ function closeCatModal() { document.getElementById('cat-modal').classList.remove
 
 function updateCatModalUI() {
     const type = document.getElementById('cat-type').value;
-    document.getElementById('balance-wrap').style.display = type === 'sinking' ? 'block' : 'none';
+    const isEditing = !!document.getElementById('cat-edit-id').value;
+    document.getElementById('balance-wrap').style.display = (type === 'sinking' && !isEditing) ? 'block' : 'none';
 }
 
 function saveCategory() {
@@ -2239,20 +2265,46 @@ function renderCharts() {
         const cat = state.categories.find(c => c.id == chartActiveCategoryId);
         const titleStr = chartActiveCategoryId === '__uncat__' ? 'Uncategorized' : (cat ? cat.name : 'Category');
         const flowLabel = chartActiveCategoryFlow === 'inflow' ? ' (Saved)' : ' (Spent)';
+
+        // Group drill-down layer
+        if (chartActiveGroupIds) {
+            document.querySelector('.chart-card-title').textContent = `${chartActiveGroupLabel} (${chartActiveGroupIds.length} transactions)`;
+            chartActiveGroupIds.forEach(id => {
+                const t = state.transactions.find(t => t.id === id);
+                if (!t) return;
+                const val = parseFloat(t.amt) || 0;
+                labels.push(`${t.desc} · ${t.date}`);
+                data.push(val);
+                metaIds.push(t.id);
+                total += val;
+            });
+            document.getElementById('spend-total-label').innerHTML = `Total: <span>${fmt(total)}</span>`;
+            // fall through to chart render
+        } else {
+
         document.querySelector('.chart-card-title').textContent = titleStr + (cat && cat.type === 'sinking' ? flowLabel : '');
         
         const catTxns = monthTxns.filter(t => (t.catId || '__uncat__') == chartActiveCategoryId);
         
-        catTxns.forEach(t => {
-            const val = parseFloat(t.amt) || 0;
-            if (t.type === chartActiveCategoryFlow || (!chartActiveCategoryFlow && t.type === 'outflow')) {
-                labels.push(t.desc || 'Unnamed');
-                data.push(val);
-                metaIds.push(t.id); 
-                total += val;
-            }
-        });
+        const groupMap = {};
+catTxns.forEach(t => {
+    const val = parseFloat(t.amt) || 0;
+    if (t.type === chartActiveCategoryFlow || (!chartActiveCategoryFlow && t.type === 'outflow')) {
+        const key = (t.desc || 'Unnamed').toLowerCase();
+        if (!groupMap[key]) groupMap[key] = { label: t.desc || 'Unnamed', val: 0, ids: [], count: 0 };
+        groupMap[key].val += val;
+        groupMap[key].ids.push(t.id);
+        groupMap[key].count++;
+        total += val;
+    }
+});
+Object.values(groupMap).forEach(g => {
+    labels.push(g.count > 1 ? `${g.label} (×${g.count})` : g.label);
+    data.push(Math.round(g.val * 100) / 100);
+    metaIds.push(g.count > 1 ? { grouped: true, ids: g.ids, label: g.label } : g.ids[0]);
+});
 
+} // end !chartActiveGroupIds
     } else {
         backBtn.style.display = 'none';
         if (viewDropdown) viewDropdown.style.display = 'inline-block';
@@ -2408,7 +2460,7 @@ function downloadCSVTemplate() {
         'Allocation (Column 3) = Allocated $ for Category | Transaction $ amount',
         'Date format (column 4) = YYYY-MM-DD | "N/A" for Category',
         'CategoryType (column 5) = Category options are expense/income/sinking | Transaction must match a category name or be left blank',
-        'Period (column 6) = Category options are daily/weekly/biweekly/monthly/annually | Transactions = "N/A"',
+        'Period (column 6) = Category options are daily/weekly/biweekly/semimonthly/monthly/annually | Transactions = "N/A"',
         'Balance (column 7) = starting $ balance for sinking funds/savings | use 0 for other expenses | use "N/A" for Transactions',
         'TxnType (column 8) = outflow | inflow'
     ].join('\n');
