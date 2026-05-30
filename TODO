@@ -61,7 +61,7 @@
 [X] Look into making the tabs to switch between budget, transaction, and overview sticky to the top even when I scroll down - Looked into, it's a no because mobile doesn't like it.
 
 
-
+[] Review Claude's bug and redundancy search - high scrutiny 
 [] Investigate but where $0 left in category after perfectly suming transactions makes the text red indicating i went over budget, even though its at $0, this doesnt always happen.
 [] Make sure piechart can accommodate endless categories.
 [] Look into removing transaction page and instead just having transactions under their categories?
