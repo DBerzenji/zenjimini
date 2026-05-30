@@ -1317,7 +1317,7 @@
                 </div>
             </div>
 
-            <div class="input-row" style="margin-bottom: 0;">
+            <div class="input-row" style="margin-bottom: 8px;">
                 <div>
                     <label class="field-label">Expected Return (%)</label>
                     <input type="number" id="fi-input-return" value="7.0" step="0.1" min="0" max="25"
@@ -1330,7 +1330,20 @@
                 </div>
             </div>
 
-            <div class="input-row" style="margin-top: 8px;">
+            <div class="input-row" style="margin-bottom: 8px;">
+                <div>
+                    <label class="field-label">Annual Wage Growth (%)</label>
+                    <input type="number" id="fi-input-wage-growth" value="3.0" step="0.1" min="0" max="20"
+                        oninput="onFIParamChange()">
+                </div>
+                <div>
+                    <label class="field-label">Expense Inflation (%)</label>
+                    <input type="number" id="fi-input-exp-inflation" value="2.5" step="0.1" min="0" max="15"
+                        oninput="onFIParamChange()">
+                </div>
+            </div>
+
+            <div class="input-row" style="margin-bottom: 0;">
                 <div>
                     <label class="field-label">Safe Withdrawal Rate (%)</label>
                     <input type="number" id="fi-input-swr" value="4.0" step="0.1" min="1" max="10"
@@ -1488,7 +1501,9 @@
                 returnRate: 7.0,
                 inflationRate: 2.5,
                 currentAge: 30,
-                targetAge: 60
+                targetAge: 60,
+                wageGrowth: 3.0,
+                expenseInflation: 2.5
             };
             save();
         }
@@ -3040,12 +3055,16 @@
             document.getElementById('fi-input-swr').value = state.fi.swr;
             document.getElementById('fi-input-age').value = state.fi.currentAge;
             document.getElementById('fi-input-target-age').value = state.fi.targetAge;
+            document.getElementById('fi-input-wage-growth').value = state.fi.wageGrowth !== undefined ? state.fi.wageGrowth : 3.0;
+            document.getElementById('fi-input-exp-inflation').value = state.fi.expenseInflation !== undefined ? state.fi.expenseInflation : 2.5;
         }
 
         function resetFIParameters() {
             delete state.fi.customIncome;
             delete state.fi.customSavings;
             delete state.fi.customExpenses;
+            delete state.fi.wageGrowth;
+            delete state.fi.expenseInflation;
             save();
             initFIInputs();
             renderFI();
@@ -3058,16 +3077,17 @@
 
         function renderFI() {
             if (!state.fi) {
-                state.fi = {
-                    nestEgg: 10000,
-                    swr: 4.0,
-                    returnRate: 7.0,
-                    inflationRate: 2.5,
-                    currentAge: 30,
-                    targetAge: 60
-                };
-                save();
+                state.fi = {};
             }
+            if (state.fi.nestEgg === undefined) state.fi.nestEgg = 10000;
+            if (state.fi.swr === undefined) state.fi.swr = 4.0;
+            if (state.fi.returnRate === undefined) state.fi.returnRate = 7.0;
+            if (state.fi.inflationRate === undefined) state.fi.inflationRate = 2.5;
+            if (state.fi.currentAge === undefined) state.fi.currentAge = 30;
+            if (state.fi.targetAge === undefined) state.fi.targetAge = 60;
+            if (state.fi.wageGrowth === undefined) state.fi.wageGrowth = 3.0;
+            if (state.fi.expenseInflation === undefined) state.fi.expenseInflation = 2.5;
+            save();
 
             const incomeInput = document.getElementById('fi-input-income');
             if (incomeInput && !incomeInput.value) {
@@ -3080,6 +3100,8 @@
             const expenses = parseFloat(document.getElementById('fi-input-expenses').value) || 0;
             const returnRate = parseFloat(document.getElementById('fi-input-return').value) || 0;
             const inflationRate = parseFloat(document.getElementById('fi-input-inflation').value) || 0;
+            const wageGrowth = parseFloat(document.getElementById('fi-input-wage-growth').value) || 0;
+            const expenseInflation = parseFloat(document.getElementById('fi-input-exp-inflation').value) || 0;
             const swr = parseFloat(document.getElementById('fi-input-swr').value) || 4.0;
             const age = parseInt(document.getElementById('fi-input-age').value) || 30;
             const targetAge = parseInt(document.getElementById('fi-input-target-age').value) || 60;
@@ -3087,6 +3109,8 @@
             state.fi.nestEgg = nestEgg;
             state.fi.returnRate = returnRate;
             state.fi.inflationRate = inflationRate;
+            state.fi.wageGrowth = wageGrowth;
+            state.fi.expenseInflation = expenseInflation;
             state.fi.swr = swr;
             state.fi.currentAge = age;
             state.fi.targetAge = targetAge;
@@ -3098,84 +3122,154 @@
             save();
 
             const savingsRate = income > 0 ? (savings / income) * 100 : 0;
-            const annualExpenses = expenses * 12;
             const swrDecimal = swr / 100;
 
-            const fireTarget = swrDecimal > 0 ? annualExpenses / swrDecimal : 0;
-            const leanFIRETarget = 0.75 * fireTarget;
-            const fatFIRETarget = 1.25 * fireTarget;
-            const baristaFIRETarget = swrDecimal > 0 ? Math.max(0, (annualExpenses - 20000) / swrDecimal) : 0;
+            const isSavingsDiff = Math.abs(income - expenses - savings) < 5;
+            const maxMonths = 480;
+            let currentNW = nestEgg;
+            let currentMonthlyIncome = income;
+            let currentMonthlyExpenses = expenses;
+            let currentMonthlySavings = savings;
 
-            const realReturn = (returnRate - inflationRate) / 100;
-            const yearsToTargetAge = Math.max(0, targetAge - age);
-            const coastFIRETarget = realReturn > 0 && yearsToTargetAge > 0
-                ? fireTarget / Math.pow(1 + realReturn, yearsToTargetAge)
-                : fireTarget;
+            const monthlyReturnRate = Math.pow(1 + returnRate / 100, 1 / 12) - 1;
+            const annualWageGrowthFactor = 1 + wageGrowth / 100;
+            const annualExpInflationFactor = 1 + expenseInflation / 100;
+            const realReturnAnnual = (returnRate - inflationRate) / 100;
 
-            const projectionYears = 40;
+            // Target values at retirement
+            const yearsToRetire = Math.max(0, targetAge - age);
+            const expensesAtRetirement = expenses * Math.pow(annualExpInflationFactor, yearsToRetire);
+            const fireTargetAtRetirement = swrDecimal > 0 ? (expensesAtRetirement * 12) / swrDecimal : 0;
+
+            const reachedMonths = { coast: -1, lean: -1, barista: -1, traditional: -1, fat: -1 };
+
             const labels = [];
             const netWorthData = [];
             const coastData = [];
             const traditionalFIREData = [];
 
-            let currentNW = nestEgg;
-            const annualSavings = savings * 12;
-            let fireYear = -1;
+            for (let m = 0; m <= maxMonths; m++) {
+                const elapsedYears = m / 12;
+                const currentExpensesNominal = expenses * Math.pow(annualExpInflationFactor, elapsedYears);
+                const fireTargetNominal = swrDecimal > 0 ? (currentExpensesNominal * 12) / swrDecimal : 0;
 
-            for (let y = 0; y <= projectionYears; y++) {
-                labels.push(`Yr ${y} (Age ${age + y})`);
-                netWorthData.push(Math.round(currentNW));
-                traditionalFIREData.push(Math.round(fireTarget));
+                const leanFIRETargetNominal = 0.75 * fireTargetNominal;
+                const fatFIRETargetNominal = 1.25 * fireTargetNominal;
+                const baristaFIRETargetNominal = swrDecimal > 0 ? Math.max(0, (currentExpensesNominal * 12 - 20000) / swrDecimal) : 0;
 
-                const yearsLeft = Math.max(0, targetAge - (age + y));
-                const coastTargetAtYear = realReturn > 0 && yearsLeft > 0
-                    ? fireTarget / Math.pow(1 + realReturn, yearsLeft)
-                    : fireTarget;
-                coastData.push(Math.round(coastTargetAtYear));
+                const yearsLeft = Math.max(0, targetAge - (age + elapsedYears));
+                const coastTargetNominal = realReturnAnnual > 0 && yearsLeft > 0
+                    ? fireTargetAtRetirement / Math.pow(1 + realReturnAnnual, yearsLeft)
+                    : fireTargetAtRetirement;
 
-                if (currentNW >= fireTarget && fireYear === -1) {
-                    fireYear = y;
+                if (currentNW >= coastTargetNominal && reachedMonths.coast === -1) reachedMonths.coast = m;
+                if (currentNW >= leanFIRETargetNominal && reachedMonths.lean === -1) reachedMonths.lean = m;
+                if (currentNW >= baristaFIRETargetNominal && reachedMonths.barista === -1) reachedMonths.barista = m;
+                if (currentNW >= fireTargetNominal && reachedMonths.traditional === -1) reachedMonths.traditional = m;
+                if (currentNW >= fatFIRETargetNominal && reachedMonths.fat === -1) reachedMonths.fat = m;
+
+                if (m % 12 === 0) {
+                    const y = m / 12;
+                    labels.push(`Yr ${y} (Age ${age + y})`);
+                    netWorthData.push(Math.round(currentNW));
+                    traditionalFIREData.push(Math.round(fireTargetNominal));
+                    coastData.push(Math.round(coastTargetNominal));
                 }
 
-                currentNW = currentNW * (1 + realReturn) + annualSavings;
+                currentNW = currentNW * (1 + monthlyReturnRate) + currentMonthlySavings;
+
+                if (m > 0 && m % 12 === 0) {
+                    currentMonthlyIncome *= annualWageGrowthFactor;
+                    currentMonthlyExpenses *= annualExpInflationFactor;
+                    if (isSavingsDiff) {
+                        currentMonthlySavings = currentMonthlyIncome - currentMonthlyExpenses;
+                    } else {
+                        currentMonthlySavings *= annualWageGrowthFactor;
+                    }
+                }
+            }
+
+            const fireTargetCurrent = swrDecimal > 0 ? (expenses * 12) / swrDecimal : 0;
+            const leanFIRETargetCurrent = 0.75 * fireTargetCurrent;
+            const fatFIRETargetCurrent = 1.25 * fireTargetCurrent;
+            const baristaFIRETargetCurrent = swrDecimal > 0 ? Math.max(0, (expenses * 12 - 20000) / swrDecimal) : 0;
+            const coastFIRETargetCurrent = realReturnAnnual > 0 && yearsToRetire > 0
+                ? fireTargetAtRetirement / Math.pow(1 + realReturnAnnual, yearsToRetire)
+                : fireTargetAtRetirement;
+
+            const tradMonths = reachedMonths.traditional;
+            const yearsToFIRE = Math.floor(tradMonths / 12);
+            const remainingMonths = tradMonths % 12;
+
+            let fireTimeText = "40+ years";
+            if (tradMonths === 0) {
+                fireTimeText = "Achieved";
+            } else if (tradMonths !== -1) {
+                if (yearsToFIRE > 0 && remainingMonths > 0) {
+                    fireTimeText = `${yearsToFIRE}y ${remainingMonths}m`;
+                } else if (yearsToFIRE > 0) {
+                    fireTimeText = `${yearsToFIRE} years`;
+                } else {
+                    fireTimeText = `${remainingMonths} months`;
+                }
             }
 
             document.getElementById('fi-val-nest-egg').textContent = fmt(nestEgg);
             document.getElementById('fi-val-savings-rate').textContent = savingsRate.toFixed(1) + '%';
-            document.getElementById('fi-val-target').textContent = fmt(fireTarget);
-            document.getElementById('fi-val-years').textContent = fireYear !== -1 ? `${fireYear} years` : '40+ years';
-            if (fireYear !== -1) {
-                document.getElementById('fi-val-years').innerHTML = `${fireYear} yrs <span style="font-size:0.75rem; font-weight:600; color:var(--text2)">(${age + fireYear} yo)</span>`;
+            document.getElementById('fi-val-target').textContent = fmt(fireTargetCurrent);
+            document.getElementById('fi-val-years').textContent = fireTimeText;
+            if (tradMonths > 0) {
+                document.getElementById('fi-val-years').innerHTML = `${fireTimeText} <span style="font-size:0.75rem; font-weight:600; color:var(--text2)">(${age + yearsToFIRE} yo)</span>`;
+            }
+
+            function getMilestoneDateStr(monthsCount) {
+                if (monthsCount === 0) return `<span style="color:var(--income); font-weight:700;">✓ Ready now!</span>`;
+                if (monthsCount === -1) return "40+ years";
+
+                const totalMonths = currentMonth + monthsCount;
+                const targetY = currentYear + Math.floor(totalMonths / 12);
+                const targetM = totalMonths % 12;
+
+                const years = Math.floor(monthsCount / 12);
+                const mos = monthsCount % 12;
+                let durationStr = "";
+                if (years > 0) durationStr += `${years} yr${years > 1 ? 's' : ''}`;
+                if (mos > 0) {
+                    if (durationStr) durationStr += " ";
+                    durationStr += `${mos} mo${mos > 1 ? 's' : ''}`;
+                }
+
+                return `${MONTH_NAMES[targetM]} ${targetY} <span style="font-weight:600; color:var(--text2)">(${durationStr})</span>`;
             }
 
             const milestones = [
                 {
                     name: 'Coast FIRE',
-                    target: coastFIRETarget,
+                    target: coastFIRETargetCurrent,
                     desc: `Nest egg grows to traditional FIRE by age ${targetAge} without further savings contributions.`,
                     key: 'coast'
                 },
                 {
                     name: 'Lean FIRE',
-                    target: leanFIRETarget,
+                    target: leanFIRETargetCurrent,
                     desc: 'Covers 75% of your living expenses ($' + Math.round(expenses * 0.75) + '/mo) for a minimalist lifestyle.',
                     key: 'lean'
                 },
                 {
                     name: 'Barista FIRE',
-                    target: baristaFIRETarget,
+                    target: baristaFIRETargetCurrent,
                     desc: 'Covers living expenses assuming part-time job brings in $20,000/year.',
                     key: 'barista'
                 },
                 {
                     name: 'Traditional FIRE',
-                    target: fireTarget,
+                    target: fireTargetCurrent,
                     desc: `Safe withdrawal rate covers 100% of your current monthly expenses ($${Math.round(expenses)}/mo).`,
                     key: 'traditional'
                 },
                 {
                     name: 'Fat FIRE',
-                    target: fatFIRETarget,
+                    target: fatFIRETargetCurrent,
                     desc: 'Covers 125% of your living expenses ($' + Math.round(expenses * 1.25) + '/mo) for a premium lifestyle.',
                     key: 'fat'
                 }
@@ -3191,6 +3285,8 @@
                     const badgeClass = isAchieved ? 'fi-badge-achieved' : 'fi-badge-pending';
                     const barColor = isAchieved ? 'var(--accent)' : pct > 75 ? 'var(--income)' : 'var(--warn)';
 
+                    const dateEst = getMilestoneDateStr(reachedMonths[m.key]);
+
                     return `
                     <div class="fi-milestone-card">
                         <div class="fi-milestone-header">
@@ -3201,9 +3297,12 @@
                         <div class="prog-wrap" style="height: 6px; margin: 4px 0 6px;">
                             <div class="prog-bar" style="width: ${pct}%; background: ${barColor}"></div>
                         </div>
-                        <div class="fi-milestone-progress-row">
+                        <div class="fi-milestone-progress-row" style="margin-bottom: 4px;">
                             <span>Target: ${fmt(m.target)}</span>
                             <span>${isAchieved ? 'Fully Funded' : `${fmt(m.target - nestEgg)} to goal`}</span>
+                        </div>
+                        <div style="font-size:0.75rem; border-top: 1px dashed var(--border); padding-top: 4px; margin-top: 6px; color: var(--text2);">
+                            <strong>Est. Date:</strong> ${dateEst}
                         </div>
                     </div>`;
                 }).join('');
