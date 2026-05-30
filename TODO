@@ -62,7 +62,8 @@
 
 
 
-
+[] Investigate but where $0 left in category after perfectly suming transactions makes the text red indicating i went over budget, even though its at $0, this doesnt always happen.
+[] Make sure piechart can accommodate endless categories.
 [] Look into removing transaction page and instead just having transactions under their categories?
 [] Make complete list of functions/features expectations to run through when testing the app - make sure nothing gets overlooked.
 [] Optimize the code a lot, sloppy stuff.
