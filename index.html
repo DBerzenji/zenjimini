@@ -1835,7 +1835,8 @@ function renderCatSection(elId, cats, type, ts) {
         let extraHTML = '';
         if (type === 'expense') {
             const spent     = getSpentInPeriod(cat.id, currentPeriodStart, periodEnd);
-            const remaining = allocInTs - spent;
+            // const remaining = allocInTs - spent;
+            const remaining = Math.round((allocInTs - spent) * 100) / 100;
             const pct       = allocInTs > 0 ? Math.min(100, (spent / allocInTs) * 100) : 0;
             const over      = remaining < 0;
             const barColor  = over ? 'var(--danger)' : pct > 80 ? 'var(--warn)' : 'var(--accent)';
