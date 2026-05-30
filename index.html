@@ -1100,6 +1100,191 @@
             font-weight: 600;
             margin-top: 4px;
         }
+
+        /* ── NET WORTH TAB ───────────────────────────── */
+        .nw-metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 12px;
+            margin-top: 14px;
+        }
+
+        .nw-metric-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 12px;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        .nw-metric-label {
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text2);
+        }
+
+        .nw-metric-val {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .nw-dual-lists {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0;
+        }
+
+        @media (min-width: 520px) {
+            .nw-dual-lists {
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+            }
+        }
+
+        .nw-list-section {
+            margin-bottom: 4px;
+        }
+
+        .nw-item-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 12px 14px;
+            margin-bottom: 8px;
+            box-shadow: var(--shadow);
+            transition: border-color 0.15s;
+        }
+
+        .nw-item-card:hover {
+            border-color: #c0ccc2;
+        }
+
+        .nw-item-card.nw-asset {
+            border-left: 3px solid var(--income);
+        }
+
+        .nw-item-card.nw-liability {
+            border-left: 3px solid var(--danger);
+        }
+
+        .nw-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 6px;
+        }
+
+        .nw-item-name {
+            font-weight: 700;
+            font-size: 0.90rem;
+            color: var(--text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .nw-item-value {
+            font-weight: 700;
+            font-size: 0.95rem;
+            white-space: nowrap;
+        }
+
+        .nw-item-details {
+            display: flex;
+            gap: 12px;
+            margin-top: 5px;
+            font-size: 0.72rem;
+            color: var(--text2);
+            font-weight: 600;
+            flex-wrap: wrap;
+        }
+
+        .nw-item-detail {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .nw-item-detail-icon {
+            font-size: 0.7rem;
+            opacity: 0.7;
+        }
+
+        .nw-item-actions {
+            display: flex;
+            gap: 2px;
+            margin-top: 6px;
+            justify-content: flex-end;
+        }
+
+        .nw-add-btn {
+            width: 100%;
+            padding: 10px;
+            background: transparent;
+            border: 1.5px dashed var(--border);
+            border-radius: var(--radius);
+            color: var(--text2);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: border-color 0.15s, color 0.15s, background 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            margin-bottom: 8px;
+        }
+
+        .nw-add-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--accent-light);
+        }
+
+        .nw-global-controls {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px 16px;
+            margin-bottom: 12px;
+            box-shadow: var(--shadow);
+        }
+
+        .nw-controls-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            align-items: end;
+        }
+
+        .nw-sync-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 3px 8px;
+            border-radius: 6px;
+            background: #edf5ed;
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .nw-sync-badge:hover {
+            background: #dceede;
+        }
     </style>
 </head>
 
@@ -1134,6 +1319,7 @@
             <button class="tab-btn" onclick="switchTab('transactions', this)">Transactions</button>
             <button class="tab-btn" onclick="switchTab('spending', this); renderCharts();">Overview</button>
             <button class="tab-btn" onclick="switchTab('fi', this); renderFI();">Independence</button>
+            <button class="tab-btn" onclick="switchTab('nw', this); renderNW();">Net Worth</button>
         </div>
     </nav>
 
@@ -1255,7 +1441,7 @@
         <div class="fi-metrics-grid"
             style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 12px; margin-top: 14px;">
             <div class="card" style="padding: 12px; text-align: center; margin-bottom: 0;">
-                <div class="hstat-label" style="font-size: 0.65rem; letter-spacing: 0.8px;">Nest Egg</div>
+                <div class="hstat-label" style="font-size: 0.65rem; letter-spacing: 0.8px;">Net Worth</div>
                 <div class="hstat-val" id="fi-val-nest-egg"
                     style="font-size: 1.15rem; color: var(--accent); margin-top: 4px;">$0</div>
             </div>
@@ -1297,7 +1483,7 @@
 
             <div class="input-row" style="margin-bottom: 8px;">
                 <div>
-                    <label class="field-label">Current Nest Egg ($)</label>
+                    <label class="field-label">Current Net Worth ($)</label>
                     <input type="number" id="fi-input-nest-egg" value="10000" step="1000" oninput="onFIParamChange()">
                 </div>
                 <div>
@@ -1364,6 +1550,124 @@
         <!-- FIRE Milestones Section -->
         <div class="section-label">FIRE Milestones</div>
         <div id="fi-milestones-list"></div>
+    </div>
+
+    <div class="view" id="view-nw">
+        <!-- Net Worth Metrics Summary -->
+        <div class="nw-metrics-grid">
+            <div class="nw-metric-card">
+                <div class="nw-metric-label">Net Worth</div>
+                <div class="nw-metric-val" id="nw-val-networth" style="color: var(--accent);">$0</div>
+            </div>
+            <div class="nw-metric-card">
+                <div class="nw-metric-label">Total Assets</div>
+                <div class="nw-metric-val" id="nw-val-assets" style="color: var(--income);">$0</div>
+            </div>
+            <div class="nw-metric-card">
+                <div class="nw-metric-label">Total Liabilities</div>
+                <div class="nw-metric-val" id="nw-val-liabilities" style="color: var(--danger);">$0</div>
+            </div>
+            <div class="nw-metric-card">
+                <div class="nw-metric-label">Projected</div>
+                <div class="nw-metric-val" id="nw-val-projection" style="color: var(--sinking);">$0</div>
+            </div>
+        </div>
+
+        <!-- Projection Chart -->
+        <div class="chart-card" style="margin-top: 0; margin-bottom: 12px;">
+            <div class="chart-card-header">
+                <span class="chart-card-title">Net Worth Projection</span>
+                <div style="display:flex; gap:6px; align-items:center;">
+                    <select id="nw-chart-mode" onchange="renderNW()" style="min-width: 120px;">
+                        <option value="nominal" selected>Nominal</option>
+                        <option value="real">Inflation-Adjusted</option>
+                    </select>
+                </div>
+            </div>
+            <div class="chart-wrap" style="min-height: 240px; height: 260px;">
+                <canvas id="nwChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Global Controls -->
+        <div class="nw-global-controls">
+            <div class="form-title"
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span>Projection Settings</span>
+                <span class="nw-sync-badge" onclick="syncNWToFI()" title="Use current Net Worth as FIRE Net Worth">⟳
+                    Sync
+                    to FIRE</span>
+            </div>
+            <div class="nw-controls-row">
+                <div>
+                    <label class="field-label">Global Inflation (%)</label>
+                    <input type="number" id="nw-input-inflation" value="2.5" step="0.1" min="0" max="15"
+                        oninput="onNWParamChange()" style="margin-bottom:0;">
+                </div>
+                <div>
+                    <label class="field-label">Projection Years</label>
+                    <input type="number" id="nw-input-years" value="10" step="1" min="1" max="40"
+                        oninput="onNWParamChange()" style="margin-bottom:0;">
+                </div>
+            </div>
+        </div>
+
+        <!-- Dual Lists: Assets & Liabilities -->
+        <div class="nw-dual-lists">
+            <div class="nw-list-section">
+                <div class="section-label">Assets</div>
+                <div id="nw-assets-list"></div>
+                <button class="nw-add-btn" onclick="openNWModal('asset')">
+                    <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+                        <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                    </svg>
+                    Add Asset
+                </button>
+            </div>
+            <div class="nw-list-section">
+                <div class="section-label">Liabilities</div>
+                <div id="nw-liabilities-list"></div>
+                <button class="nw-add-btn" onclick="openNWModal('liability')">
+                    <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+                        <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                    </svg>
+                    Add Liability
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Net Worth Item Modal -->
+    <div class="modal-bg" id="nw-item-modal" onclick="if(event.target===this)closeNWModal()">
+        <div class="modal-box">
+            <div class="modal-handle"></div>
+            <div class="modal-title" id="nw-modal-title">Add Asset</div>
+            <input type="hidden" id="nw-edit-id">
+            <label class="field-label">Item Name</label>
+            <input type="text" id="nw-item-name" placeholder="e.g. 401k Portfolio, Home Mortgage">
+            <label class="field-label">Type</label>
+            <select id="nw-item-type">
+                <option value="asset">Asset</option>
+                <option value="liability">Liability</option>
+            </select>
+            <div class="input-row" style="margin-bottom:8px;">
+                <div>
+                    <label class="field-label">Current Balance ($)</label>
+                    <input type="number" id="nw-item-value" placeholder="Balance" step="100" min="0"
+                        style="margin-bottom:0;">
+                </div>
+                <div>
+                    <label class="field-label">Growth / Interest (%)</label>
+                    <input type="number" id="nw-item-rate" placeholder="Annual %" step="0.1" style="margin-bottom:0;">
+                </div>
+            </div>
+            <label class="field-label">Monthly Contribution / Payment ($)</label>
+            <input type="number" id="nw-item-contribution" placeholder="Monthly amount" step="50" min="0">
+            <div class="modal-actions">
+                <button class="btn-primary secondary" onclick="closeNWModal()">Cancel</button>
+                <button class="btn-primary" onclick="saveNWItem()">Save</button>
+            </div>
+        </div>
     </div>
 
     <div class="modal-bg" id="cat-modal" onclick="if(event.target===this)closeCatModal()">
@@ -1508,6 +1812,23 @@
             save();
         }
 
+        if (!state.nwItems) {
+            state.nwItems = [
+                { id: 1, name: 'Checking Account', type: 'asset', value: 5000, rate: 0.5, contribution: 200 },
+                { id: 2, name: 'Investment Portfolio', type: 'asset', value: 45000, rate: 7.0, contribution: 500 },
+                { id: 3, name: 'Car Loan', type: 'liability', value: 12000, rate: 4.5, contribution: 350 }
+            ];
+            save();
+        }
+
+        if (!state.nwSettings) {
+            state.nwSettings = {
+                inflation: 2.5,
+                years: 10
+            };
+            save();
+        }
+
         // Clean up old state fields and ensure allocations exist
         if (state.monthlyBudgetOverrides) delete state.monthlyBudgetOverrides;
         if (state.sinkingAllocTxns) delete state.sinkingAllocTxns;
@@ -1547,6 +1868,18 @@
             const rect = chart.canvas.getBoundingClientRect();
             return { x: clientX - rect.left, y: clientY - rect.top };
         }
+
+        // ─── UTILITIES ──────────────────────────────────────────────────────
+        const fmt = n => '$' + (Math.round(n * 100) / 100).toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const fmtDec = n => '$' + Math.abs(Math.round(n * 100) / 100).toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+        const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        const MONTH_ABBR = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const PERIOD_LABELS = { daily: 'day', weekly: 'week', biweekly: '2 wks', semimonthly: 'half-month', monthly: 'month', annually: 'year' };
+        const TIMESCALE_DISPLAY = {
+            daily: 'Daily', weekly: 'Weekly', biweekly: 'Bi-weekly',
+            semimonthly: 'Semi-monthly', monthly: 'Monthly', annually: 'Annually'
+        };
 
         function getChartSliceIndex(chart, evt) {
             const { clientX, clientY } = chartPointerFromEvent(chart, evt);
@@ -1704,18 +2037,6 @@
         let lastTimescale = 'monthly';
         let anchorMonth = TODAY.getMonth();
         const openCatPanels = new Set();
-
-        // ─── UTILITIES ──────────────────────────────────────────────────────
-        const fmt = n => '$' + (Math.round(n * 100) / 100).toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        const fmtDec = n => '$' + Math.abs(Math.round(n * 100) / 100).toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
-        const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-        const MONTH_ABBR = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        const PERIOD_LABELS = { daily: 'day', weekly: 'week', biweekly: '2 wks', semimonthly: 'half-month', monthly: 'month', annually: 'year' };
-        const TIMESCALE_DISPLAY = {
-            daily: 'Daily', weekly: 'Weekly', biweekly: 'Bi-weekly',
-            semimonthly: 'Semi-monthly', monthly: 'Monthly', annually: 'Annually'
-        };
 
         function updateChartExpenseOptionLabel() {
             const opt = document.querySelector('#chart-view-mode option[value="expense"]');
@@ -1938,7 +2259,6 @@
             return 0;
         }
 
-        // All categories now use standard monthly allocations
         function getCatAlloc(cat, y, m) {
             return getStandardAlloc(cat, y, m);
         }
@@ -2152,6 +2472,9 @@
             if (document.getElementById('view-fi')?.classList.contains('active')) {
                 renderFI();
             }
+            if (document.getElementById('view-nw')?.classList.contains('active')) {
+                renderNW();
+            }
         }
 
         // ─── HEADER STATS ────────────────────────────────────────────────────
@@ -2287,7 +2610,6 @@
                 let extraHTML = '';
                 if (type === 'expense') {
                     const spent = getSpentInPeriod(cat.id, currentPeriodStart, periodEnd);
-                    // const remaining = allocInTs - spent;
                     const remaining = Math.round((allocInTs - spent) * 100) / 100;
                     const pct = allocInTs > 0 ? Math.min(100, (spent / allocInTs) * 100) : 0;
                     const over = remaining < 0;
@@ -2719,7 +3041,6 @@
                 const titleStr = chartActiveCategoryId === '__uncat__' ? 'Uncategorized' : (cat ? cat.name : 'Category');
                 const flowLabel = chartActiveCategoryFlow === 'inflow' ? ' (Saved)' : ' (Spent)';
 
-                // Group drill-down layer
                 if (chartActiveGroupIds) {
                     document.querySelector('.chart-card-title').textContent = `${chartActiveGroupLabel} (${chartActiveGroupIds.length} transactions)`;
                     chartActiveGroupIds.forEach(id => {
@@ -2732,9 +3053,7 @@
                         total += val;
                     });
                     document.getElementById('spend-total-label').innerHTML = `Total: <span>${fmt(total)}</span>`;
-                    // fall through to chart render
                 } else {
-
                     document.querySelector('.chart-card-title').textContent = titleStr + (cat && cat.type === 'sinking' ? flowLabel : '');
 
                     const catTxns = monthTxns.filter(t => (t.catId || '__uncat__') == chartActiveCategoryId);
@@ -2756,8 +3075,7 @@
                         data.push(Math.round(g.val * 100) / 100);
                         metaIds.push(g.count > 1 ? { grouped: true, ids: g.ids, label: g.label } : g.ids[0]);
                     });
-
-                } // end !chartActiveGroupIds
+                }
             } else {
                 backBtn.style.display = 'none';
                 if (viewDropdown) viewDropdown.style.display = 'inline-block';
@@ -2802,7 +3120,6 @@
                         }
                     }
                 });
-
             }
 
             const emptyEl = document.getElementById('spend-empty');
@@ -3136,7 +3453,6 @@
             const annualExpInflationFactor = 1 + expenseInflation / 100;
             const realReturnAnnual = (returnRate - inflationRate) / 100;
 
-            // Target values at retirement
             const yearsToRetire = Math.max(0, targetAge - age);
             const expensesAtRetirement = expenses * Math.pow(annualExpInflationFactor, yearsToRetire);
             const fireTargetAtRetirement = swrDecimal > 0 ? (expensesAtRetirement * 12) / swrDecimal : 0;
@@ -3246,7 +3562,7 @@
                 {
                     name: 'Coast FIRE',
                     target: coastFIRETargetCurrent,
-                    desc: `Nest egg grows to traditional FIRE by age ${targetAge} without further savings contributions.`,
+                    desc: `Net worth grows to traditional FIRE by age ${targetAge} without further savings contributions.`,
                     key: 'coast'
                 },
                 {
@@ -3396,6 +3712,342 @@
                         }
                     }
                 });
+            }
+        }
+
+        // ─── NET WORTH CORE LOGIC ─────────────────────────────────────────────
+        // ─── NET WORTH CORE LOGIC ─────────────────────────────────────────────
+        let globalNWChart = null;
+
+        function renderNW() {
+            if (!state.nwItems) state.nwItems = [];
+            if (!state.nwSettings) {
+                state.nwSettings = { inflation: 2.5, years: 10 };
+            }
+
+            const infInput = document.getElementById('nw-input-inflation');
+            const yrsInput = document.getElementById('nw-input-years');
+            if (infInput && !infInput.value) infInput.value = state.nwSettings.inflation;
+            if (yrsInput && !yrsInput.value) yrsInput.value = state.nwSettings.years;
+
+            const inflation = parseFloat(infInput?.value) || 0;
+            const years = parseInt(yrsInput?.value) || 10;
+            const mode = document.getElementById('nw-chart-mode')?.value || 'nominal';
+
+            state.nwSettings.inflation = inflation;
+            state.nwSettings.years = years;
+            save();
+
+            let totalAssets = 0;
+            let totalLiabilities = 0;
+
+            state.nwItems.forEach(item => {
+                const val = parseFloat(item.value) || 0;
+                if (item.type === 'asset') {
+                    totalAssets += val;
+                } else {
+                    totalLiabilities += val;
+                }
+            });
+
+            const currentNW = totalAssets - totalLiabilities;
+
+            document.getElementById('nw-val-networth').textContent = fmt(currentNW);
+            document.getElementById('nw-val-assets').textContent = fmt(totalAssets);
+            document.getElementById('nw-val-liabilities').textContent = fmt(totalLiabilities);
+
+            renderNWLists();
+
+            const labels = [];
+            const assetData = [];
+            const liabilityData = [];
+            const nwData = [];
+
+            labels.push('Today');
+            assetData.push(totalAssets);
+            liabilityData.push(totalLiabilities);
+            nwData.push(currentNW);
+
+            // Normalize and parse state variables before simulation loops
+            let simulatedItems = state.nwItems.map(item => ({
+                id: item.id,
+                name: String(item.name || ''),
+                type: String(item.type || 'asset').toLowerCase().trim(),
+                currentVal: parseFloat(item.value) || 0,
+                annualRate: parseFloat(item.rate) || 0,
+                monthlyContribution: parseFloat(item.contribution) || 0
+            }));
+
+            // Simulate compounding year over year
+            for (let y = 1; y <= years; y++) {
+                for (let m = 1; m <= 12; m++) {
+                    simulatedItems.forEach(item => {
+                        const monthlyRate = (item.annualRate / 100) / 12;
+                        if (item.type === 'asset') {
+                            // Compound value and add monthly contribution
+                            item.currentVal = (item.currentVal * (1 + monthlyRate)) + item.monthlyContribution;
+                        } else if (item.type === 'liability') {
+                            // Liability grows by interest rate but is reduced by the payment
+                            const withInterest = item.currentVal * (1 + monthlyRate);
+                            item.currentVal = Math.max(0, withInterest - item.monthlyContribution);
+                        }
+                    });
+                }
+
+                let yAssets = 0;
+                let yLiabilities = 0;
+                simulatedItems.forEach(item => {
+                    if (item.type === 'asset') {
+                        yAssets += item.currentVal;
+                    } else {
+                        yLiabilities += item.currentVal;
+                    }
+                });
+
+                let yNW = yAssets - yLiabilities;
+
+                if (mode === 'real') {
+                    const discount = Math.pow(1 + inflation / 100, y);
+                    yAssets /= discount;
+                    yLiabilities /= discount;
+                    yNW /= discount;
+                }
+
+                labels.push(`Yr ${y}`);
+                assetData.push(Math.round(yAssets));
+                liabilityData.push(Math.round(yLiabilities));
+                nwData.push(Math.round(yNW));
+            }
+
+            const finalNW = nwData[nwData.length - 1];
+            document.getElementById('nw-val-projection').textContent = fmt(finalNW);
+
+            const chartCanvas = document.getElementById('nwChart');
+            if (chartCanvas) {
+                if (globalNWChart) globalNWChart.destroy();
+                globalNWChart = new Chart(chartCanvas.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Net Worth',
+                                data: nwData,
+                                borderColor: 'var(--accent)',
+                                backgroundColor: 'rgba(61, 82, 71, 0.08)',
+                                borderWidth: 3,
+                                fill: true,
+                                tension: 0.15
+                            },
+                            {
+                                label: 'Total Assets',
+                                data: assetData,
+                                borderColor: 'var(--income)',
+                                borderWidth: 1.5,
+                                borderDash: [2, 2],
+                                fill: false
+                            },
+                            {
+                                label: 'Total Liabilities',
+                                data: liabilityData,
+                                borderColor: 'var(--danger)',
+                                borderWidth: 1.5,
+                                borderDash: [2, 2],
+                                fill: false
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: { intersect: false, mode: 'index' },
+                        plugins: {
+                            legend: { position: 'top', labels: { boxWidth: 12, font: { size: 10, family: 'DM Sans' } } },
+                            tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${fmt(ctx.parsed.y)}` } },
+                            datalabels: { display: false }
+                        },
+                        scales: {
+                            x: { grid: { display: false }, ticks: { font: { size: 9, family: 'DM Sans' } } },
+                            y: {
+                                grid: { color: 'var(--border)', lineWidth: 0.5 },
+                                ticks: {
+                                    font: { size: 9, family: 'DM Sans' },
+                                    callback: val => {
+                                        if (Math.abs(val) >= 1e6) return (val < 0 ? '-' : '') + '$' + (Math.abs(val) / 1e6).toFixed(1) + 'M';
+                                        if (Math.abs(val) >= 1e3) return (val < 0 ? '-' : '') + '$' + (Math.abs(val) / 1e3).toFixed(0) + 'k';
+                                        return (val < 0 ? '-' : '') + '$' + Math.abs(val);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        function renderNWLists() {
+            const assetsList = document.getElementById('nw-assets-list');
+            const liabilitiesList = document.getElementById('nw-liabilities-list');
+
+            const assets = state.nwItems.filter(item => item.type === 'asset');
+            const liabilities = state.nwItems.filter(item => item.type === 'liability');
+
+            if (assets.length === 0) {
+                assetsList.innerHTML = `<div class="empty-state" style="padding:10px 0;">No assets registered.</div>`;
+            } else {
+                assetsList.innerHTML = assets.map(item => renderNWItemHTML(item)).join('');
+            }
+
+            if (liabilities.length === 0) {
+                liabilitiesList.innerHTML = `<div class="empty-state" style="padding:10px 0;">No liabilities registered.</div>`;
+            } else {
+                liabilitiesList.innerHTML = liabilities.map(item => renderNWItemHTML(item)).join('');
+            }
+        }
+
+        function renderNWItemHTML(item) {
+            const typeLabel = item.type === 'asset' ? 'Growth' : 'Interest';
+            const actionLabel = item.type === 'asset' ? 'Contrib' : 'Payment';
+            return `
+                <div class="nw-item-card nw-${item.type}">
+                    <div class="nw-item-header">
+                        <div class="nw-item-name" title="${escapeHTML(item.name)}">${escapeHTML(item.name)}</div>
+                        <div class="nw-item-value">${fmt(item.value)}</div>
+                    </div>
+                    <div class="nw-item-details">
+                        <div class="nw-item-detail">
+                            <span class="nw-item-detail-icon">📈</span>
+                            <span>${typeLabel}: ${parseFloat(item.rate || 0).toFixed(1)}%</span>
+                        </div>
+                        <div class="nw-item-detail">
+                            <span class="nw-item-detail-icon">💸</span>
+                            <span>${actionLabel}: ${fmt(item.contribution || 0)}/mo</span>
+                        </div>
+                    </div>
+                    <div class="nw-item-actions">
+                        <button class="icon-btn" onclick="openNWModal('${item.type}', ${item.id})" title="Edit">✎</button>
+                        <button class="icon-btn del" onclick="deleteNWItem(${item.id})" title="Delete">✕</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function openNWModal(type, id) {
+            const modal = document.getElementById('nw-item-modal');
+            const title = document.getElementById('nw-modal-title');
+            const editId = document.getElementById('nw-edit-id');
+            const nameField = document.getElementById('nw-item-name');
+            const typeField = document.getElementById('nw-item-type');
+            const valueField = document.getElementById('nw-item-value');
+            const rateField = document.getElementById('nw-item-rate');
+            const contribField = document.getElementById('nw-item-contribution');
+
+            if (id) {
+                const item = state.nwItems.find(i => i.id === id);
+                if (!item) return;
+                title.textContent = `Edit ${item.type === 'asset' ? 'Asset' : 'Liability'}`;
+                editId.value = id;
+                nameField.value = item.name;
+                typeField.value = item.type;
+                valueField.value = item.value;
+                rateField.value = item.rate;
+                contribField.value = item.contribution;
+            } else {
+                title.textContent = `Add ${type === 'asset' ? 'Asset' : 'Liability'}`;
+                editId.value = '';
+                nameField.value = '';
+                typeField.value = type || 'asset';
+                valueField.value = '';
+                rateField.value = '';
+                contribField.value = '';
+            }
+
+            modal.classList.add('open');
+            setTimeout(() => nameField.focus(), 120);
+        }
+
+        function closeNWModal() {
+            document.getElementById('nw-item-modal').classList.remove('open');
+        }
+
+        function saveNWItem() {
+            const editId = document.getElementById('nw-edit-id').value;
+            const name = document.getElementById('nw-item-name').value.trim();
+            const type = document.getElementById('nw-item-type').value;
+            const value = parseFloat(document.getElementById('nw-item-value').value) || 0;
+            const rate = parseFloat(document.getElementById('nw-item-rate').value) || 0;
+            const contribution = parseFloat(document.getElementById('nw-item-contribution').value) || 0;
+
+            if (!name) {
+                showToast('Enter an item name.', 'var(--danger)');
+                return;
+            }
+
+            if (!state.nwItems) state.nwItems = [];
+
+            if (editId) {
+                const item = state.nwItems.find(i => i.id === parseInt(editId));
+                if (item) {
+                    item.name = name;
+                    item.type = type;
+                    item.value = value;
+                    item.rate = rate;
+                    item.contribution = contribution;
+                }
+            } else {
+                state.nwItems.push({
+                    id: Date.now(),
+                    name,
+                    type,
+                    value,
+                    rate,
+                    contribution
+                });
+            }
+
+            save();
+            closeNWModal();
+            renderNW();
+            showToast('Item saved.', 'var(--accent)');
+        }
+
+        function deleteNWItem(id) {
+            showConfirmToast('Delete this item?', () => {
+                state.nwItems = state.nwItems.filter(i => i.id !== id);
+                save();
+                renderNW();
+                showToast('Item removed.', 'var(--accent)');
+            });
+        }
+
+        function onNWParamChange() {
+            renderNW();
+        }
+
+        function syncNWToFI() {
+            if (!state.nwItems || state.nwItems.length === 0) {
+                showToast('Add Net Worth items first!', 'var(--warn)');
+                return;
+            }
+            let totalAssets = 0;
+            let totalLiabilities = 0;
+            state.nwItems.forEach(item => {
+                const val = parseFloat(item.value) || 0;
+                if (item.type === 'asset') totalAssets += val;
+                else totalLiabilities += val;
+            });
+            const currentNW = totalAssets - totalLiabilities;
+
+            state.fi.nestEgg = Math.round(currentNW);
+            save();
+            showToast(`Net worth updated to ${fmt(currentNW)}.`, 'var(--income)');
+
+            const nestEggInput = document.getElementById('fi-input-nest-egg');
+            if (nestEggInput) {
+                nestEggInput.value = Math.round(currentNW);
+            }
+            if (document.getElementById('view-fi')?.classList.contains('active')) {
+                renderFI();
             }
         }
 
