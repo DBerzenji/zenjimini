@@ -70,4 +70,4 @@
 [] Make the initial budget's data the same as what's in the template
 [] Add recurring expenses with due dates.
 [] Add a "Clear Budget" button, that can clear just Transactions or all Categories and Transactions.
-
+[] BIG FORK: "ZenjiMax" starts as ZenjiMini but there's a hamburger menu to enable and disable various "tabs" to go alongside "budget, transactions, overview" and those tabs will include things like FI calculation/forcast, Assets & Debts, Debt payoff ammorizations and scenarios, Networth calculation and projection, etc...
