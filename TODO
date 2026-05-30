@@ -59,15 +59,15 @@
 [X] Fix: Ensurethe Toast Notification on for transactions on Sinking Funds are showing the accurate Balance a no other numbers like the Transaction Amount.
 [X] Group transactions with matching names in Overview pie chart.
 [X] Look into making the tabs to switch between budget, transaction, and overview sticky to the top even when I scroll down - Looked into, it's a no because mobile doesn't like it.
+[X] Make sure piechart can accommodate endless categories.
+[X] Look into removing transaction page and instead just having transactions under their categories? - Nah
+[X] Investigate but where $0 left in category after perfectly suming transactions makes the text red indicating i went over budget, even though its at $0, this doesnt always happen. - As expected, a rounding error, brought it back to hundreth decimal place.
 
 
 [] Review Claude's bug and redundancy search - high scrutiny 
-[] Investigate but where $0 left in category after perfectly suming transactions makes the text red indicating i went over budget, even though its at $0, this doesnt always happen.
-[] Make sure piechart can accommodate endless categories.
-[] Look into removing transaction page and instead just having transactions under their categories?
 [] Make complete list of functions/features expectations to run through when testing the app - make sure nothing gets overlooked.
 [] Optimize the code a lot, sloppy stuff.
-[] Make the initial budget's data the same as what's in the template 
+[] Make the initial budget's data the same as what's in the template
 [] Add recurring expenses with due dates.
 [] Add a "Clear Budget" button, that can clear just Transactions or all Categories and Transactions.
 
