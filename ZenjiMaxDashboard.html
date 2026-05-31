@@ -1405,24 +1405,34 @@
                         <option value="1">1 Column (Focused)</option>
                         <option value="2">2 Columns (Split Screen)</option>
                         <option value="3">3 Columns (Full Multi-view)</option>
+                        <option value="4">4 Slots (2x2 Quad Grid)</option>
+                        <option value="2-60-40">Asymmetric 2 Columns (60/40 Split)</option>
+                        <option value="2-40-60">Asymmetric 2 Columns (40/60 Split)</option>
                     </select>
 
                     <div class="input-row" style="margin-bottom:8px;">
                         <div>
-                            <label class="field-label">Slot A (Left Column)</label>
+                            <label class="field-label">Slot A</label>
                             <select id="db-select-slot-0" onchange="updateDashboardConfig()"></select>
                         </div>
                         <div>
-                            <label class="field-label">Slot B (Center Column)</label>
+                            <label class="field-label">Slot B</label>
                             <select id="db-select-slot-1" onchange="updateDashboardConfig()"></select>
                         </div>
                     </div>
-                    <div id="db-slot-2-config-wrap" style="margin-bottom:12px;">
-                        <label class="field-label">Slot C (Right Column)</label>
-                        <select id="db-select-slot-2" onchange="updateDashboardConfig()"></select>
+                    <div class="input-row" style="margin-bottom:8px;">
+                        <div id="db-slot-2-config-wrap">
+                            <label class="field-label">Slot C</label>
+                            <select id="db-select-slot-2" onchange="updateDashboardConfig()"></select>
+                        </div>
+                        <div id="db-slot-3-config-wrap">
+                            <label class="field-label">Slot D</label>
+                            <select id="db-select-slot-3" onchange="updateDashboardConfig()"></select>
+                        </div>
                     </div>
 
-                    <button class="btn-primary" onclick="saveDashboardAsCustomTab()" style="background:var(--income);">
+                    <button class="btn-primary" onclick="saveDashboardAsCustomTab()"
+                        style="background:var(--income); margin-top:12px;">
                         💾 Save This Layout as a Custom Tab
                     </button>
                 </div>
@@ -1433,52 +1443,62 @@
                 <div class="dashboard-slot" id="db-slot-0"></div>
                 <div class="dashboard-slot" id="db-slot-1"></div>
                 <div class="dashboard-slot" id="db-slot-2" style="display:none;"></div>
+                <div class="dashboard-slot" id="db-slot-3" style="display:none;"></div>
             </div>
         </div>
 
         <!-- ── BUDGET VIEW ────────────────────────────────────────────── -->
+        <!-- Static Wrapper Placeholders are maintained in strict sequence order to keep DOM ordered correctly -->
         <div class="view" id="view-budget">
-            <div id="mod-budget-nav">
-                <div class="month-nav">
-                    <button class="month-nav-btn" onclick="changeGlobalPeriod(-1)">&#8249;</button>
-                    <span class="month-nav-label month-label-display" onclick="openDatePicker()"
-                        title="Click to jump to a date" style="cursor:pointer;">—</span>
-                    <button class="month-nav-btn month-next-btn" onclick="changeGlobalPeriod(1)">&#8250;</button>
-                </div>
-
-                <div class="assign-banner" id="assign-banner" style="display:none; margin-top:10px;">
-                    <div class="assign-banner-title" id="assign-title"></div>
-                    <div class="assign-bar-track">
-                        <div class="assign-bar-fill" id="assign-bar"></div>
+            <div id="native-budget-nav">
+                <div id="mod-budget-nav">
+                    <div class="month-nav">
+                        <button class="month-nav-btn" onclick="changeGlobalPeriod(-1)">&#8249;</button>
+                        <span class="month-nav-label month-label-display" onclick="openDatePicker()"
+                            title="Click to jump to a date" style="cursor:pointer;">—</span>
+                        <button class="month-nav-btn month-next-btn" onclick="changeGlobalPeriod(1)">&#8250;</button>
                     </div>
-                    <div class="assign-sub" id="assign-sub"></div>
+
+                    <div class="assign-banner" id="assign-banner" style="display:none; margin-top:10px;">
+                        <div class="assign-banner-title" id="assign-title"></div>
+                        <div class="assign-bar-track">
+                            <div class="assign-bar-fill" id="assign-bar"></div>
+                        </div>
+                        <div class="assign-sub" id="assign-sub"></div>
+                    </div>
                 </div>
             </div>
 
-            <div id="mod-income">
-                <div class="section-label">Income</div>
-                <div id="income-list"></div>
-                <div class="total-row" id="income-total" style="display:none;">
-                    <span>Total</span>
-                    <span id="income-total-val"></span>
+            <div id="native-income">
+                <div id="mod-income">
+                    <div class="section-label">Income</div>
+                    <div id="income-list"></div>
+                    <div class="total-row" id="income-total" style="display:none;">
+                        <span>Total</span>
+                        <span id="income-total-val"></span>
+                    </div>
                 </div>
             </div>
 
-            <div id="mod-expenses">
-                <div class="section-label">Expenses</div>
-                <div id="expense-list"></div>
-                <div class="total-row" id="expense-total" style="display:none;">
-                    <span>Total</span>
-                    <span id="expense-total-val"></span>
+            <div id="native-expenses">
+                <div id="mod-expenses">
+                    <div class="section-label">Expenses</div>
+                    <div id="expense-list"></div>
+                    <div class="total-row" id="expense-total" style="display:none;">
+                        <span>Total</span>
+                        <span id="expense-total-val"></span>
+                    </div>
                 </div>
             </div>
 
-            <div id="mod-sinking">
-                <div class="section-label">Saving/Sinking Funds</div>
-                <div id="sinking-list"></div>
-                <div class="total-row" id="sinking-total" style="display:none;">
-                    <span>Total</span>
-                    <span id="sinking-total-val"></span>
+            <div id="native-sinking">
+                <div id="mod-sinking">
+                    <div class="section-label">Saving/Sinking Funds</div>
+                    <div id="sinking-list"></div>
+                    <div class="total-row" id="sinking-total" style="display:none;">
+                        <span>Total</span>
+                        <span id="sinking-total-val"></span>
+                    </div>
                 </div>
             </div>
 
@@ -1493,45 +1513,50 @@
 
         <!-- ── TRANSACTIONS VIEW ───────────────────────────────────────── -->
         <div class="view" id="view-transactions">
-            <div id="mod-txn-nav">
-                <div class="month-nav">
-                    <button class="month-nav-btn" onclick="changeGlobalPeriod(-1)">&#8249;</button>
-                    <span class="month-nav-label month-label-display" onclick="openDatePicker()"
-                        title="Click to jump to a date" style="cursor:pointer;">—</span>
-                    <button class="month-nav-btn month-next-btn" onclick="changeGlobalPeriod(1)">&#8250;</button>
+            <div id="native-txn-nav">
+                <div id="mod-txn-nav">
+                    <div class="month-nav">
+                        <button class="month-nav-btn" onclick="changeGlobalPeriod(-1)">&#8249;</button>
+                        <span class="month-nav-label month-label-display" onclick="openDatePicker()"
+                            title="Click to jump to a date" style="cursor:pointer;">—</span>
+                        <button class="month-nav-btn month-next-btn" onclick="changeGlobalPeriod(1)">&#8250;</button>
+                    </div>
                 </div>
             </div>
 
-            <div id="mod-txn-logger">
-                <div class="form-card" style="margin-top:14px;">
-                    <div class="form-title">Log a Transaction</div>
-                    <input type="text" id="txn-desc" placeholder="Description (e.g. Safeway run)">
-                    <div class="input-row" style="margin-bottom:8px;">
-                        <select id="txn-cat"></select>
-                        <select id="txn-flow">
-                            <option value="outflow">Outflow (–)</option>
-                            <option value="inflow">Inflow (+)</option>
-                        </select>
+            <div id="native-txn-logger">
+                <div id="mod-txn-logger">
+                    <div class="form-card" style="margin-top:14px;">
+                        <div class="form-title">Log a Transaction</div>
+                        <input type="text" id="txn-desc" placeholder="Description (e.g. Safeway run)">
+                        <div class="input-row" style="margin-bottom:8px;">
+                            <select id="txn-cat"></select>
+                            <select id="txn-flow">
+                                <option value="outflow">Outflow (–)</option>
+                                <option value="inflow">Inflow (+)</option>
+                            </select>
+                        </div>
+                        <div class="input-row" style="margin-bottom:8px;">
+                            <input type="number" id="txn-amt" placeholder="Amount ($)" step="0.01" min="0">
+                            <input type="date" id="txn-date">
+                        </div>
+                        <button class="btn-primary" onclick="addTransaction()">Log Transaction</button>
                     </div>
-                    <div class="input-row" style="margin-bottom:8px;">
-                        <input type="number" id="txn-amt" placeholder="Amount ($)" step="0.01" min="0">
-                        <input type="date" id="txn-date">
-                    </div>
-                    <button class="btn-primary" onclick="addTransaction()">Log Transaction</button>
                 </div>
             </div>
 
-            <div id="mod-txn-history">
-                <div class="section-label" style="margin-top:20px;" id="txn-list-label">Monthly Transactions</div>
-                <div class="card" id="txn-list" style="padding:0 15px;">
-                    <div class="empty-state">No transactions yet.</div>
+            <div id="native-txn-history">
+                <div id="mod-txn-history">
+                    <div class="section-label" style="margin-top:20px;" id="txn-list-label">Monthly Transactions</div>
+                    <div class="card" id="txn-list" style="padding:0 15px;">
+                        <div class="empty-state">No transactions yet.</div>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- ── SPENDING OVERVIEW VIEW ──────────────────────────────────── -->
         <div class="view" id="view-spending">
-
             <div class="month-nav">
                 <button class="month-nav-btn" onclick="changeGlobalPeriod(-1)">&#8249;</button>
                 <span class="month-nav-label month-label-display" onclick="openDatePicker()"
@@ -1566,196 +1591,216 @@
 
         <!-- ── FIRE VIEW ───────────────────────────────────────────────── -->
         <div class="view" id="view-fi">
-            <div class="fi-metrics-grid"
-                style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 12px; margin-top: 14px;">
-                <div class="card" style="padding: 12px; text-align: center; margin-bottom: 0;">
-                    <div class="hstat-label" style="font-size: 0.65rem; letter-spacing: 0.8px;">Nest Egg</div>
-                    <div class="hstat-val" id="fi-val-nest-egg"
-                        style="font-size: 1.15rem; color: var(--accent); margin-top: 4px;">$0</div>
-                </div>
-                <div class="card" style="padding: 12px; text-align: center; margin-bottom: 0;">
-                    <div class="hstat-label" style="font-size: 0.65rem; letter-spacing: 0.8px;">Savings Rate</div>
-                    <div class="hstat-val" id="fi-val-savings-rate"
-                        style="font-size: 1.15rem; color: var(--income); margin-top: 4px;">0%</div>
-                </div>
-                <div class="card" style="padding: 12px; text-align: center; margin-bottom: 0;">
-                    <div class="hstat-label" style="font-size: 0.65rem; letter-spacing: 0.8px;">FIRE Target</div>
-                    <div class="hstat-val" id="fi-val-target"
-                        style="font-size: 1.15rem; color: var(--sinking); margin-top: 4px;">$0</div>
-                </div>
-                <div class="card" style="padding: 12px; text-align: center; margin-bottom: 0;">
-                    <div class="hstat-label" style="font-size: 0.65rem; letter-spacing: 0.8px;">Time to FIRE</div>
-                    <div class="hstat-val" id="fi-val-years"
-                        style="font-size: 1.15rem; color: var(--warn); margin-top: 4px;">—</div>
+            <div id="native-fi-metrics">
+                <div id="mod-fi-metrics" class="fi-metrics-grid"
+                    style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 12px; margin-top: 14px;">
+                    <div class="card" style="padding: 12px; text-align: center; margin-bottom: 0;">
+                        <div class="hstat-label" style="font-size: 0.65rem; letter-spacing: 0.8px;">Nest Egg</div>
+                        <div class="hstat-val" id="fi-val-nest-egg"
+                            style="font-size: 1.15rem; color: var(--accent); margin-top: 4px;">$0</div>
+                    </div>
+                    <div class="card" style="padding: 12px; text-align: center; margin-bottom: 0;">
+                        <div class="hstat-label" style="font-size: 0.65rem; letter-spacing: 0.8px;">Savings Rate</div>
+                        <div class="hstat-val" id="fi-val-savings-rate"
+                            style="font-size: 1.15rem; color: var(--income); margin-top: 4px;">0%</div>
+                    </div>
+                    <div class="card" style="padding: 12px; text-align: center; margin-bottom: 0;">
+                        <div class="hstat-label" style="font-size: 0.65rem; letter-spacing: 0.8px;">FIRE Target</div>
+                        <div class="hstat-val" id="fi-val-target"
+                            style="font-size: 1.15rem; color: var(--sinking); margin-top: 4px;">$0</div>
+                    </div>
+                    <div class="card" style="padding: 12px; text-align: center; margin-bottom: 0;">
+                        <div class="hstat-label" style="font-size: 0.65rem; letter-spacing: 0.8px;">Time to FIRE</div>
+                        <div class="hstat-val" id="fi-val-years"
+                            style="font-size: 1.15rem; color: var(--warn); margin-top: 4px;">—</div>
+                    </div>
                 </div>
             </div>
 
-            <div class="chart-card" style="margin-top: 0; margin-bottom: 12px;">
-                <div class="chart-card-header">
-                    <span class="chart-card-title">Net Worth Growth & Milestones</span>
-                </div>
-                <div class="chart-wrap" style="min-height: 240px; height: 260px;">
-                    <canvas id="fiChart"></canvas>
+            <div id="native-fi-chart">
+                <div id="mod-fi-chart" class="chart-card" style="margin-top: 14px; margin-bottom: 12px;">
+                    <div class="chart-card-header">
+                        <span class="chart-card-title">Net Worth Growth & Milestones</span>
+                    </div>
+                    <div class="chart-wrap" style="min-height: 240px; height: 260px;">
+                        <canvas id="fiChart"></canvas>
+                    </div>
                 </div>
             </div>
 
-            <div class="form-card" style="margin-bottom: 12px;">
-                <div class="form-title"
-                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                    <span>FI Calculator Parameters</span>
-                    <button class="btn-sm ghost" onclick="resetFIParameters()"
-                        style="padding: 4px 8px; font-size: 0.72rem;">Sync with Budget</button>
-                </div>
+            <div id="native-fi-controls">
+                <div id="mod-fi-controls" class="form-card" style="margin-bottom: 12px;">
+                    <div class="form-title"
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span>FI Calculator Parameters</span>
+                        <button class="btn-sm ghost" onclick="resetFIParameters()"
+                            style="padding: 4px 8px; font-size: 0.72rem;">Sync with Budget</button>
+                    </div>
 
-                <div class="input-row" style="margin-bottom: 8px;">
-                    <div>
-                        <label class="field-label">Current Nest Egg ($)</label>
-                        <input type="number" id="fi-input-nest-egg" value="10000" step="1000"
-                            oninput="onFIParamChange()">
+                    <div class="input-row" style="margin-bottom: 8px;">
+                        <div>
+                            <label class="field-label">Current Nest Egg ($)</label>
+                            <input type="number" id="fi-input-nest-egg" value="10000" step="1000"
+                                oninput="onFIParamChange()">
+                        </div>
+                        <div>
+                            <label class="field-label">Monthly Income ($)</label>
+                            <input type="number" id="fi-input-income" step="100" oninput="onFIParamChange()">
+                        </div>
                     </div>
-                    <div>
-                        <label class="field-label">Monthly Income ($)</label>
-                        <input type="number" id="fi-input-income" step="100" oninput="onFIParamChange()">
-                    </div>
-                </div>
 
-                <div class="input-row" style="margin-bottom: 8px;">
-                    <div>
-                        <label class="field-label">Monthly Savings ($)</label>
-                        <input type="number" id="fi-input-savings" step="50" oninput="onFIParamChange()">
+                    <div class="input-row" style="margin-bottom: 8px;">
+                        <div>
+                            <label class="field-label">Monthly Savings ($)</label>
+                            <input type="number" id="fi-input-savings" step="50" oninput="onFIParamChange()">
+                        </div>
+                        <div>
+                            <label class="field-label">Monthly Expenses ($)</label>
+                            <input type="number" id="fi-input-expenses" step="100" oninput="onFIParamChange()">
+                        </div>
                     </div>
-                    <div>
-                        <label class="field-label">Monthly Expenses ($)</label>
-                        <input type="number" id="fi-input-expenses" step="100" oninput="onFIParamChange()">
-                    </div>
-                </div>
 
-                <div class="input-row" style="margin-bottom: 8px;">
-                    <div>
-                        <label class="field-label">Expected Return (%)</label>
-                        <input type="number" id="fi-input-return" value="7.0" step="0.1" min="0" max="25"
-                            oninput="onFIParamChange()">
+                    <div class="input-row" style="margin-bottom: 8px;">
+                        <div>
+                            <label class="field-label">Expected Return (%)</label>
+                            <input type="number" id="fi-input-return" value="7.0" step="0.1" min="0" max="25"
+                                oninput="onFIParamChange()">
+                        </div>
+                        <div>
+                            <label class="field-label">Inflation Rate (%)</label>
+                            <input type="number" id="fi-input-inflation" value="2.5" step="0.1" min="0" max="15"
+                                oninput="onFIParamChange()">
+                        </div>
                     </div>
-                    <div>
-                        <label class="field-label">Inflation Rate (%)</label>
-                        <input type="number" id="fi-input-inflation" value="2.5" step="0.1" min="0" max="15"
-                            oninput="onFIParamChange()">
-                    </div>
-                </div>
 
-                <div class="input-row" style="margin-bottom: 8px;">
-                    <div>
-                        <label class="field-label">Annual Wage Growth (%)</label>
-                        <input type="number" id="fi-input-wage-growth" value="3.0" step="0.1" min="0" max="20"
-                            oninput="onFIParamChange()">
+                    <div class="input-row" style="margin-bottom: 8px;">
+                        <div>
+                            <label class="field-label">Annual Wage Growth (%)</label>
+                            <input type="number" id="fi-input-wage-growth" value="3.0" step="0.1" min="0" max="20"
+                                oninput="onFIParamChange()">
+                        </div>
+                        <div>
+                            <label class="field-label">Expense Inflation (%)</label>
+                            <input type="number" id="fi-input-exp-inflation" value="2.5" step="0.1" min="0" max="15"
+                                oninput="onFIParamChange()">
+                        </div>
                     </div>
-                    <div>
-                        <label class="field-label">Expense Inflation (%)</label>
-                        <input type="number" id="fi-input-exp-inflation" value="2.5" step="0.1" min="0" max="15"
-                            oninput="onFIParamChange()">
-                    </div>
-                </div>
 
-                <div class="input-row" style="margin-bottom: 0;">
-                    <div>
-                        <label class="field-label">Safe Withdrawal Rate (%)</label>
-                        <input type="number" id="fi-input-swr" value="4.0" step="0.1" min="1" max="10"
-                            oninput="onFIParamChange()">
-                    </div>
-                    <div>
-                        <label class="field-label">Current / Target Age</label>
-                        <div style="display: flex; gap: 4px;">
-                            <input type="number" id="fi-input-age" value="30" placeholder="Age"
-                                style="width: 50%; margin-bottom: 0;" oninput="onFIParamChange()">
-                            <input type="number" id="fi-input-target-age" value="60" placeholder="Retire"
-                                style="width: 50%; margin-bottom: 0;" oninput="onFIParamChange()">
+                    <div class="input-row" style="margin-bottom: 0;">
+                        <div>
+                            <label class="field-label">Safe Withdrawal Rate (%)</label>
+                            <input type="number" id="fi-input-swr" value="4.0" step="0.1" min="1" max="10"
+                                oninput="onFIParamChange()">
+                        </div>
+                        <div>
+                            <label class="field-label">Current / Target Age</label>
+                            <div style="display: flex; gap: 4px;">
+                                <input type="number" id="fi-input-age" value="30" placeholder="Age"
+                                    style="width: 50%; margin-bottom: 0;" oninput="onFIParamChange()">
+                                <input type="number" id="fi-input-target-age" value="60" placeholder="Retire"
+                                    style="width: 50%; margin-bottom: 0;" oninput="onFIParamChange()">
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="section-label">FIRE Milestones</div>
-            <div id="fi-milestones-list"></div>
+            <div id="native-fi-milestones">
+                <div id="mod-fi-milestones">
+                    <div class="section-label">FIRE Milestones</div>
+                    <div id="fi-milestones-list"></div>
+                </div>
+            </div>
         </div>
 
         <!-- ── NET WORTH VIEW ─────────────────────────────────────────── -->
         <div class="view" id="view-nw">
-            <div class="nw-metrics-grid">
-                <div class="nw-metric-card">
-                    <div class="nw-metric-label">Net Worth</div>
-                    <div class="nw-metric-val" id="nw-val-networth" style="color: var(--accent);">$0</div>
-                </div>
-                <div class="nw-metric-card">
-                    <div class="nw-metric-label">Total Assets</div>
-                    <div class="nw-metric-val" id="nw-val-assets" style="color: var(--income);">$0</div>
-                </div>
-                <div class="nw-metric-card">
-                    <div class="nw-metric-label">Total Liabilities</div>
-                    <div class="nw-metric-val" id="nw-val-liabilities" style="color: var(--danger);">$0</div>
-                </div>
-                <div class="nw-metric-card">
-                    <div class="nw-metric-label">Projected</div>
-                    <div class="nw-metric-val" id="nw-val-projection" style="color: var(--sinking);">$0</div>
-                </div>
-            </div>
-
-            <div class="chart-card" style="margin-top: 0; margin-bottom: 12px;">
-                <div class="chart-card-header">
-                    <span class="chart-card-title">Net Worth Projection</span>
-                    <div style="display:flex; gap:6px; align-items:center;">
-                        <select id="nw-chart-mode" onchange="renderNW()" style="min-width: 120px;">
-                            <option value="nominal" selected>Nominal</option>
-                            <option value="real">Inflation-Adjusted</option>
-                        </select>
+            <div id="native-nw-metrics">
+                <div id="mod-nw-metrics" class="nw-metrics-grid">
+                    <div class="nw-metric-card">
+                        <div class="nw-metric-label">Net Worth</div>
+                        <div class="nw-metric-val" id="nw-val-networth" style="color: var(--accent);">$0</div>
                     </div>
-                </div>
-                <div class="chart-wrap" style="min-height: 240px; height: 260px;">
-                    <canvas id="nwChart"></canvas>
-                </div>
-            </div>
-
-            <div class="nw-global-controls">
-                <div class="form-title"
-                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                    <span>Projection Settings</span>
-                    <span class="nw-sync-badge" onclick="syncNWToFI()" title="Use current Net Worth as FIRE Nest Egg">⟳
-                        Sync
-                        to FIRE</span>
-                </div>
-                <div class="nw-controls-row">
-                    <div>
-                        <label class="field-label">Global Inflation (%)</label>
-                        <input type="number" id="nw-input-inflation" value="2.5" step="0.1" min="0" max="15"
-                            oninput="onNWParamChange()" style="margin-bottom:0;">
+                    <div class="nw-metric-card">
+                        <div class="nw-metric-label">Total Assets</div>
+                        <div class="nw-metric-val" id="nw-val-assets" style="color: var(--income);">$0</div>
                     </div>
-                    <div>
-                        <label class="field-label">Projection Years</label>
-                        <input type="number" id="nw-input-years" value="10" step="1" min="1" max="40"
-                            oninput="onNWParamChange()" style="margin-bottom:0;">
+                    <div class="nw-metric-card">
+                        <div class="nw-metric-label">Total Liabilities</div>
+                        <div class="nw-metric-val" id="nw-val-liabilities" style="color: var(--danger);">$0</div>
+                    </div>
+                    <div class="nw-metric-card">
+                        <div class="nw-metric-label">Projected</div>
+                        <div class="nw-metric-val" id="nw-val-projection" style="color: var(--sinking);">$0</div>
                     </div>
                 </div>
             </div>
 
-            <div class="nw-dual-lists">
-                <div class="nw-list-section">
-                    <div class="section-label">Assets</div>
-                    <div id="nw-assets-list"></div>
-                    <button class="nw-add-btn" onclick="openNWModal('asset')">
-                        <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
-                            <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
-                        </svg>
-                        Add Asset
-                    </button>
+            <div id="native-nw-chart">
+                <div id="mod-nw-chart" class="chart-card" style="margin-top: 14px; margin-bottom: 12px;">
+                    <div class="chart-card-header">
+                        <span class="chart-card-title">Net Worth Projection</span>
+                        <div style="display:flex; gap:6px; align-items:center;">
+                            <select id="nw-chart-mode" onchange="renderNW()" style="min-width: 120px;">
+                                <option value="nominal" selected>Nominal</option>
+                                <option value="real">Inflation-Adjusted</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="chart-wrap" style="min-height: 240px; height: 260px;">
+                        <canvas id="nwChart"></canvas>
+                    </div>
                 </div>
-                <div class="nw-list-section">
-                    <div class="section-label">Liabilities</div>
-                    <div id="nw-liabilities-list"></div>
-                    <button class="nw-add-btn" onclick="openNWModal('liability')">
-                        <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
-                            <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
-                        </svg>
-                        Add Liability
-                    </button>
+            </div>
+
+            <div id="native-nw-controls">
+                <div id="mod-nw-controls" class="nw-global-controls">
+                    <div class="form-title"
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span>Projection Settings</span>
+                        <span class="nw-sync-badge" onclick="syncNWToFI()"
+                            title="Use current Net Worth as FIRE Nest Egg">⟳
+                            Sync to FIRE</span>
+                    </div>
+                    <div class="nw-controls-row">
+                        <div>
+                            <label class="field-label">Global Inflation (%)</label>
+                            <input type="number" id="nw-input-inflation" value="2.5" step="0.1" min="0" max="15"
+                                oninput="onNWParamChange()" style="margin-bottom:0;">
+                        </div>
+                        <div>
+                            <label class="field-label">Projection Years</label>
+                            <input type="number" id="nw-input-years" value="10" step="1" min="1" max="40"
+                                oninput="onNWParamChange()" style="margin-bottom:0;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="native-nw-lists">
+                <div id="mod-nw-lists" class="nw-dual-lists">
+                    <div class="nw-list-section">
+                        <div class="section-label">Assets</div>
+                        <div id="nw-assets-list"></div>
+                        <button class="nw-add-btn" onclick="openNWModal('asset')">
+                            <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+                                <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.8"
+                                    stroke-linecap="round" />
+                            </svg>
+                            Add Asset
+                        </button>
+                    </div>
+                    <div class="nw-list-section">
+                        <div class="section-label">Liabilities</div>
+                        <div id="nw-liabilities-list"></div>
+                        <button class="nw-add-btn" onclick="openNWModal('liability')">
+                            <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+                                <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.8"
+                                    stroke-linecap="round" />
+                            </svg>
+                            Add Liability
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1764,12 +1809,14 @@
 
     <!-- ── TAB MANAGER MODAL ─────────────────────────────────────────── -->
     <div class="modal-bg" id="tab-manager-modal" onclick="if(event.target===this)closeTabManager()">
-        <div class="modal-box">
+        <div class="modal-box" style="max-width: 480px;">
             <div class="modal-handle"></div>
             <div class="modal-title">Manage Navigation Tabs</div>
+            <p style="font-size:0.75rem; color:var(--text2); margin:-10px 0 12px;">Toggle checkboxes to show/hide tabs.
+                Click on any text title box to rename that tab.</p>
 
             <div id="tab-manager-list"
-                style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px; max-height:220px; overflow-y:auto; padding-right:4px;">
+                style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px; max-height:280px; overflow-y:auto; padding-right:4px;">
                 <!-- Filled Dynamically -->
             </div>
 
@@ -1935,6 +1982,20 @@
         const STORAGE_KEY = 'zenji_v3';
         let state = JSON.parse(localStorage.getItem(STORAGE_KEY)) || null;
 
+        // Color palette for charts
+        const CHART_COLORS = [
+            '#2d4238', // --accent
+            '#1e5c70', // --income
+            '#5e4f2e', // --sinking
+            '#8f3224', // --danger
+            '#7a5e18', // --warn
+            '#3d5548', // --accent2
+            '#a3b899',
+            '#4a5c52',
+            '#88a090',
+            '#b2c5b2'
+        ];
+
         if (!state) {
             state = {
                 categories: [
@@ -2012,7 +2073,7 @@
 
         if (!state.tabs) {
             state.tabs = [
-                { id: 'dashboard', label: 'Dashboard', enabled: true },
+                { id: 'dashboard', label: 'Dashboard', enabled: true, type: 'dashboard', layout: { cols: 2, slots: ['budget-expenses', 'txn-history', 'spending', 'notes'] } },
                 { id: 'budget', label: 'Budget', enabled: true },
                 { id: 'transactions', label: 'Transactions', enabled: true },
                 { id: 'spending', label: 'Overview', enabled: true },
@@ -2025,7 +2086,7 @@
         if (!state.dashboardLayout) {
             state.dashboardLayout = {
                 cols: 2,
-                slots: ['budget', 'transactions', 'spending']
+                slots: ['budget-expenses', 'txn-history', 'spending', 'notes']
             };
             save();
         }
@@ -2537,7 +2598,6 @@
                 const periodOutflows = getTxnsForPeriod(currentPeriodStart, periodEnd)
                     .filter(t => t.catId == catId && t.type === 'outflow')
                     .reduce((sum, t) => sum + (parseFloat(t.amt) || 0), 0);
-                const netThisPeriod = periodInflows - periodOutflows;
                 showToast(`${cat.name} balance: ${fmtDec(bal)} this ${pl}`, 'var(--sinking)');
                 return;
             }
@@ -2756,7 +2816,7 @@
                     if (bar) bar.style.background = 'var(--accent)';
                     if (titleEl) {
                         titleEl.style.color = 'var(--accent)';
-                        titleEl.textContent = '✓ Every dollar assigned — great work!';
+                        titleEl.textContent = '✓ Every dollar assigned';
                     }
                     if (subEl) subEl.textContent = fmt(totalIncomeTs) + ' income fully allocated.';
                 } else if (unassignedM > 0) {
@@ -3412,14 +3472,49 @@
         // ─── CSV EXPORT ──────────────────────────────────────────────────────
         function exportCSV() {
             let csv = 'RecordType,Name,Allocation,Date,CategoryType,Period,Balance,TxnType\n';
+
+            // Categories
             state.categories.forEach(c => {
                 const curAlloc = getCatAlloc(c, currentYear, currentMonth);
                 csv += `category,${esc(c.name)},${curAlloc},N/A,${c.type},${c.period || 'monthly'},${c.balance || 0},N/A\n`;
             });
+
+            // Transactions
             state.transactions.forEach(t => {
                 const cat = state.categories.find(c => c.id == t.catId);
                 csv += `transaction,${esc(t.desc)},${t.amt},${t.date},${esc(cat ? cat.name : '')},N/A,N/A,${t.type}\n`;
             });
+
+            // Net Worth Items
+            if (state.nwItems) {
+                state.nwItems.forEach(item => {
+                    csv += `nwItem,${esc(item.name)},${item.value},${item.rate},${item.type},${item.contribution},N/A,N/A\n`;
+                });
+            }
+
+            // Net Worth Settings
+            if (state.nwSettings) {
+                Object.keys(state.nwSettings).forEach(key => {
+                    csv += `nwSetting,${esc(key)},${state.nwSettings[key]},N/A,N/A,N/A,N/A,N/A\n`;
+                });
+            }
+
+            // FI Parameters
+            if (state.fi) {
+                Object.keys(state.fi).forEach(key => {
+                    csv += `fiParam,${esc(key)},${state.fi[key]},N/A,N/A,N/A,N/A,N/A\n`;
+                });
+            }
+
+            // Custom Tabs Configurations
+            if (state.tabs) {
+                state.tabs.forEach(t => {
+                    const slotsStr = t.layout && t.layout.slots ? t.layout.slots.join(';') : '';
+                    const cols = t.layout ? t.layout.cols : '';
+                    csv += `tab,${esc(t.id)},${esc(t.label)},${t.enabled !== false},${esc(t.type || 'standard')},${cols},${esc(slotsStr)},${!!t.custom}\n`;
+                });
+            }
+
             document.getElementById('csv-out-title').textContent = 'Export CSV';
             document.getElementById('csv-out-area').value = csv;
             document.getElementById('csv-copy-msg').style.display = 'none';
@@ -3449,17 +3544,9 @@
                 'category,Emergency Fund,300,N/A,sinking,monthly,800,N/A',
                 'transaction,Safeway run,87.43,2025-05-15,Groceries,N/A,N/A,outflow',
                 'transaction,Direct deposit,3200,2025-05-01,Paycheck,N/A,N/A,inflow',
-                'transaction,Manual Allocation,400,2025-05-01,Emergency Fund,N/A,N/A,inflow',
-                'transaction,Tow Truck,200,2025-05-01,Emergency Fund,N/A,N/A,outflow',
-                'Key/Guide/Instructions (Delete before import):',
-                'RecordType (column 1) = category | transaction',
-                'Name (Column 2) = Category Name | Transaction Description',
-                'Allocation (Column 3) = Allocated $ for Category | Transaction $ amount',
-                'Date format (column 4) = YYYY-MM-DD | "N/A" for Category',
-                'CategoryType (column 5) = Category options are expense/income/sinking | Transaction must match a category name or be left blank',
-                'Period (column 6) = Category options are daily/weekly/biweekly/semimonthly/monthly/annually | Transactions = "N/A"',
-                'Balance (column 7) = starting $ balance for sinking funds/savings | use 0 for other expenses | use "N/A" for Transactions',
-                'TxnType (column 8) = outflow | inflow'
+                'nwItem,Brokerage Account,15000,7.2,asset,400,N/A,N/A',
+                'nwSetting,inflation,2.5,N/A,N/A,N/A,N/A,N/A',
+                'fiParam,targetAge,65,N/A,N/A,N/A,N/A,N/A'
             ].join('\n');
 
             const blob = new Blob([template], { type: 'text/csv' });
@@ -3489,34 +3576,130 @@
             }
 
             const mode = document.getElementById('import-mode').value;
-            if (mode === 'replace') { state.categories = []; state.transactions = []; }
+            if (mode === 'replace') {
+                state.categories = [];
+                state.transactions = [];
+                state.nwItems = [];
+                state.fi = {};
+                state.nwSettings = { inflation: 2.5, years: 10 };
+                state.tabs = [
+                    { id: 'dashboard', label: 'Dashboard', enabled: true, type: 'dashboard', layout: { cols: 2, slots: ['budget-expenses', 'txn-history', 'spending', 'notes'] } },
+                    { id: 'budget', label: 'Budget', enabled: true },
+                    { id: 'transactions', label: 'Transactions', enabled: true },
+                    { id: 'spending', label: 'Overview', enabled: true },
+                    { id: 'fi', label: 'Independence', enabled: true },
+                    { id: 'nw', label: 'Net Worth', enabled: true }
+                ];
+            }
 
             const lines = text.split('\n');
+            const importedTabs = [];
+
+            // Pass 1: Categories, NW items, NW settings, FI Settings, Tab configurations
             for (let i = 1; i < lines.length; i++) {
                 const line = lines[i].trim();
-                if (!line || line.startsWith('#')) continue;
+                if (!line || line.startsWith('#') || line.startsWith('Key/Guide')) continue;
                 const p = parseCSVLine(line);
-                if (p.length < 2 || p[0].trim() !== 'category') continue;
-                const name = p[1].trim();
-                const allocation = parseFloat(p[2]) || 0;
-                const catType = (p[4] || 'expense').trim();
-                const period = (p[5] || 'monthly').trim();
-                const balance = parseFloat(p[6]) || 0;
-                if (!name) continue;
+                if (p.length < 2) continue;
 
-                let existing = state.categories.find(c => c.name.toLowerCase() === name.toLowerCase());
-                if (!existing) {
-                    const allocs = {};
-                    if (allocation > 0) allocs[monthKey(currentYear, currentMonth)] = allocation;
-                    state.categories.push({ id: Date.now() + i, name, type: catType, allocations: allocs, period, balance });
+                const recType = p[0].trim().toLowerCase();
+                const name = p[1].trim();
+
+                if (recType === 'category') {
+                    const allocation = parseFloat(p[2]) || 0;
+                    const catType = (p[4] || 'expense').trim();
+                    const period = (p[5] || 'monthly').trim();
+                    const balance = parseFloat(p[6]) || 0;
+                    if (!name) continue;
+
+                    let existing = state.categories.find(c => c.name.toLowerCase() === name.toLowerCase());
+                    if (!existing) {
+                        const allocs = {};
+                        if (allocation > 0) allocs[monthKey(currentYear, currentMonth)] = allocation;
+                        state.categories.push({ id: Date.now() + i, name, type: catType, allocations: allocs, period, balance });
+                    } else {
+                        existing.type = catType;
+                        existing.period = period;
+                        existing.balance = balance;
+                        if (allocation > 0) {
+                            if (!existing.allocations) existing.allocations = {};
+                            existing.allocations[monthKey(currentYear, currentMonth)] = allocation;
+                        }
+                    }
+                }
+                else if (recType === 'nwitem') {
+                    const val = parseFloat(p[2]) || 0;
+                    const rate = parseFloat(p[3]) || 0;
+                    const type = (p[4] || 'asset').trim();
+                    const contribution = parseFloat(p[5]) || 0;
+                    if (!name) continue;
+
+                    let existing = state.nwItems.find(item => item.name.toLowerCase() === name.toLowerCase());
+                    if (!existing) {
+                        state.nwItems.push({ id: Date.now() + i, name, type, value: val, rate, contribution });
+                    } else {
+                        existing.value = val;
+                        existing.rate = rate;
+                        existing.type = type;
+                        existing.contribution = contribution;
+                    }
+                }
+                else if (recType === 'nwsetting') {
+                    if (!state.nwSettings) state.nwSettings = {};
+                    state.nwSettings[name] = parseFloat(p[2]) || p[2];
+                }
+                else if (recType === 'fiparam') {
+                    if (!state.fi) state.fi = {};
+                    state.fi[name] = parseFloat(p[2]) || p[2];
+                }
+                else if (recType === 'tab') {
+                    const label = p[2].trim();
+                    const enabled = p[3].trim().toLowerCase() === 'true';
+                    const type = p[4].trim();
+                    const cols = p[5].trim();
+                    const slotsStr = p[6].trim();
+                    const custom = p[7] ? p[7].trim().toLowerCase() === 'true' : false;
+
+                    const tabObj = {
+                        id: name,
+                        label: label,
+                        enabled: enabled,
+                        type: type,
+                        custom: custom
+                    };
+                    if (type === 'dashboard') {
+                        tabObj.layout = {
+                            cols: cols,
+                            slots: slotsStr ? slotsStr.split(';') : ['budget-expenses', 'txn-history', 'spending', 'notes']
+                        };
+                    }
+                    importedTabs.push(tabObj);
                 }
             }
 
+            // Sync imported Custom Tabs
+            if (importedTabs.length > 0) {
+                if (mode === 'replace') {
+                    state.tabs = importedTabs;
+                } else {
+                    importedTabs.forEach(t => {
+                        const existingIdx = state.tabs.findIndex(existing => existing.id === t.id);
+                        if (existingIdx !== -1) {
+                            state.tabs[existingIdx] = t;
+                        } else {
+                            state.tabs.push(t);
+                        }
+                    });
+                }
+            }
+
+            // Pass 2: Transactions
             for (let i = 1; i < lines.length; i++) {
                 const line = lines[i].trim();
-                if (!line || line.startsWith('#')) continue;
+                if (!line || line.startsWith('#') || line.startsWith('Key/Guide')) continue;
                 const p = parseCSVLine(line);
-                if (p.length < 4 || p[0].trim() !== 'transaction') continue;
+                if (p.length < 4 || p[0].trim().toLowerCase() !== 'transaction') continue;
+
                 const desc = p[1].trim();
                 const amt = parseFloat(p[2]);
                 const date = (p[3] || '').trim() === 'N/A' ? todayISO() : (p[3] || todayISO()).trim();
@@ -3530,14 +3713,22 @@
                     state.categories.push(cat);
                 }
 
-                state.transactions.unshift({ id: Date.now() + i, desc, catId: cat ? cat.id : '', amt, date, type: flow });
+                const exists = state.transactions.some(t => t.desc === desc && t.amt === amt && t.date === date && t.type === flow);
+                if (mode === 'replace' || !exists) {
+                    state.transactions.unshift({ id: Date.now() + i + 20000, desc, catId: cat ? cat.id : '', amt, date, type: flow });
+                }
             }
 
             save();
             render();
             msg.textContent = '✓ Imported successfully!';
             msg.style.color = 'var(--income)'; msg.style.display = 'block';
-            setTimeout(closeCsvIn, 1500);
+            setTimeout(() => {
+                closeCsvIn();
+                renderTabsNav();
+                populateDashboardDropdowns();
+                reparentViews();
+            }, 1500);
         }
 
         // ─── FINANCIAL INDEPENDENCE (FIRE) CALCULATIONS & RENDER ─────────────
@@ -3989,7 +4180,6 @@
             liabilityData.push(totalLiabilities);
             nwData.push(currentNW);
 
-            // Normalize and parse state variables before simulation loops
             let simulatedItems = state.nwItems.map(item => ({
                 id: item.id,
                 name: String(item.name || ''),
@@ -4307,13 +4497,25 @@
                 const isBuiltIn = ['dashboard', 'budget', 'transactions', 'spending', 'fi', 'nw'].includes(t.id);
                 const deleteBtn = !isBuiltIn ? `<button class="icon-btn del" onclick="deleteCustomTab('${t.id}')" style="min-width:24px; min-height:24px;">✕</button>` : '';
                 return `
-                    <div style="display:flex; align-items:center; gap:8px; background:var(--surface); padding:8px 12px; border-radius:8px;">
-                        <input type="checkbox" ${t.enabled !== false ? 'checked' : ''} onchange="toggleTabEnabled('${t.id}')" style="width:16px; height:16px; cursor:pointer; margin:0;">
-                        <span style="flex:1; font-weight:700; font-size:0.85rem;">${escapeHTML(t.label)} ${!isBuiltIn ? '<span style="font-size:0.7rem; color:var(--text2); font-weight:normal;">(custom)</span>' : ''}</span>
+                    <div style="display:flex; align-items:center; gap:8px; background:var(--surface); padding:4px 12px; border-radius:8px;">
+                        <input type="checkbox" ${t.enabled !== false ? 'checked' : ''} onchange="toggleTabEnabled('${t.id}')" style="width:16px; height:16px; cursor:pointer; margin:0;" title="Show/Hide Tab">
+                        <input type="text" value="${escapeHTML(t.label)}" onchange="renameTab('${t.id}', this.value)" style="flex:1; font-weight:700; font-size:0.85rem; padding:4px 8px; margin-bottom:0; border:1px solid transparent; background:transparent;" onfocus="this.style.borderColor='var(--border)'" onblur="this.style.borderColor='transparent'" title="Click to rename tab">
                         ${deleteBtn}
                     </div>
                 `;
             }).join('');
+        }
+
+        function renameTab(tabId, newLabel) {
+            const label = newLabel.trim();
+            if (!label) return;
+            const tab = state.tabs.find(t => t.id === tabId);
+            if (tab) {
+                tab.label = label;
+                save();
+                renderTabsNav();
+                showToast(`Tab renamed to "${label}"`, 'var(--accent)');
+            }
         }
 
         function toggleTabEnabled(tabId) {
@@ -4345,7 +4547,7 @@
                 custom: true,
                 layout: {
                     cols: 2,
-                    slots: ['budget-expenses', 'txn-history', 'spending']
+                    slots: ['budget-expenses', 'txn-history', 'spending', 'notes']
                 }
             });
 
@@ -4387,7 +4589,6 @@
         function deleteCustomTab(tabId) {
             showConfirmToast('Delete this custom dashboard tab page?', () => {
                 state.tabs = state.tabs.filter(t => t.id !== tabId);
-                // Clean up checklist or note data stored under this tab
                 if (state.customTabData) {
                     Object.keys(state.customTabData).forEach(k => {
                         if (k.startsWith('notes-' + tabId) || k.startsWith('cl-' + tabId)) {
@@ -4411,17 +4612,27 @@
         // ─── DYNAMIC REPARENTING PORTAL ENGINE ──────────────────────────────
         const WIDGETS_REGISTRY = {
             'budget-full': { elId: 'view-budget', nativeParentId: 'views-root-container', label: 'Full Budget' },
-            'budget-nav': { elId: 'mod-budget-nav', nativeParentId: 'view-budget', label: 'Budget Month Navigation' },
-            'budget-income': { elId: 'mod-income', nativeParentId: 'view-budget', label: 'Budget Income List' },
-            'budget-expenses': { elId: 'mod-expenses', nativeParentId: 'view-budget', label: 'Budget Expenses List' },
-            'budget-sinking': { elId: 'mod-sinking', nativeParentId: 'view-budget', label: 'Budget Savings/Sinking List' },
+            'budget-nav': { elId: 'mod-budget-nav', nativeParentId: 'native-budget-nav', label: 'Budget Month Navigation' },
+            'budget-income': { elId: 'mod-income', nativeParentId: 'native-income', label: 'Budget Income List' },
+            'budget-expenses': { elId: 'mod-expenses', nativeParentId: 'native-expenses', label: 'Budget Expenses List' },
+            'budget-sinking': { elId: 'mod-sinking', nativeParentId: 'native-sinking', label: 'Budget Savings/Sinking List' },
             'txn-full': { elId: 'view-transactions', nativeParentId: 'views-root-container', label: 'Full Transactions List' },
-            'txn-nav': { elId: 'mod-txn-nav', nativeParentId: 'view-transactions', label: 'Transactions Navigation' },
-            'txn-logger': { elId: 'mod-txn-logger', nativeParentId: 'view-transactions', label: 'Log Transaction Form' },
-            'txn-history': { elId: 'mod-txn-history', nativeParentId: 'view-transactions', label: 'Monthly Transactions List' },
+            'txn-nav': { elId: 'mod-txn-nav', nativeParentId: 'native-txn-nav', label: 'Transactions Navigation' },
+            'txn-logger': { elId: 'mod-txn-logger', nativeParentId: 'native-txn-logger', label: 'Log Transaction Form' },
+            'txn-history': { elId: 'mod-txn-history', nativeParentId: 'native-txn-history', label: 'Monthly Transactions List' },
             'spending': { elId: 'view-spending', nativeParentId: 'views-root-container', label: 'Distribution Pie Chart' },
-            'fi': { elId: 'view-fi', nativeParentId: 'views-root-container', label: 'Independence Projections' },
-            'nw': { elId: 'view-nw', nativeParentId: 'views-root-container', label: 'Net Worth & Projections' }
+            // Net Worth Segmented components
+            'nw-full': { elId: 'view-nw', nativeParentId: 'views-root-container', label: 'Full Net Worth Page' },
+            'nw-metrics': { elId: 'mod-nw-metrics', nativeParentId: 'native-nw-metrics', label: 'Net Worth Metrics' },
+            'nw-chart': { elId: 'mod-nw-chart', nativeParentId: 'native-nw-chart', label: 'Net Worth Projection Chart' },
+            'nw-controls': { elId: 'mod-nw-controls', nativeParentId: 'native-nw-controls', label: 'Net Worth Settings form' },
+            'nw-lists': { elId: 'mod-nw-lists', nativeParentId: 'native-nw-lists', label: 'Assets & Liabilities dual list' },
+            // FIRE Segmented components
+            'fi-full': { elId: 'view-fi', nativeParentId: 'views-root-container', label: 'Full FIRE Independence Page' },
+            'fi-metrics': { elId: 'mod-fi-metrics', nativeParentId: 'native-fi-metrics', label: 'FIRE Summary Indicators' },
+            'fi-chart': { elId: 'mod-fi-chart', nativeParentId: 'native-fi-chart', label: 'FIRE Milestones Line Chart' },
+            'fi-controls': { elId: 'mod-fi-controls', nativeParentId: 'native-fi-controls', label: 'FIRE Parameters Form' },
+            'fi-milestones': { elId: 'mod-fi-milestones', nativeParentId: 'native-fi-milestones', label: 'FIRE Milestone Status checklist' }
         };
 
         function reparentViews() {
@@ -4446,18 +4657,45 @@
             // 2. Setup layout context
             if (activeTab && activeTab.type === 'dashboard') {
                 const currentLayout = activeTab.layout || state.dashboardLayout;
-                const cols = parseInt(currentLayout.cols) || 2;
+                const colsVal = currentLayout.cols !== undefined ? currentLayout.cols : 2;
 
                 const grid = document.getElementById('dashboard-grid');
-                if (grid) grid.className = `dashboard-grid cols-${cols}`;
+                if (grid) {
+                    grid.style.display = 'grid';
+                    grid.style.gap = '16px';
+                    grid.style.width = '100%';
+
+                    if (colsVal === 1 || colsVal === '1') {
+                        grid.style.gridTemplateColumns = '1fr';
+                    } else if (colsVal === 2 || colsVal === '2') {
+                        grid.style.gridTemplateColumns = '1fr 1fr';
+                    } else if (colsVal === 3 || colsVal === '3') {
+                        grid.style.gridTemplateColumns = '1fr 1fr 1fr';
+                    } else if (colsVal === 4 || colsVal === '4') {
+                        grid.style.gridTemplateColumns = 'repeat(2, 1fr)'; // 2x2 grid
+                    } else if (colsVal === '2-60-40') {
+                        grid.style.gridTemplateColumns = '3fr 2fr';
+                    } else if (colsVal === '2-40-60') {
+                        grid.style.gridTemplateColumns = '2fr 3fr';
+                    } else {
+                        grid.style.gridTemplateColumns = '1fr 1fr';
+                    }
+                }
+
+                // Determine active number of slots based on layout columns selection
+                let activeSlotsCount = 2;
+                if (colsVal === 1 || colsVal === '1') activeSlotsCount = 1;
+                else if (colsVal === 2 || colsVal === '2' || colsVal === '2-60-40' || colsVal === '2-40-60') activeSlotsCount = 2;
+                else if (colsVal === 3 || colsVal === '3') activeSlotsCount = 3;
+                else if (colsVal === 4 || colsVal === '4') activeSlotsCount = 4;
 
                 // Populating active slots
-                for (let i = 0; i < 3; i++) {
+                for (let i = 0; i < 4; i++) {
                     const slotEl = document.getElementById(`db-slot-${i}`);
                     if (!slotEl) continue;
 
                     slotEl.innerHTML = '';
-                    if (i < cols) {
+                    if (i < activeSlotsCount) {
                         slotEl.style.display = 'flex';
                         const widgetKey = currentLayout.slots[i] || 'budget-expenses';
 
@@ -4482,9 +4720,9 @@
                             if (widgetEl) {
                                 slotEl.appendChild(widgetEl);
                                 widgetEl.classList.add('active');
-                                if (widgetKey === 'spending') setTimeout(renderCharts, 50);
-                                if (widgetKey === 'fi') setTimeout(renderFI, 50);
-                                if (widgetKey === 'nw') setTimeout(renderNW, 50);
+                                if (widgetKey.includes('spending')) setTimeout(renderCharts, 50);
+                                if (widgetKey.includes('fi')) setTimeout(renderFI, 50);
+                                if (widgetKey.includes('nw')) setTimeout(renderNW, 50);
                             }
                         } else if (widgetKey === 'notes' || widgetKey === 'checklist') {
                             // Render modular notes or checklist inline inside this specific slot
@@ -4557,7 +4795,7 @@
             save();
 
             input.value = '';
-            reparentViews(); // Refresh slot DOM
+            reparentViews(); // Refresh slot DOM to draw new task
         }
 
         function toggleInlineChecklistItem(dataKey, idx) {
@@ -4577,7 +4815,6 @@
         }
 
         function populateDashboardDropdowns() {
-            // Build dropdown selection options dynamically from registry and custom types
             let options = '';
             Object.keys(WIDGETS_REGISTRY).forEach(key => {
                 options += `<option value="${key}">${escapeHTML(WIDGETS_REGISTRY[key].label)}</option>`;
@@ -4585,7 +4822,7 @@
             options += `<option value="notes">Notes Widget</option>`;
             options += `<option value="checklist">Checklist Widget</option>`;
 
-            for (let i = 0; i < 3; i++) {
+            for (let i = 0; i < 4; i++) {
                 const el = document.getElementById(`db-select-slot-${i}`);
                 if (el) {
                     el.innerHTML = options;
@@ -4608,19 +4845,24 @@
         }
 
         function toggleSlotCConfig() {
-            const cols = parseInt(document.getElementById('db-select-cols')?.value) || 2;
+            const cols = document.getElementById('db-select-cols')?.value || '2';
             const slot2Wrap = document.getElementById('db-slot-2-config-wrap');
-            if (slot2Wrap) {
-                slot2Wrap.style.display = cols === 3 ? 'block' : 'none';
-            }
+            const slot3Wrap = document.getElementById('db-slot-3-config-wrap');
+
+            const showC = (cols === '3' || cols === '4');
+            const showD = (cols === '4');
+
+            if (slot2Wrap) slot2Wrap.style.display = showC ? 'block' : 'none';
+            if (slot3Wrap) slot3Wrap.style.display = showD ? 'block' : 'none';
         }
 
         function updateDashboardConfig() {
-            const cols = parseInt(document.getElementById('db-select-cols').value) || 2;
+            const cols = document.getElementById('db-select-cols').value;
             const slots = [
                 document.getElementById('db-select-slot-0').value,
                 document.getElementById('db-select-slot-1').value,
-                document.getElementById('db-select-slot-2').value
+                document.getElementById('db-select-slot-2').value,
+                document.getElementById('db-select-slot-3').value
             ];
 
             const activeTab = state.tabs.find(t => t.id === currentTabId);
@@ -4648,13 +4890,16 @@
             }
         }
 
+        // Dummy backwards compatibility helper
+        function ensureCustomTabDOM() { }
+
         // ─── INIT ─────────────────────────────────────────────────────────────
         document.getElementById('txn-date').value = todayISO();
 
-        // Safe dynamic initialization
+        // Safe dynamic initialization of default views
         if (!state.tabs) {
             state.tabs = [
-                { id: 'dashboard', label: 'Dashboard', enabled: true, type: 'dashboard', layout: { cols: 2, slots: ['budget-expenses', 'txn-history'] } },
+                { id: 'dashboard', label: 'Dashboard', enabled: true, type: 'dashboard', layout: { cols: 2, slots: ['budget-expenses', 'txn-history', 'spending', 'notes'] } },
                 { id: 'budget', label: 'Budget', enabled: true },
                 { id: 'transactions', label: 'Transactions', enabled: true },
                 { id: 'spending', label: 'Overview', enabled: true },
@@ -4668,25 +4913,10 @@
         state.tabs.forEach(t => {
             if (t.id === 'dashboard' && !t.layout) {
                 t.type = 'dashboard';
-                t.layout = { cols: 2, slots: ['budget-expenses', 'txn-history'] };
+                t.layout = { cols: 2, slots: ['budget-expenses', 'txn-history', 'spending', 'notes'] };
                 save();
             }
         });
-
-        renderTabsNav();
-        populateDashboardDropdowns();
-
-        const defaultStart = state.tabs.find(t => t.enabled !== false);
-        currentTabId = defaultStart ? defaultStart.id : 'dashboard';
-
-        switchTab(currentTabId, document.getElementById('tab-btn-' + currentTabId));
-
-        updateChartExpenseOptionLabel();
-        render();
-        renderCharts();
-
-        // ─── INIT ─────────────────────────────────────────────────────────────
-        document.getElementById('txn-date').value = todayISO();
 
         ensureCustomTabDOM();
         renderTabsNav();
