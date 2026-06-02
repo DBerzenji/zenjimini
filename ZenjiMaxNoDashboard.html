@@ -6,7 +6,6 @@
 
     <link rel="manifest" href="/zenjimini/manifest.json">
     <meta name="theme-color" content="#3d5247">
-    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
 
@@ -193,11 +192,6 @@
 
         .view.active {
             display: block;
-        }
-
-        /* Expand layout limits when Dashboard is active */
-        #view-dashboard.active {
-            max-width: 1400px;
         }
 
         /* ── SECTION LABELS ──────────────────────────── */
@@ -1291,66 +1285,6 @@
         .nw-sync-badge:hover {
             background: #dceede;
         }
-
-        /* ── DYNAMIC DASHBOARD & SLOT STYLES ────────────────────────── */
-        .dashboard-grid {
-            display: grid;
-            gap: 16px;
-            width: 100%;
-            margin-top: 14px;
-        }
-
-        .dashboard-grid.cols-1 {
-            grid-template-columns: 1fr;
-        }
-
-        .dashboard-grid.cols-2 {
-            grid-template-columns: repeat(2, 1fr);
-        }
-
-        .dashboard-grid.cols-3 {
-            grid-template-columns: repeat(3, 1fr);
-        }
-
-        @media (max-width: 900px) {
-            .dashboard-grid {
-                grid-template-columns: 1fr !important;
-            }
-        }
-
-        .dashboard-slot {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            min-height: 400px;
-            overflow-y: auto;
-        }
-
-        .dashboard-slot-header {
-            font-size: 0.72rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.9px;
-            color: var(--text2);
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 6px;
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        /* Clean overrides inside Dashboard widgets */
-        .dashboard-slot .view {
-            display: block !important;
-            max-width: 100% !important;
-            padding: 0 !important;
-            margin: 0 !important;
-        }
     </style>
 </head>
 
@@ -1381,455 +1315,324 @@
 
     <nav class="tabs">
         <div class="tab-btns">
-            <!-- Rendered Dynamically -->
+            <button class="tab-btn active" onclick="switchTab('budget', this)">Budget</button>
+            <button class="tab-btn" onclick="switchTab('transactions', this)">Transactions</button>
+            <button class="tab-btn" onclick="switchTab('spending', this); renderCharts();">Overview</button>
+            <button class="tab-btn" onclick="switchTab('fi', this); renderFI();">Independence</button>
+            <button class="tab-btn" onclick="switchTab('nw', this); renderNW();">Net Worth</button>
         </div>
     </nav>
 
-    <!-- Master wrapper for containing views to facilitate DOM reparenting -->
-    <div id="views-root-container">
+    <div class="view active" id="view-budget">
 
-        <!-- ── DASHBOARD VIEW ─────────────────────────────────────────── -->
-        <div class="view" id="view-dashboard">
-            <div class="card" style="margin-bottom:14px; margin-top:14px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;"
-                    onclick="toggleElement('db-config-panel')">
-                    <span class="form-title" style="margin-bottom:0;">🛠️ Customize Dashboard Layout</span>
-                    <span id="db-config-panel-indicator"
-                        style="font-size:0.8rem; color:var(--text2); font-weight:700;">Expand ▾</span>
-                </div>
-
-                <div id="db-config-panel"
-                    style="display:none; margin-top:12px; border-top:1px solid var(--border); padding-top:12px;">
-                    <label class="field-label">Layout Columns</label>
-                    <select id="db-select-cols" onchange="updateDashboardConfig()" style="margin-bottom:12px;">
-                        <option value="1">1 Column (Focused)</option>
-                        <option value="2">2 Columns (Split Screen)</option>
-                        <option value="3">3 Columns (Full Multi-view)</option>
-                        <option value="4">4 Slots (2x2 Quad Grid)</option>
-                        <option value="2-60-40">Asymmetric 2 Columns (60/40 Split)</option>
-                        <option value="2-40-60">Asymmetric 2 Columns (40/60 Split)</option>
-                    </select>
-
-                    <div class="input-row" style="margin-bottom:8px;">
-                        <div>
-                            <label class="field-label">Slot A</label>
-                            <select id="db-select-slot-0" onchange="updateDashboardConfig()"></select>
-                        </div>
-                        <div>
-                            <label class="field-label">Slot B</label>
-                            <select id="db-select-slot-1" onchange="updateDashboardConfig()"></select>
-                        </div>
-                    </div>
-                    <div class="input-row" style="margin-bottom:8px;">
-                        <div id="db-slot-2-config-wrap">
-                            <label class="field-label">Slot C</label>
-                            <select id="db-select-slot-2" onchange="updateDashboardConfig()"></select>
-                        </div>
-                        <div id="db-slot-3-config-wrap">
-                            <label class="field-label">Slot D</label>
-                            <select id="db-select-slot-3" onchange="updateDashboardConfig()"></select>
-                        </div>
-                    </div>
-
-                    <button class="btn-primary" onclick="saveDashboardAsCustomTab()"
-                        style="background:var(--income); margin-top:12px;">
-                        💾 Save This Layout as a Custom Tab
-                    </button>
-                </div>
-            </div>
-
-            <!-- Slots container for columns -->
-            <div class="dashboard-grid cols-2" id="dashboard-grid">
-                <div class="dashboard-slot" id="db-slot-0"></div>
-                <div class="dashboard-slot" id="db-slot-1"></div>
-                <div class="dashboard-slot" id="db-slot-2" style="display:none;"></div>
-                <div class="dashboard-slot" id="db-slot-3" style="display:none;"></div>
-            </div>
+        <div class="month-nav">
+            <button class="month-nav-btn" onclick="changeGlobalPeriod(-1)">&#8249;</button>
+            <span class="month-nav-label month-label-display" onclick="openDatePicker()" title="Click to jump to a date"
+                style="cursor:pointer;">—</span>
+            <button class="month-nav-btn month-next-btn" onclick="changeGlobalPeriod(1)">&#8250;</button>
         </div>
 
-        <!-- ── BUDGET VIEW ────────────────────────────────────────────── -->
-        <!-- Static Wrapper Placeholders are maintained in strict sequence order to keep DOM ordered correctly -->
-        <div class="view" id="view-budget">
-            <div id="native-budget-nav">
-                <div id="mod-budget-nav">
-                    <div class="month-nav">
-                        <button class="month-nav-btn" onclick="changeGlobalPeriod(-1)">&#8249;</button>
-                        <span class="month-nav-label month-label-display" onclick="openDatePicker()"
-                            title="Click to jump to a date" style="cursor:pointer;">—</span>
-                        <button class="month-nav-btn month-next-btn" onclick="changeGlobalPeriod(1)">&#8250;</button>
-                    </div>
-
-                    <div class="assign-banner" id="assign-banner" style="display:none; margin-top:10px;">
-                        <div class="assign-banner-title" id="assign-title"></div>
-                        <div class="assign-bar-track">
-                            <div class="assign-bar-fill" id="assign-bar"></div>
-                        </div>
-                        <div class="assign-sub" id="assign-sub"></div>
-                    </div>
-                </div>
+        <div class="assign-banner" id="assign-banner" style="display:none; margin-top:10px;">
+            <div class="assign-banner-title" id="assign-title"></div>
+            <div class="assign-bar-track">
+                <div class="assign-bar-fill" id="assign-bar"></div>
             </div>
-
-            <div id="native-income">
-                <div id="mod-income">
-                    <div class="section-label">Income</div>
-                    <div id="income-list"></div>
-                    <div class="total-row" id="income-total" style="display:none;">
-                        <span>Total</span>
-                        <span id="income-total-val"></span>
-                    </div>
-                </div>
-            </div>
-
-            <div id="native-expenses">
-                <div id="mod-expenses">
-                    <div class="section-label">Expenses</div>
-                    <div id="expense-list"></div>
-                    <div class="total-row" id="expense-total" style="display:none;">
-                        <span>Total</span>
-                        <span id="expense-total-val"></span>
-                    </div>
-                </div>
-            </div>
-
-            <div id="native-sinking">
-                <div id="mod-sinking">
-                    <div class="section-label">Saving/Sinking Funds</div>
-                    <div id="sinking-list"></div>
-                    <div class="total-row" id="sinking-total" style="display:none;">
-                        <span>Total</span>
-                        <span id="sinking-total-val"></span>
-                    </div>
-                </div>
-            </div>
-
-            <button class="add-cat-btn" onclick="openAddCatModal()">
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                    <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
-                </svg>
-                Add Category
-            </button>
-            <button class="add-cat-btn" onclick="openImportModal()">Import</button>
+            <div class="assign-sub" id="assign-sub"></div>
         </div>
 
-        <!-- ── TRANSACTIONS VIEW ───────────────────────────────────────── -->
-        <div class="view" id="view-transactions">
-            <div id="native-txn-nav">
-                <div id="mod-txn-nav">
-                    <div class="month-nav">
-                        <button class="month-nav-btn" onclick="changeGlobalPeriod(-1)">&#8249;</button>
-                        <span class="month-nav-label month-label-display" onclick="openDatePicker()"
-                            title="Click to jump to a date" style="cursor:pointer;">—</span>
-                        <button class="month-nav-btn month-next-btn" onclick="changeGlobalPeriod(1)">&#8250;</button>
-                    </div>
-                </div>
-            </div>
-
-            <div id="native-txn-logger">
-                <div id="mod-txn-logger">
-                    <div class="form-card" style="margin-top:14px;">
-                        <div class="form-title">Log a Transaction</div>
-                        <input type="text" id="txn-desc" placeholder="Description (e.g. Safeway run)">
-                        <div class="input-row" style="margin-bottom:8px;">
-                            <select id="txn-cat"></select>
-                            <select id="txn-flow">
-                                <option value="outflow">Outflow (–)</option>
-                                <option value="inflow">Inflow (+)</option>
-                            </select>
-                        </div>
-                        <div class="input-row" style="margin-bottom:8px;">
-                            <input type="number" id="txn-amt" placeholder="Amount ($)" step="0.01" min="0">
-                            <input type="date" id="txn-date">
-                        </div>
-                        <button class="btn-primary" onclick="addTransaction()">Log Transaction</button>
-                    </div>
-                </div>
-            </div>
-
-            <div id="native-txn-history">
-                <div id="mod-txn-history">
-                    <div class="section-label" style="margin-top:20px;" id="txn-list-label">Monthly Transactions</div>
-                    <div class="card" id="txn-list" style="padding:0 15px;">
-                        <div class="empty-state">No transactions yet.</div>
-                    </div>
-                </div>
-            </div>
+        <div class="section-label">Income</div>
+        <div id="income-list"></div>
+        <div class="total-row" id="income-total" style="display:none;">
+            <span>Total</span>
+            <span id="income-total-val"></span>
         </div>
 
-        <!-- ── SPENDING OVERVIEW VIEW ──────────────────────────────────── -->
-        <div class="view" id="view-spending">
-            <div class="month-nav">
-                <button class="month-nav-btn" onclick="changeGlobalPeriod(-1)">&#8249;</button>
-                <span class="month-nav-label month-label-display" onclick="openDatePicker()"
-                    title="Click to jump to a date" style="cursor:pointer;">—</span>
-                <button class="month-nav-btn month-next-btn" onclick="changeGlobalPeriod(1)">&#8250;</button>
-            </div>
-
-            <div class="chart-card">
-                <div class="chart-card-header">
-                    <span class="chart-card-title">Distribution Overview</span>
-                    <div style="display:flex; gap:6px; align-items:center;">
-                        <select id="chart-view-mode" onchange="chartActiveCategoryId=null; renderCharts();"
-                            style="min-width: 140px;">
-                            <option value="expense" selected>Scheduled Spending</option>
-                            <option value="sinking_in">Saving Deposits</option>
-                            <option value="sinking_out">Saving Withdrawals</option>
-                        </select>
-                        <button class="btn-sm ghost" id="chart-back-btn" onclick="chartBackOneLevel()"
-                            style="display:none; padding: 4px 8px; font-size: 0.7rem;">← Back</button>
-                    </div>
-                </div>
-                <div class="chart-total-label" id="spend-total-label"></div>
-                <div class="chart-slice-hint" id="chart-slice-hint" aria-live="polite"></div>
-                <div class="chart-wrap" id="chart-wrap" style="cursor: pointer;">
-                    <canvas id="spendChart"></canvas>
-                </div>
-                <div id="spend-empty" class="empty-state" style="display:none;">
-                    No spending or savings found for this month.
-                </div>
-            </div>
+        <div class="section-label">Expenses</div>
+        <div id="expense-list"></div>
+        <div class="total-row" id="expense-total" style="display:none;">
+            <span>Total</span>
+            <span id="expense-total-val"></span>
         </div>
 
-        <!-- ── FIRE VIEW ───────────────────────────────────────────────── -->
-        <div class="view" id="view-fi">
-            <div id="native-fi-metrics">
-                <div id="mod-fi-metrics" class="fi-metrics-grid"
-                    style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 12px; margin-top: 14px;">
-                    <div class="card" style="padding: 12px; text-align: center; margin-bottom: 0;">
-                        <div class="hstat-label" style="font-size: 0.65rem; letter-spacing: 0.8px;">Nest Egg</div>
-                        <div class="hstat-val" id="fi-val-nest-egg"
-                            style="font-size: 1.15rem; color: var(--accent); margin-top: 4px;">$0</div>
-                    </div>
-                    <div class="card" style="padding: 12px; text-align: center; margin-bottom: 0;">
-                        <div class="hstat-label" style="font-size: 0.65rem; letter-spacing: 0.8px;">Savings Rate</div>
-                        <div class="hstat-val" id="fi-val-savings-rate"
-                            style="font-size: 1.15rem; color: var(--income); margin-top: 4px;">0%</div>
-                    </div>
-                    <div class="card" style="padding: 12px; text-align: center; margin-bottom: 0;">
-                        <div class="hstat-label" style="font-size: 0.65rem; letter-spacing: 0.8px;">FIRE Target</div>
-                        <div class="hstat-val" id="fi-val-target"
-                            style="font-size: 1.15rem; color: var(--sinking); margin-top: 4px;">$0</div>
-                    </div>
-                    <div class="card" style="padding: 12px; text-align: center; margin-bottom: 0;">
-                        <div class="hstat-label" style="font-size: 0.65rem; letter-spacing: 0.8px;">Time to FIRE</div>
-                        <div class="hstat-val" id="fi-val-years"
-                            style="font-size: 1.15rem; color: var(--warn); margin-top: 4px;">—</div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="native-fi-chart">
-                <div id="mod-fi-chart" class="chart-card" style="margin-top: 14px; margin-bottom: 12px;">
-                    <div class="chart-card-header">
-                        <span class="chart-card-title">Net Worth Growth & Milestones</span>
-                    </div>
-                    <div class="chart-wrap" style="min-height: 240px; height: 260px;">
-                        <canvas id="fiChart"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <div id="native-fi-controls">
-                <div id="mod-fi-controls" class="form-card" style="margin-bottom: 12px;">
-                    <div class="form-title"
-                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                        <span>FI Calculator Parameters</span>
-                        <button class="btn-sm ghost" onclick="resetFIParameters()"
-                            style="padding: 4px 8px; font-size: 0.72rem;">Sync with Budget</button>
-                    </div>
-
-                    <div class="input-row" style="margin-bottom: 8px;">
-                        <div>
-                            <label class="field-label">Current Nest Egg ($)</label>
-                            <input type="number" id="fi-input-nest-egg" value="10000" step="1000"
-                                oninput="onFIParamChange()">
-                        </div>
-                        <div>
-                            <label class="field-label">Monthly Income ($)</label>
-                            <input type="number" id="fi-input-income" step="100" oninput="onFIParamChange()">
-                        </div>
-                    </div>
-
-                    <div class="input-row" style="margin-bottom: 8px;">
-                        <div>
-                            <label class="field-label">Monthly Savings ($)</label>
-                            <input type="number" id="fi-input-savings" step="50" oninput="onFIParamChange()">
-                        </div>
-                        <div>
-                            <label class="field-label">Monthly Expenses ($)</label>
-                            <input type="number" id="fi-input-expenses" step="100" oninput="onFIParamChange()">
-                        </div>
-                    </div>
-
-                    <div class="input-row" style="margin-bottom: 8px;">
-                        <div>
-                            <label class="field-label">Expected Return (%)</label>
-                            <input type="number" id="fi-input-return" value="7.0" step="0.1" min="0" max="25"
-                                oninput="onFIParamChange()">
-                        </div>
-                        <div>
-                            <label class="field-label">Inflation Rate (%)</label>
-                            <input type="number" id="fi-input-inflation" value="2.5" step="0.1" min="0" max="15"
-                                oninput="onFIParamChange()">
-                        </div>
-                    </div>
-
-                    <div class="input-row" style="margin-bottom: 8px;">
-                        <div>
-                            <label class="field-label">Annual Wage Growth (%)</label>
-                            <input type="number" id="fi-input-wage-growth" value="3.0" step="0.1" min="0" max="20"
-                                oninput="onFIParamChange()">
-                        </div>
-                        <div>
-                            <label class="field-label">Expense Inflation (%)</label>
-                            <input type="number" id="fi-input-exp-inflation" value="2.5" step="0.1" min="0" max="15"
-                                oninput="onFIParamChange()">
-                        </div>
-                    </div>
-
-                    <div class="input-row" style="margin-bottom: 0;">
-                        <div>
-                            <label class="field-label">Safe Withdrawal Rate (%)</label>
-                            <input type="number" id="fi-input-swr" value="4.0" step="0.1" min="1" max="10"
-                                oninput="onFIParamChange()">
-                        </div>
-                        <div>
-                            <label class="field-label">Current / Target Age</label>
-                            <div style="display: flex; gap: 4px;">
-                                <input type="number" id="fi-input-age" value="30" placeholder="Age"
-                                    style="width: 50%; margin-bottom: 0;" oninput="onFIParamChange()">
-                                <input type="number" id="fi-input-target-age" value="60" placeholder="Retire"
-                                    style="width: 50%; margin-bottom: 0;" oninput="onFIParamChange()">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="native-fi-milestones">
-                <div id="mod-fi-milestones">
-                    <div class="section-label">FIRE Milestones</div>
-                    <div id="fi-milestones-list"></div>
-                </div>
-            </div>
+        <div class="section-label">Saving/Sinking Funds</div>
+        <div id="sinking-list"></div>
+        <div class="total-row" id="sinking-total" style="display:none;">
+            <span>Total</span>
+            <span id="sinking-total-val"></span>
         </div>
 
-        <!-- ── NET WORTH VIEW ─────────────────────────────────────────── -->
-        <div class="view" id="view-nw">
-            <div id="native-nw-metrics">
-                <div id="mod-nw-metrics" class="nw-metrics-grid">
-                    <div class="nw-metric-card">
-                        <div class="nw-metric-label">Net Worth</div>
-                        <div class="nw-metric-val" id="nw-val-networth" style="color: var(--accent);">$0</div>
-                    </div>
-                    <div class="nw-metric-card">
-                        <div class="nw-metric-label">Total Assets</div>
-                        <div class="nw-metric-val" id="nw-val-assets" style="color: var(--income);">$0</div>
-                    </div>
-                    <div class="nw-metric-card">
-                        <div class="nw-metric-label">Total Liabilities</div>
-                        <div class="nw-metric-val" id="nw-val-liabilities" style="color: var(--danger);">$0</div>
-                    </div>
-                    <div class="nw-metric-card">
-                        <div class="nw-metric-label">Projected</div>
-                        <div class="nw-metric-val" id="nw-val-projection" style="color: var(--sinking);">$0</div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="native-nw-chart">
-                <div id="mod-nw-chart" class="chart-card" style="margin-top: 14px; margin-bottom: 12px;">
-                    <div class="chart-card-header">
-                        <span class="chart-card-title">Net Worth Projection</span>
-                        <div style="display:flex; gap:6px; align-items:center;">
-                            <select id="nw-chart-mode" onchange="renderNW()" style="min-width: 120px;">
-                                <option value="nominal" selected>Nominal</option>
-                                <option value="real">Inflation-Adjusted</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="chart-wrap" style="min-height: 240px; height: 260px;">
-                        <canvas id="nwChart"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <div id="native-nw-controls">
-                <div id="mod-nw-controls" class="nw-global-controls">
-                    <div class="form-title"
-                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                        <span>Projection Settings</span>
-                        <span class="nw-sync-badge" onclick="syncNWToFI()"
-                            title="Use current Net Worth as FIRE Nest Egg">⟳
-                            Sync to FIRE</span>
-                    </div>
-                    <div class="nw-controls-row">
-                        <div>
-                            <label class="field-label">Global Inflation (%)</label>
-                            <input type="number" id="nw-input-inflation" value="2.5" step="0.1" min="0" max="15"
-                                oninput="onNWParamChange()" style="margin-bottom:0;">
-                        </div>
-                        <div>
-                            <label class="field-label">Projection Years</label>
-                            <input type="number" id="nw-input-years" value="10" step="1" min="1" max="40"
-                                oninput="onNWParamChange()" style="margin-bottom:0;">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="native-nw-lists">
-                <div id="mod-nw-lists" class="nw-dual-lists">
-                    <div class="nw-list-section">
-                        <div class="section-label">Assets</div>
-                        <div id="nw-assets-list"></div>
-                        <button class="nw-add-btn" onclick="openNWModal('asset')">
-                            <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
-                                <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.8"
-                                    stroke-linecap="round" />
-                            </svg>
-                            Add Asset
-                        </button>
-                    </div>
-                    <div class="nw-list-section">
-                        <div class="section-label">Liabilities</div>
-                        <div id="nw-liabilities-list"></div>
-                        <button class="nw-add-btn" onclick="openNWModal('liability')">
-                            <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
-                                <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.8"
-                                    stroke-linecap="round" />
-                            </svg>
-                            Add Liability
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
+        <button class="add-cat-btn" onclick="openAddCatModal()">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+            </svg>
+            Add Category
+        </button>
+        <button class="add-cat-btn" onclick="openImportModal()">Import</button>
     </div>
 
-    <!-- ── TAB MANAGER MODAL ─────────────────────────────────────────── -->
-    <div class="modal-bg" id="tab-manager-modal" onclick="if(event.target===this)closeTabManager()">
-        <div class="modal-box" style="max-width: 480px;">
-            <div class="modal-handle"></div>
-            <div class="modal-title">Manage Navigation Tabs</div>
-            <p style="font-size:0.75rem; color:var(--text2); margin:-10px 0 12px;">Toggle checkboxes to show/hide tabs.
-                Click on any text title box to rename that tab.</p>
+    <div class="view" id="view-transactions">
 
-            <div id="tab-manager-list"
-                style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px; max-height:280px; overflow-y:auto; padding-right:4px;">
-                <!-- Filled Dynamically -->
+        <div class="month-nav">
+            <button class="month-nav-btn" onclick="changeGlobalPeriod(-1)">&#8249;</button>
+            <span class="month-nav-label month-label-display" onclick="openDatePicker()" title="Click to jump to a date"
+                style="cursor:pointer;">—</span>
+            <button class="month-nav-btn month-next-btn" onclick="changeGlobalPeriod(1)">&#8250;</button>
+        </div>
+
+        <div class="form-card" style="margin-top:14px;">
+            <div class="form-title">Log a Transaction</div>
+            <input type="text" id="txn-desc" placeholder="Description (e.g. Safeway run)">
+            <div class="input-row" style="margin-bottom:8px;">
+                <select id="txn-cat"></select>
+                <select id="txn-flow">
+                    <option value="outflow">Outflow (–)</option>
+                    <option value="inflow">Inflow (+)</option>
+                </select>
+            </div>
+            <div class="input-row" style="margin-bottom:8px;">
+                <input type="number" id="txn-amt" placeholder="Amount ($)" step="0.01" min="0">
+                <input type="date" id="txn-date">
+            </div>
+            <button class="btn-primary" onclick="addTransaction()">Log Transaction</button>
+        </div>
+
+        <div class="section-label" style="margin-top:20px;" id="txn-list-label">Monthly Transactions</div>
+        <div class="card" id="txn-list" style="padding:0 15px;">
+            <div class="empty-state">No transactions yet.</div>
+        </div>
+    </div>
+
+    <div class="view" id="view-spending">
+
+        <div class="month-nav">
+            <button class="month-nav-btn" onclick="changeGlobalPeriod(-1)">&#8249;</button>
+            <span class="month-nav-label month-label-display" onclick="openDatePicker()" title="Click to jump to a date"
+                style="cursor:pointer;">—</span>
+            <button class="month-nav-btn month-next-btn" onclick="changeGlobalPeriod(1)">&#8250;</button>
+        </div>
+
+        <div class="chart-card">
+            <div class="chart-card-header">
+                <span class="chart-card-title">Distribution Overview</span>
+                <div style="display:flex; gap:6px; align-items:center;">
+                    <select id="chart-view-mode" onchange="chartActiveCategoryId=null; renderCharts();"
+                        style="min-width: 140px;">
+                        <option value="expense" selected>Scheduled Spending</option>
+                        <option value="sinking_in">Saving Deposits</option>
+                        <option value="sinking_out">Saving Withdrawals</option>
+                    </select>
+                    <button class="btn-sm ghost" id="chart-back-btn" onclick="chartBackOneLevel()"
+                        style="display:none; padding: 4px 8px; font-size: 0.7rem;">← Back</button>
+                </div>
+            </div>
+            <div class="chart-total-label" id="spend-total-label"></div>
+            <div class="chart-slice-hint" id="chart-slice-hint" aria-live="polite"></div>
+            <div class="chart-wrap" id="chart-wrap" style="cursor: pointer;">
+                <canvas id="spendChart"></canvas>
+            </div>
+            <div id="spend-empty" class="empty-state" style="display:none;">
+                No spending or savings found for this month.
+            </div>
+        </div>
+    </div>
+
+    <div class="view" id="view-fi">
+        <!-- Metrics Summary Grid -->
+        <div class="fi-metrics-grid"
+            style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 12px; margin-top: 14px;">
+            <div class="card" style="padding: 12px; text-align: center; margin-bottom: 0;">
+                <div class="hstat-label" style="font-size: 0.65rem; letter-spacing: 0.8px;">Net Worth</div>
+                <div class="hstat-val" id="fi-val-nest-egg"
+                    style="font-size: 1.15rem; color: var(--accent); margin-top: 4px;">$0</div>
+            </div>
+            <div class="card" style="padding: 12px; text-align: center; margin-bottom: 0;">
+                <div class="hstat-label" style="font-size: 0.65rem; letter-spacing: 0.8px;">Savings Rate</div>
+                <div class="hstat-val" id="fi-val-savings-rate"
+                    style="font-size: 1.15rem; color: var(--income); margin-top: 4px;">0%</div>
+            </div>
+            <div class="card" style="padding: 12px; text-align: center; margin-bottom: 0;">
+                <div class="hstat-label" style="font-size: 0.65rem; letter-spacing: 0.8px;">FIRE Target</div>
+                <div class="hstat-val" id="fi-val-target"
+                    style="font-size: 1.15rem; color: var(--sinking); margin-top: 4px;">$0</div>
+            </div>
+            <div class="card" style="padding: 12px; text-align: center; margin-bottom: 0;">
+                <div class="hstat-label" style="font-size: 0.65rem; letter-spacing: 0.8px;">Time to FIRE</div>
+                <div class="hstat-val" id="fi-val-years"
+                    style="font-size: 1.15rem; color: var(--warn); margin-top: 4px;">—</div>
+            </div>
+        </div>
+
+        <!-- Net Worth Projections Chart Card -->
+        <div class="chart-card" style="margin-top: 0; margin-bottom: 12px;">
+            <div class="chart-card-header">
+                <span class="chart-card-title">Net Worth Growth & Milestones</span>
+            </div>
+            <div class="chart-wrap" style="min-height: 240px; height: 260px;">
+                <canvas id="fiChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Interactive Parameters Panel -->
+        <div class="form-card" style="margin-bottom: 12px;">
+            <div class="form-title"
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span>FI Calculator Parameters</span>
+                <button class="btn-sm ghost" onclick="resetFIParameters()"
+                    style="padding: 4px 8px; font-size: 0.72rem;">Sync with Budget</button>
             </div>
 
-            <div class="section-label" style="margin-top:12px;">Add Custom Dashboard Page</div>
-            <label class="field-label">Tab Label Name</label>
-            <input type="text" id="new-tab-label" placeholder="e.g. My Weekly Review, Focus Page">
+            <div class="input-row" style="margin-bottom: 8px;">
+                <div>
+                    <label class="field-label">Current Net Worth ($)</label>
+                    <input type="number" id="fi-input-nest-egg" value="10000" step="1000" oninput="onFIParamChange()">
+                </div>
+                <div>
+                    <label class="field-label">Monthly Income ($)</label>
+                    <input type="number" id="fi-input-income" step="100" oninput="onFIParamChange()">
+                </div>
+            </div>
 
-            <button class="btn-primary" onclick="addCustomDashboardTab()" style="margin-top:8px;">Create Dashboard
-                Tab</button>
+            <div class="input-row" style="margin-bottom: 8px;">
+                <div>
+                    <label class="field-label">Monthly Savings ($)</label>
+                    <input type="number" id="fi-input-savings" step="50" oninput="onFIParamChange()">
+                </div>
+                <div>
+                    <label class="field-label">Monthly Expenses ($)</label>
+                    <input type="number" id="fi-input-expenses" step="100" oninput="onFIParamChange()">
+                </div>
+            </div>
 
-            <div class="modal-actions" style="margin-top:16px; border-top:1px solid var(--border); padding-top:12px;">
-                <button class="btn-primary secondary" onclick="closeTabManager()" style="margin-top:0;">Close
-                    Settings</button>
+            <div class="input-row" style="margin-bottom: 8px;">
+                <div>
+                    <label class="field-label">Expected Return (%)</label>
+                    <input type="number" id="fi-input-return" value="7.0" step="0.1" min="0" max="25"
+                        oninput="onFIParamChange()">
+                </div>
+                <div>
+                    <label class="field-label">Inflation Rate (%)</label>
+                    <input type="number" id="fi-input-inflation" value="2.5" step="0.1" min="0" max="15"
+                        oninput="onFIParamChange()">
+                </div>
+            </div>
+
+            <div class="input-row" style="margin-bottom: 8px;">
+                <div>
+                    <label class="field-label">Annual Wage Growth (%)</label>
+                    <input type="number" id="fi-input-wage-growth" value="3.0" step="0.1" min="0" max="20"
+                        oninput="onFIParamChange()">
+                </div>
+                <div>
+                    <label class="field-label">Expense Inflation (%)</label>
+                    <input type="number" id="fi-input-exp-inflation" value="2.5" step="0.1" min="0" max="15"
+                        oninput="onFIParamChange()">
+                </div>
+            </div>
+
+            <div class="input-row" style="margin-bottom: 0;">
+                <div>
+                    <label class="field-label">Safe Withdrawal Rate (%)</label>
+                    <input type="number" id="fi-input-swr" value="4.0" step="0.1" min="1" max="10"
+                        oninput="onFIParamChange()">
+                </div>
+                <div>
+                    <label class="field-label">Current / Target Age</label>
+                    <div style="display: flex; gap: 4px;">
+                        <input type="number" id="fi-input-age" value="30" placeholder="Age"
+                            style="width: 50%; margin-bottom: 0;" oninput="onFIParamChange()">
+                        <input type="number" id="fi-input-target-age" value="60" placeholder="Retire"
+                            style="width: 50%; margin-bottom: 0;" oninput="onFIParamChange()">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FIRE Milestones Section -->
+        <div class="section-label">FIRE Milestones</div>
+        <div id="fi-milestones-list"></div>
+    </div>
+
+    <div class="view" id="view-nw">
+        <!-- Net Worth Metrics Summary -->
+        <div class="nw-metrics-grid">
+            <div class="nw-metric-card">
+                <div class="nw-metric-label">Net Worth</div>
+                <div class="nw-metric-val" id="nw-val-networth" style="color: var(--accent);">$0</div>
+            </div>
+            <div class="nw-metric-card">
+                <div class="nw-metric-label">Total Assets</div>
+                <div class="nw-metric-val" id="nw-val-assets" style="color: var(--income);">$0</div>
+            </div>
+            <div class="nw-metric-card">
+                <div class="nw-metric-label">Total Liabilities</div>
+                <div class="nw-metric-val" id="nw-val-liabilities" style="color: var(--danger);">$0</div>
+            </div>
+            <div class="nw-metric-card">
+                <div class="nw-metric-label">Projected</div>
+                <div class="nw-metric-val" id="nw-val-projection" style="color: var(--sinking);">$0</div>
+            </div>
+        </div>
+
+        <!-- Projection Chart -->
+        <div class="chart-card" style="margin-top: 0; margin-bottom: 12px;">
+            <div class="chart-card-header">
+                <span class="chart-card-title">Net Worth Projection</span>
+                <div style="display:flex; gap:6px; align-items:center;">
+                    <select id="nw-chart-mode" onchange="renderNW()" style="min-width: 120px;">
+                        <option value="nominal" selected>Nominal</option>
+                        <option value="real">Inflation-Adjusted</option>
+                    </select>
+                </div>
+            </div>
+            <div class="chart-wrap" style="min-height: 240px; height: 260px;">
+                <canvas id="nwChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Global Controls -->
+        <div class="nw-global-controls">
+            <div class="form-title"
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span>Projection Settings</span>
+                <span class="nw-sync-badge" onclick="syncNWToFI()" title="Use current Net Worth as FIRE Net Worth">⟳
+                    Sync
+                    to FIRE</span>
+            </div>
+            <div class="nw-controls-row">
+                <div>
+                    <label class="field-label">Global Inflation (%)</label>
+                    <input type="number" id="nw-input-inflation" value="2.5" step="0.1" min="0" max="15"
+                        oninput="onNWParamChange()" style="margin-bottom:0;">
+                </div>
+                <div>
+                    <label class="field-label">Projection Years</label>
+                    <input type="number" id="nw-input-years" value="10" step="1" min="1" max="40"
+                        oninput="onNWParamChange()" style="margin-bottom:0;">
+                </div>
+            </div>
+        </div>
+
+        <!-- Dual Lists: Assets & Liabilities -->
+        <div class="nw-dual-lists">
+            <div class="nw-list-section">
+                <div class="section-label">Assets</div>
+                <div id="nw-assets-list"></div>
+                <button class="nw-add-btn" onclick="openNWModal('asset')">
+                    <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+                        <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                    </svg>
+                    Add Asset
+                </button>
+            </div>
+            <div class="nw-list-section">
+                <div class="section-label">Liabilities</div>
+                <div id="nw-liabilities-list"></div>
+                <button class="nw-add-btn" onclick="openNWModal('liability')">
+                    <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+                        <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                    </svg>
+                    Add Liability
+                </button>
             </div>
         </div>
     </div>
@@ -1982,20 +1785,6 @@
         const STORAGE_KEY = 'zenji_v3';
         let state = JSON.parse(localStorage.getItem(STORAGE_KEY)) || null;
 
-        // Color palette for charts
-        const CHART_COLORS = [
-            '#2d4238', // --accent
-            '#1e5c70', // --income
-            '#5e4f2e', // --sinking
-            '#8f3224', // --danger
-            '#7a5e18', // --warn
-            '#3d5548', // --accent2
-            '#a3b899',
-            '#4a5c52',
-            '#88a090',
-            '#b2c5b2'
-        ];
-
         if (!state) {
             state = {
                 categories: [
@@ -2007,37 +1796,6 @@
                 transactions: []
             };
             save();
-        }
-
-        // ─── MISSING HELPERS ──────────────────────────────────────────────────
-        function esc(s) {
-            return s ? `"${String(s).replace(/"/g, '""')}"` : '""';
-        }
-
-        function escapeHTML(s) {
-            return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-        }
-
-        function todayISO() {
-            const d = new Date();
-            return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-        }
-
-        function parseCSVLine(text) {
-            let cols = [''], ci = 0, quoted = false;
-            for (let i = 0; i < text.length; i++) {
-                const ch = text[i], nx = text[i + 1];
-                if (!quoted) {
-                    if (ch === '"') { quoted = true; continue; }
-                    if (ch === ',') { cols.push(''); ci++; continue; }
-                    cols[ci] += ch;
-                } else {
-                    if (ch === '"' && nx === '"') { cols[ci] += '"'; i++; continue; }
-                    if (ch === '"') { quoted = false; continue; }
-                    cols[ci] += ch;
-                }
-            }
-            return cols;
         }
 
         if (!state.fi) {
@@ -2070,33 +1828,6 @@
             };
             save();
         }
-
-        if (!state.tabs) {
-            state.tabs = [
-                { id: 'dashboard', label: 'Dashboard', enabled: true, type: 'dashboard', layout: { cols: 2, slots: ['budget-expenses', 'txn-history', 'spending', 'notes'] } },
-                { id: 'budget', label: 'Budget', enabled: true },
-                { id: 'transactions', label: 'Transactions', enabled: true },
-                { id: 'spending', label: 'Overview', enabled: true },
-                { id: 'fi', label: 'Independence', enabled: true },
-                { id: 'nw', label: 'Net Worth', enabled: true }
-            ];
-            save();
-        }
-
-        if (!state.dashboardLayout) {
-            state.dashboardLayout = {
-                cols: 2,
-                slots: ['budget-expenses', 'txn-history', 'spending', 'notes']
-            };
-            save();
-        }
-
-        if (!state.customTabData) {
-            state.customTabData = {};
-            save();
-        }
-
-        let currentTabId = 'dashboard';
 
         // Clean up old state fields and ensure allocations exist
         if (state.monthlyBudgetOverrides) delete state.monthlyBudgetOverrides;
@@ -2137,16 +1868,6 @@
             const rect = chart.canvas.getBoundingClientRect();
             return { x: clientX - rect.left, y: clientY - rect.top };
         }
-
-        const TODAY = new Date();
-        let currentYear = TODAY.getFullYear();
-        let currentMonth = TODAY.getMonth();
-
-        // Period-aware navigation state
-        let currentPeriodStart = new Date(TODAY.getFullYear(), TODAY.getMonth(), 1);
-        let lastTimescale = 'monthly';
-        let anchorMonth = TODAY.getMonth();
-        const openCatPanels = new Set();
 
         // ─── UTILITIES ──────────────────────────────────────────────────────
         const fmt = n => '$' + (Math.round(n * 100) / 100).toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -2306,6 +2027,16 @@
                 }
             }, { passive: false });
         }
+
+        const TODAY = new Date();
+        let currentYear = TODAY.getFullYear();
+        let currentMonth = TODAY.getMonth();
+
+        // Period-aware navigation state
+        let currentPeriodStart = new Date(TODAY.getFullYear(), TODAY.getMonth(), 1);
+        let lastTimescale = 'monthly';
+        let anchorMonth = TODAY.getMonth();
+        const openCatPanels = new Set();
 
         function updateChartExpenseOptionLabel() {
             const opt = document.querySelector('#chart-view-mode option[value="expense"]');
@@ -2598,6 +2329,7 @@
                 const periodOutflows = getTxnsForPeriod(currentPeriodStart, periodEnd)
                     .filter(t => t.catId == catId && t.type === 'outflow')
                     .reduce((sum, t) => sum + (parseFloat(t.amt) || 0), 0);
+                const netThisPeriod = periodInflows - periodOutflows;
                 showToast(`${cat.name} balance: ${fmtDec(bal)} this ${pl}`, 'var(--sinking)');
                 return;
             }
@@ -2639,22 +2371,10 @@
 
         // ─── TABS ────────────────────────────────────────────────────────────
         function switchTab(id, btn) {
-            currentTabId = id;
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            if (btn) {
-                btn.classList.add('active');
-            } else {
-                const targetBtn = document.getElementById('tab-btn-' + id);
-                if (targetBtn) targetBtn.classList.add('active');
-            }
-
-            // Execute dynamic Reparenting DOM update
-            reparentViews();
-
-            // Re-render views / canvas models as required
-            if (id === 'spending') renderCharts();
-            if (id === 'fi') renderFI();
-            if (id === 'nw') renderNW();
+            document.getElementById('view-' + id).classList.add('active');
+            btn.classList.add('active');
         }
 
         // ─── PERIOD NAVIGATION ───────────────────────────────────────────────
@@ -2808,36 +2528,30 @@
             const subEl = document.getElementById('assign-sub');
 
             if (totalIncomeM > 0) {
-                if (banner) banner.style.display = 'block';
-                if (bar) bar.style.width = pct + '%';
+                banner.style.display = 'block';
+                bar.style.width = pct + '%';
                 const pl = PERIOD_LABELS[ts];
                 if (Math.abs(unassignedM) < 0.005) {
-                    if (banner) banner.style.cssText = 'background:#edf5ed; border:1px solid var(--accent); border-radius:var(--radius); padding:13px 15px; margin-bottom:4px; margin-top:10px;';
-                    if (bar) bar.style.background = 'var(--accent)';
-                    if (titleEl) {
-                        titleEl.style.color = 'var(--accent)';
-                        titleEl.textContent = '✓ Every dollar assigned';
-                    }
-                    if (subEl) subEl.textContent = fmt(totalIncomeTs) + ' income fully allocated.';
+                    banner.style.cssText = 'background:#edf5ed; border:1px solid var(--accent); border-radius:var(--radius); padding:13px 15px; margin-bottom:4px; margin-top:10px;';
+                    bar.style.background = 'var(--accent)';
+                    titleEl.style.color = 'var(--accent)';
+                    titleEl.textContent = '✓ Every dollar assigned — great work!';
+                    subEl.textContent = fmt(totalIncomeTs) + ' income fully allocated.';
                 } else if (unassignedM > 0) {
-                    if (banner) banner.style.cssText = 'background:#fffdf0; border:1px solid #e8c94a; border-radius:var(--radius); padding:13px 15px; margin-bottom:4px; margin-top:10px;';
-                    if (bar) bar.style.background = 'var(--warn)';
-                    if (titleEl) {
-                        titleEl.style.color = 'var(--warn)';
-                        titleEl.textContent = `${fmtDec(unassignedTs)} / ${pl} not yet assigned`;
-                    }
-                    if (subEl) subEl.textContent = `${pct.toFixed(0)}% of income allocated. Add expense or saving/sinking fund categories to assign the rest.`;
+                    banner.style.cssText = 'background:#fffdf0; border:1px solid #e8c94a; border-radius:var(--radius); padding:13px 15px; margin-bottom:4px; margin-top:10px;';
+                    bar.style.background = 'var(--warn)';
+                    titleEl.style.color = 'var(--warn)';
+                    titleEl.textContent = `${fmtDec(unassignedTs)} / ${pl} not yet assigned`;
+                    subEl.textContent = `${pct.toFixed(0)}% of income allocated. Add expense or saving/sinking fund categories to assign the rest.`;
                 } else {
-                    if (banner) banner.style.cssText = 'background:#fff5f3; border:1px solid var(--danger); border-radius:var(--radius); padding:13px 15px; margin-bottom:4px; margin-top:10px;';
-                    if (bar) bar.style.background = 'var(--danger)';
-                    if (titleEl) {
-                        titleEl.style.color = 'var(--danger)';
-                        titleEl.textContent = `${fmtDec(unassignedTs)} / ${pl} over-allocated`;
-                    }
-                    if (subEl) subEl.textContent = 'Your allocations exceed your income. Reduce some to balance.';
+                    banner.style.cssText = 'background:#fff5f3; border:1px solid var(--danger); border-radius:var(--radius); padding:13px 15px; margin-bottom:4px; margin-top:10px;';
+                    bar.style.background = 'var(--danger)';
+                    titleEl.style.color = 'var(--danger)';
+                    titleEl.textContent = `${fmtDec(unassignedTs)} / ${pl} over-allocated`;
+                    subEl.textContent = 'Your allocations exceed your income. Reduce some to balance.';
                 }
             } else {
-                if (banner) banner.style.display = 'none';
+                banner.style.display = 'none';
             }
 
             renderCatSection('income-list', incomeCats, 'income', ts);
@@ -2846,24 +2560,21 @@
 
             const incTotalEl = document.getElementById('income-total');
             if (incomeCats.length > 0) {
-                if (incTotalEl) incTotalEl.style.display = 'flex';
-                const valEl = document.getElementById('income-total-val');
-                if (valEl) valEl.textContent = fmt(totalIncomeTs) + ' / ' + PERIOD_LABELS[ts];
-            } else if (incTotalEl) incTotalEl.style.display = 'none';
+                incTotalEl.style.display = 'flex';
+                document.getElementById('income-total-val').textContent = fmt(totalIncomeTs) + ' / ' + PERIOD_LABELS[ts];
+            } else incTotalEl.style.display = 'none';
 
             const expTotalEl = document.getElementById('expense-total');
             if (expenseCats.length > 0) {
-                if (expTotalEl) expTotalEl.style.display = 'flex';
-                const valEl = document.getElementById('expense-total-val');
-                if (valEl) valEl.textContent = fmt(totalExpenseTs) + ' / ' + PERIOD_LABELS[ts];
-            } else if (expTotalEl) expTotalEl.style.display = 'none';
+                expTotalEl.style.display = 'flex';
+                document.getElementById('expense-total-val').textContent = fmt(totalExpenseTs) + ' / ' + PERIOD_LABELS[ts];
+            } else expTotalEl.style.display = 'none';
 
             const sinkTotalEl = document.getElementById('sinking-total');
             if (sinkCats.length > 0) {
-                if (sinkTotalEl) sinkTotalEl.style.display = 'flex';
-                const valEl = document.getElementById('sinking-total-val');
-                if (valEl) valEl.textContent = fmt(totalSinkingTs) + ' / ' + PERIOD_LABELS[ts];
-            } else if (sinkTotalEl) sinkTotalEl.style.display = 'none';
+                sinkTotalEl.style.display = 'flex';
+                document.getElementById('sinking-total-val').textContent = fmt(totalSinkingTs) + ' / ' + PERIOD_LABELS[ts];
+            } else sinkTotalEl.style.display = 'none';
 
             const periodTxns = getTxnsForPeriod(currentPeriodStart, periodEnd);
             const totalOutflows = periodTxns
@@ -3295,6 +3006,13 @@
         }
 
         // ─── SPENDING & DISTRIBUTION CHART ───────────────────────────────────
+        const CHART_COLORS = [
+            '#3d5247', '#3f7080', '#7a6846', '#5e8872',
+            '#9cb0a5', '#6b92a0', '#a8906a', '#c4bfb0',
+            '#4a7c64', '#5c6e8f', '#8f7a5a', '#6e9c88',
+            '#2c3a32', '#2e515d', '#5b4e34', '#436353'
+        ];
+
         function updateChartTotalDOM(chart) {
             let sum = 0;
             chart.data.datasets[0].data.forEach((val, idx) => {
@@ -3316,7 +3034,7 @@
             const viewMode = viewDropdown ? viewDropdown.value : 'expense';
 
             if (chartActiveCategoryId) {
-                if (backBtn) backBtn.style.display = 'inline-block';
+                backBtn.style.display = 'inline-block';
                 if (viewDropdown) viewDropdown.style.display = 'none';
 
                 const cat = state.categories.find(c => c.id == chartActiveCategoryId);
@@ -3324,8 +3042,7 @@
                 const flowLabel = chartActiveCategoryFlow === 'inflow' ? ' (Saved)' : ' (Spent)';
 
                 if (chartActiveGroupIds) {
-                    const titleEl = document.querySelector('.chart-card-title');
-                    if (titleEl) titleEl.textContent = `${chartActiveGroupLabel} (${chartActiveGroupIds.length} transactions)`;
+                    document.querySelector('.chart-card-title').textContent = `${chartActiveGroupLabel} (${chartActiveGroupIds.length} transactions)`;
                     chartActiveGroupIds.forEach(id => {
                         const t = state.transactions.find(t => t.id === id);
                         if (!t) return;
@@ -3335,11 +3052,9 @@
                         metaIds.push(t.id);
                         total += val;
                     });
-                    const totEl = document.getElementById('spend-total-label');
-                    if (totEl) totEl.innerHTML = `Total: <span>${fmt(total)}</span>`;
+                    document.getElementById('spend-total-label').innerHTML = `Total: <span>${fmt(total)}</span>`;
                 } else {
-                    const titleEl = document.querySelector('.chart-card-title');
-                    if (titleEl) titleEl.textContent = titleStr + (cat && cat.type === 'sinking' ? flowLabel : '');
+                    document.querySelector('.chart-card-title').textContent = titleStr + (cat && cat.type === 'sinking' ? flowLabel : '');
 
                     const catTxns = monthTxns.filter(t => (t.catId || '__uncat__') == chartActiveCategoryId);
 
@@ -3362,10 +3077,9 @@
                     });
                 }
             } else {
-                if (backBtn) backBtn.style.display = 'none';
+                backBtn.style.display = 'none';
                 if (viewDropdown) viewDropdown.style.display = 'inline-block';
-                const titleEl = document.querySelector('.chart-card-title');
-                if (titleEl) titleEl.textContent = 'Distribution Overview';
+                document.querySelector('.chart-card-title').textContent = 'Distribution Overview';
 
                 const catMap = {};
 
@@ -3412,16 +3126,15 @@
             const chartEl = document.getElementById('spendChart');
 
             if (data.length === 0) {
-                if (emptyEl) emptyEl.style.display = 'block';
-                if (chartEl) chartEl.style.display = 'none';
-                const totEl = document.getElementById('spend-total-label');
-                if (totEl) totEl.innerHTML = '';
+                emptyEl.style.display = 'block';
+                chartEl.style.display = 'none';
+                document.getElementById('spend-total-label').innerHTML = '';
                 if (globalSpendChart) { globalSpendChart.destroy(); globalSpendChart = null; }
                 return;
             }
 
-            if (emptyEl) emptyEl.style.display = 'none';
-            if (chartEl) chartEl.style.display = 'block';
+            emptyEl.style.display = 'none';
+            chartEl.style.display = 'block';
 
             chartSliceMetaIds = metaIds;
             clearChartSlicePreview(null);
@@ -3472,49 +3185,14 @@
         // ─── CSV EXPORT ──────────────────────────────────────────────────────
         function exportCSV() {
             let csv = 'RecordType,Name,Allocation,Date,CategoryType,Period,Balance,TxnType\n';
-
-            // Categories
             state.categories.forEach(c => {
                 const curAlloc = getCatAlloc(c, currentYear, currentMonth);
                 csv += `category,${esc(c.name)},${curAlloc},N/A,${c.type},${c.period || 'monthly'},${c.balance || 0},N/A\n`;
             });
-
-            // Transactions
             state.transactions.forEach(t => {
                 const cat = state.categories.find(c => c.id == t.catId);
                 csv += `transaction,${esc(t.desc)},${t.amt},${t.date},${esc(cat ? cat.name : '')},N/A,N/A,${t.type}\n`;
             });
-
-            // Net Worth Items
-            if (state.nwItems) {
-                state.nwItems.forEach(item => {
-                    csv += `nwItem,${esc(item.name)},${item.value},${item.rate},${item.type},${item.contribution},N/A,N/A\n`;
-                });
-            }
-
-            // Net Worth Settings
-            if (state.nwSettings) {
-                Object.keys(state.nwSettings).forEach(key => {
-                    csv += `nwSetting,${esc(key)},${state.nwSettings[key]},N/A,N/A,N/A,N/A,N/A\n`;
-                });
-            }
-
-            // FI Parameters
-            if (state.fi) {
-                Object.keys(state.fi).forEach(key => {
-                    csv += `fiParam,${esc(key)},${state.fi[key]},N/A,N/A,N/A,N/A,N/A\n`;
-                });
-            }
-
-            // Custom Tabs Configurations
-            if (state.tabs) {
-                state.tabs.forEach(t => {
-                    const slotsStr = t.layout && t.layout.slots ? t.layout.slots.join(';') : '';
-                    const cols = t.layout ? t.layout.cols : '';
-                    csv += `tab,${esc(t.id)},${esc(t.label)},${t.enabled !== false},${esc(t.type || 'standard')},${cols},${esc(slotsStr)},${!!t.custom}\n`;
-                });
-            }
-
             document.getElementById('csv-out-title').textContent = 'Export CSV';
             document.getElementById('csv-out-area').value = csv;
             document.getElementById('csv-copy-msg').style.display = 'none';
@@ -3544,9 +3222,17 @@
                 'category,Emergency Fund,300,N/A,sinking,monthly,800,N/A',
                 'transaction,Safeway run,87.43,2025-05-15,Groceries,N/A,N/A,outflow',
                 'transaction,Direct deposit,3200,2025-05-01,Paycheck,N/A,N/A,inflow',
-                'nwItem,Brokerage Account,15000,7.2,asset,400,N/A,N/A',
-                'nwSetting,inflation,2.5,N/A,N/A,N/A,N/A,N/A',
-                'fiParam,targetAge,65,N/A,N/A,N/A,N/A,N/A'
+                'transaction,Manual Allocation,400,2025-05-01,Emergency Fund,N/A,N/A,inflow',
+                'transaction,Tow Truck,200,2025-05-01,Emergency Fund,N/A,N/A,outflow',
+                'Key/Guide/Instructions (Delete before import):',
+                'RecordType (column 1) = category | transaction',
+                'Name (Column 2) = Category Name | Transaction Description',
+                'Allocation (Column 3) = Allocated $ for Category | Transaction $ amount',
+                'Date format (column 4) = YYYY-MM-DD | "N/A" for Category',
+                'CategoryType (column 5) = Category options are expense/income/sinking | Transaction must match a category name or be left blank',
+                'Period (column 6) = Category options are daily/weekly/biweekly/semimonthly/monthly/annually | Transactions = "N/A"',
+                'Balance (column 7) = starting $ balance for sinking funds/savings | use 0 for other expenses | use "N/A" for Transactions',
+                'TxnType (column 8) = outflow | inflow'
             ].join('\n');
 
             const blob = new Blob([template], { type: 'text/csv' });
@@ -3576,130 +3262,34 @@
             }
 
             const mode = document.getElementById('import-mode').value;
-            if (mode === 'replace') {
-                state.categories = [];
-                state.transactions = [];
-                state.nwItems = [];
-                state.fi = {};
-                state.nwSettings = { inflation: 2.5, years: 10 };
-                state.tabs = [
-                    { id: 'dashboard', label: 'Dashboard', enabled: true, type: 'dashboard', layout: { cols: 2, slots: ['budget-expenses', 'txn-history', 'spending', 'notes'] } },
-                    { id: 'budget', label: 'Budget', enabled: true },
-                    { id: 'transactions', label: 'Transactions', enabled: true },
-                    { id: 'spending', label: 'Overview', enabled: true },
-                    { id: 'fi', label: 'Independence', enabled: true },
-                    { id: 'nw', label: 'Net Worth', enabled: true }
-                ];
-            }
+            if (mode === 'replace') { state.categories = []; state.transactions = []; }
 
             const lines = text.split('\n');
-            const importedTabs = [];
-
-            // Pass 1: Categories, NW items, NW settings, FI Settings, Tab configurations
             for (let i = 1; i < lines.length; i++) {
                 const line = lines[i].trim();
-                if (!line || line.startsWith('#') || line.startsWith('Key/Guide')) continue;
+                if (!line || line.startsWith('#')) continue;
                 const p = parseCSVLine(line);
-                if (p.length < 2) continue;
-
-                const recType = p[0].trim().toLowerCase();
+                if (p.length < 2 || p[0].trim() !== 'category') continue;
                 const name = p[1].trim();
+                const allocation = parseFloat(p[2]) || 0;
+                const catType = (p[4] || 'expense').trim();
+                const period = (p[5] || 'monthly').trim();
+                const balance = parseFloat(p[6]) || 0;
+                if (!name) continue;
 
-                if (recType === 'category') {
-                    const allocation = parseFloat(p[2]) || 0;
-                    const catType = (p[4] || 'expense').trim();
-                    const period = (p[5] || 'monthly').trim();
-                    const balance = parseFloat(p[6]) || 0;
-                    if (!name) continue;
-
-                    let existing = state.categories.find(c => c.name.toLowerCase() === name.toLowerCase());
-                    if (!existing) {
-                        const allocs = {};
-                        if (allocation > 0) allocs[monthKey(currentYear, currentMonth)] = allocation;
-                        state.categories.push({ id: Date.now() + i, name, type: catType, allocations: allocs, period, balance });
-                    } else {
-                        existing.type = catType;
-                        existing.period = period;
-                        existing.balance = balance;
-                        if (allocation > 0) {
-                            if (!existing.allocations) existing.allocations = {};
-                            existing.allocations[monthKey(currentYear, currentMonth)] = allocation;
-                        }
-                    }
-                }
-                else if (recType === 'nwitem') {
-                    const val = parseFloat(p[2]) || 0;
-                    const rate = parseFloat(p[3]) || 0;
-                    const type = (p[4] || 'asset').trim();
-                    const contribution = parseFloat(p[5]) || 0;
-                    if (!name) continue;
-
-                    let existing = state.nwItems.find(item => item.name.toLowerCase() === name.toLowerCase());
-                    if (!existing) {
-                        state.nwItems.push({ id: Date.now() + i, name, type, value: val, rate, contribution });
-                    } else {
-                        existing.value = val;
-                        existing.rate = rate;
-                        existing.type = type;
-                        existing.contribution = contribution;
-                    }
-                }
-                else if (recType === 'nwsetting') {
-                    if (!state.nwSettings) state.nwSettings = {};
-                    state.nwSettings[name] = parseFloat(p[2]) || p[2];
-                }
-                else if (recType === 'fiparam') {
-                    if (!state.fi) state.fi = {};
-                    state.fi[name] = parseFloat(p[2]) || p[2];
-                }
-                else if (recType === 'tab') {
-                    const label = p[2].trim();
-                    const enabled = p[3].trim().toLowerCase() === 'true';
-                    const type = p[4].trim();
-                    const cols = p[5].trim();
-                    const slotsStr = p[6].trim();
-                    const custom = p[7] ? p[7].trim().toLowerCase() === 'true' : false;
-
-                    const tabObj = {
-                        id: name,
-                        label: label,
-                        enabled: enabled,
-                        type: type,
-                        custom: custom
-                    };
-                    if (type === 'dashboard') {
-                        tabObj.layout = {
-                            cols: cols,
-                            slots: slotsStr ? slotsStr.split(';') : ['budget-expenses', 'txn-history', 'spending', 'notes']
-                        };
-                    }
-                    importedTabs.push(tabObj);
+                let existing = state.categories.find(c => c.name.toLowerCase() === name.toLowerCase());
+                if (!existing) {
+                    const allocs = {};
+                    if (allocation > 0) allocs[monthKey(currentYear, currentMonth)] = allocation;
+                    state.categories.push({ id: Date.now() + i, name, type: catType, allocations: allocs, period, balance });
                 }
             }
 
-            // Sync imported Custom Tabs
-            if (importedTabs.length > 0) {
-                if (mode === 'replace') {
-                    state.tabs = importedTabs;
-                } else {
-                    importedTabs.forEach(t => {
-                        const existingIdx = state.tabs.findIndex(existing => existing.id === t.id);
-                        if (existingIdx !== -1) {
-                            state.tabs[existingIdx] = t;
-                        } else {
-                            state.tabs.push(t);
-                        }
-                    });
-                }
-            }
-
-            // Pass 2: Transactions
             for (let i = 1; i < lines.length; i++) {
                 const line = lines[i].trim();
-                if (!line || line.startsWith('#') || line.startsWith('Key/Guide')) continue;
+                if (!line || line.startsWith('#')) continue;
                 const p = parseCSVLine(line);
-                if (p.length < 4 || p[0].trim().toLowerCase() !== 'transaction') continue;
-
+                if (p.length < 4 || p[0].trim() !== 'transaction') continue;
                 const desc = p[1].trim();
                 const amt = parseFloat(p[2]);
                 const date = (p[3] || '').trim() === 'N/A' ? todayISO() : (p[3] || todayISO()).trim();
@@ -3713,22 +3303,39 @@
                     state.categories.push(cat);
                 }
 
-                const exists = state.transactions.some(t => t.desc === desc && t.amt === amt && t.date === date && t.type === flow);
-                if (mode === 'replace' || !exists) {
-                    state.transactions.unshift({ id: Date.now() + i + 20000, desc, catId: cat ? cat.id : '', amt, date, type: flow });
-                }
+                state.transactions.unshift({ id: Date.now() + i, desc, catId: cat ? cat.id : '', amt, date, type: flow });
             }
 
             save();
             render();
             msg.textContent = '✓ Imported successfully!';
             msg.style.color = 'var(--income)'; msg.style.display = 'block';
-            setTimeout(() => {
-                closeCsvIn();
-                renderTabsNav();
-                populateDashboardDropdowns();
-                reparentViews();
-            }, 1500);
+            setTimeout(closeCsvIn, 1500);
+        }
+
+        // ─── HELPERS ─────────────────────────────────────────────────────────
+        function esc(s) { return s ? `"${String(s).replace(/"/g, '""')}"` : '""'; }
+        function escapeHTML(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+        function todayISO() {
+            const d = new Date();
+            return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        }
+
+        function parseCSVLine(text) {
+            let cols = [''], ci = 0, quoted = false;
+            for (let i = 0; i < text.length; i++) {
+                const ch = text[i], nx = text[i + 1];
+                if (!quoted) {
+                    if (ch === '"') { quoted = true; continue; }
+                    if (ch === ',') { cols.push(''); ci++; continue; }
+                    cols[ci] += ch;
+                } else {
+                    if (ch === '"' && nx === '"') { cols[ci] += '"'; i++; continue; }
+                    if (ch === '"') { quoted = false; continue; }
+                    cols[ci] += ch;
+                }
+            }
+            return cols;
         }
 
         // ─── FINANCIAL INDEPENDENCE (FIRE) CALCULATIONS & RENDER ─────────────
@@ -3756,28 +3363,17 @@
             const savingsVal = state.fi.customSavings !== undefined ? state.fi.customSavings : pre.savings;
             const expensesVal = state.fi.customExpenses !== undefined ? state.fi.customExpenses : pre.expenses;
 
-            const eggInput = document.getElementById('fi-input-nest-egg');
-            if (eggInput) eggInput.value = state.fi.nestEgg;
-            const incInput = document.getElementById('fi-input-income');
-            if (incInput) incInput.value = incomeVal || 0;
-            const savInput = document.getElementById('fi-input-savings');
-            if (savInput) savInput.value = savingsVal || 0;
-            const expInput = document.getElementById('fi-input-expenses');
-            if (expInput) expInput.value = expensesVal || 0;
-            const retInput = document.getElementById('fi-input-return');
-            if (retInput) retInput.value = state.fi.returnRate;
-            const infInput = document.getElementById('fi-input-inflation');
-            if (infInput) infInput.value = state.fi.inflationRate;
-            const swrInput = document.getElementById('fi-input-swr');
-            if (swrInput) swrInput.value = state.fi.swr;
-            const ageInput = document.getElementById('fi-input-age');
-            if (ageInput) ageInput.value = state.fi.currentAge;
-            const targetAgeInput = document.getElementById('fi-input-target-age');
-            if (targetAgeInput) targetAgeInput.value = state.fi.targetAge;
-            const wageInput = document.getElementById('fi-input-wage-growth');
-            if (wageInput) wageInput.value = state.fi.wageGrowth !== undefined ? state.fi.wageGrowth : 3.0;
-            const expInfInput = document.getElementById('fi-input-exp-inflation');
-            if (expInfInput) expInfInput.value = state.fi.expenseInflation !== undefined ? state.fi.expenseInflation : 2.5;
+            document.getElementById('fi-input-nest-egg').value = state.fi.nestEgg;
+            document.getElementById('fi-input-income').value = incomeVal || 0;
+            document.getElementById('fi-input-savings').value = savingsVal || 0;
+            document.getElementById('fi-input-expenses').value = expensesVal || 0;
+            document.getElementById('fi-input-return').value = state.fi.returnRate;
+            document.getElementById('fi-input-inflation').value = state.fi.inflationRate;
+            document.getElementById('fi-input-swr').value = state.fi.swr;
+            document.getElementById('fi-input-age').value = state.fi.currentAge;
+            document.getElementById('fi-input-target-age').value = state.fi.targetAge;
+            document.getElementById('fi-input-wage-growth').value = state.fi.wageGrowth !== undefined ? state.fi.wageGrowth : 3.0;
+            document.getElementById('fi-input-exp-inflation').value = state.fi.expenseInflation !== undefined ? state.fi.expenseInflation : 2.5;
         }
 
         function resetFIParameters() {
@@ -3815,17 +3411,17 @@
                 initFIInputs();
             }
 
-            const nestEgg = parseFloat(document.getElementById('fi-input-nest-egg')?.value) || 0;
-            const income = parseFloat(document.getElementById('fi-input-income')?.value) || 0;
-            const savings = parseFloat(document.getElementById('fi-input-savings')?.value) || 0;
-            const expenses = parseFloat(document.getElementById('fi-input-expenses')?.value) || 0;
-            const returnRate = parseFloat(document.getElementById('fi-input-return')?.value) || 0;
-            const inflationRate = parseFloat(document.getElementById('fi-input-inflation')?.value) || 0;
-            const wageGrowth = parseFloat(document.getElementById('fi-input-wage-growth')?.value) || 0;
-            const expenseInflation = parseFloat(document.getElementById('fi-input-exp-inflation')?.value) || 0;
-            const swr = parseFloat(document.getElementById('fi-input-swr')?.value) || 4.0;
-            const age = parseInt(document.getElementById('fi-input-age')?.value) || 30;
-            const targetAge = parseInt(document.getElementById('fi-input-target-age')?.value) || 60;
+            const nestEgg = parseFloat(document.getElementById('fi-input-nest-egg').value) || 0;
+            const income = parseFloat(document.getElementById('fi-input-income').value) || 0;
+            const savings = parseFloat(document.getElementById('fi-input-savings').value) || 0;
+            const expenses = parseFloat(document.getElementById('fi-input-expenses').value) || 0;
+            const returnRate = parseFloat(document.getElementById('fi-input-return').value) || 0;
+            const inflationRate = parseFloat(document.getElementById('fi-input-inflation').value) || 0;
+            const wageGrowth = parseFloat(document.getElementById('fi-input-wage-growth').value) || 0;
+            const expenseInflation = parseFloat(document.getElementById('fi-input-exp-inflation').value) || 0;
+            const swr = parseFloat(document.getElementById('fi-input-swr').value) || 4.0;
+            const age = parseInt(document.getElementById('fi-input-age').value) || 30;
+            const targetAge = parseInt(document.getElementById('fi-input-target-age').value) || 60;
 
             state.fi.nestEgg = nestEgg;
             state.fi.returnRate = returnRate;
@@ -3934,18 +3530,12 @@
                 }
             }
 
-            const fEgg = document.getElementById('fi-val-nest-egg');
-            if (fEgg) fEgg.textContent = fmt(nestEgg);
-            const fSav = document.getElementById('fi-val-savings-rate');
-            if (fSav) fSav.textContent = savingsRate.toFixed(1) + '%';
-            const fTar = document.getElementById('fi-val-target');
-            if (fTar) fTar.textContent = fmt(fireTargetCurrent);
-            const fYrs = document.getElementById('fi-val-years');
-            if (fYrs) {
-                fYrs.textContent = fireTimeText;
-                if (tradMonths > 0) {
-                    fYrs.innerHTML = `${fireTimeText} <span style="font-size:0.75rem; font-weight:600; color:var(--text2)">(${age + yearsToFIRE} yo)</span>`;
-                }
+            document.getElementById('fi-val-nest-egg').textContent = fmt(nestEgg);
+            document.getElementById('fi-val-savings-rate').textContent = savingsRate.toFixed(1) + '%';
+            document.getElementById('fi-val-target').textContent = fmt(fireTargetCurrent);
+            document.getElementById('fi-val-years').textContent = fireTimeText;
+            if (tradMonths > 0) {
+                document.getElementById('fi-val-years').innerHTML = `${fireTimeText} <span style="font-size:0.75rem; font-weight:600; color:var(--text2)">(${age + yearsToFIRE} yo)</span>`;
             }
 
             function getMilestoneDateStr(monthsCount) {
@@ -3972,7 +3562,7 @@
                 {
                     name: 'Coast FIRE',
                     target: coastFIRETargetCurrent,
-                    desc: `Nest egg grows to traditional FIRE by age ${targetAge} without further savings contributions.`,
+                    desc: `Net worth grows to traditional FIRE by age ${targetAge} without further savings contributions.`,
                     key: 'coast'
                 },
                 {
@@ -4126,6 +3716,7 @@
         }
 
         // ─── NET WORTH CORE LOGIC ─────────────────────────────────────────────
+        // ─── NET WORTH CORE LOGIC ─────────────────────────────────────────────
         let globalNWChart = null;
 
         function renderNW() {
@@ -4161,12 +3752,9 @@
 
             const currentNW = totalAssets - totalLiabilities;
 
-            const nwVal = document.getElementById('nw-val-networth');
-            if (nwVal) nwVal.textContent = fmt(currentNW);
-            const nwAst = document.getElementById('nw-val-assets');
-            if (nwAst) nwAst.textContent = fmt(totalAssets);
-            const nwLia = document.getElementById('nw-val-liabilities');
-            if (nwLia) nwLia.textContent = fmt(totalLiabilities);
+            document.getElementById('nw-val-networth').textContent = fmt(currentNW);
+            document.getElementById('nw-val-assets').textContent = fmt(totalAssets);
+            document.getElementById('nw-val-liabilities').textContent = fmt(totalLiabilities);
 
             renderNWLists();
 
@@ -4180,6 +3768,7 @@
             liabilityData.push(totalLiabilities);
             nwData.push(currentNW);
 
+            // Normalize and parse state variables before simulation loops
             let simulatedItems = state.nwItems.map(item => ({
                 id: item.id,
                 name: String(item.name || ''),
@@ -4195,8 +3784,10 @@
                     simulatedItems.forEach(item => {
                         const monthlyRate = (item.annualRate / 100) / 12;
                         if (item.type === 'asset') {
+                            // Compound value and add monthly contribution
                             item.currentVal = (item.currentVal * (1 + monthlyRate)) + item.monthlyContribution;
                         } else if (item.type === 'liability') {
+                            // Liability grows by interest rate but is reduced by the payment
                             const withInterest = item.currentVal * (1 + monthlyRate);
                             item.currentVal = Math.max(0, withInterest - item.monthlyContribution);
                         }
@@ -4229,8 +3820,7 @@
             }
 
             const finalNW = nwData[nwData.length - 1];
-            const nwProj = document.getElementById('nw-val-projection');
-            if (nwProj) nwProj.textContent = fmt(finalNW);
+            document.getElementById('nw-val-projection').textContent = fmt(finalNW);
 
             const chartCanvas = document.getElementById('nwChart');
             if (chartCanvas) {
@@ -4302,20 +3892,16 @@
             const assets = state.nwItems.filter(item => item.type === 'asset');
             const liabilities = state.nwItems.filter(item => item.type === 'liability');
 
-            if (assetsList) {
-                if (assets.length === 0) {
-                    assetsList.innerHTML = `<div class="empty-state" style="padding:10px 0;">No assets registered.</div>`;
-                } else {
-                    assetsList.innerHTML = assets.map(item => renderNWItemHTML(item)).join('');
-                }
+            if (assets.length === 0) {
+                assetsList.innerHTML = `<div class="empty-state" style="padding:10px 0;">No assets registered.</div>`;
+            } else {
+                assetsList.innerHTML = assets.map(item => renderNWItemHTML(item)).join('');
             }
 
-            if (liabilitiesList) {
-                if (liabilities.length === 0) {
-                    liabilitiesList.innerHTML = `<div class="empty-state" style="padding:10px 0;">No liabilities registered.</div>`;
-                } else {
-                    liabilitiesList.innerHTML = liabilities.map(item => renderNWItemHTML(item)).join('');
-                }
+            if (liabilities.length === 0) {
+                liabilitiesList.innerHTML = `<div class="empty-state" style="padding:10px 0;">No liabilities registered.</div>`;
+            } else {
+                liabilitiesList.innerHTML = liabilities.map(item => renderNWItemHTML(item)).join('');
             }
         }
 
@@ -4454,7 +4040,7 @@
 
             state.fi.nestEgg = Math.round(currentNW);
             save();
-            showToast(`Nest egg updated to ${fmt(currentNW)}.`, 'var(--income)');
+            showToast(`Net worth updated to ${fmt(currentNW)}.`, 'var(--income)');
 
             const nestEggInput = document.getElementById('fi-input-nest-egg');
             if (nestEggInput) {
@@ -4465,467 +4051,8 @@
             }
         }
 
-        // ─── DYNAMIC NAVIGATION & TAB MANAGEMENT ─────────────────────────────
-        function renderTabsNav() {
-            const container = document.querySelector('.tab-btns');
-            if (!container) return;
-
-            container.innerHTML = state.tabs
-                .filter(t => t.enabled !== false)
-                .map(t => {
-                    const isActive = t.id === currentTabId ? 'active' : '';
-                    return `<button class="tab-btn ${isActive}" id="tab-btn-${t.id}" onclick="switchTab('${t.id}', this)">${escapeHTML(t.label)}</button>`;
-                }).join('') + `
-                <button class="tab-btn" onclick="openTabManager()" style="color:var(--income); opacity:0.85;" title="Configure Tabs">⚙️ Tabs</button>
-                `;
-        }
-
-        function openTabManager() {
-            renderTabManagerList();
-            document.getElementById('tab-manager-modal').classList.add('open');
-        }
-
-        function closeTabManager() {
-            document.getElementById('tab-manager-modal').classList.remove('open');
-        }
-
-        function renderTabManagerList() {
-            const listEl = document.getElementById('tab-manager-list');
-            if (!listEl) return;
-
-            listEl.innerHTML = state.tabs.map(t => {
-                const isBuiltIn = ['dashboard', 'budget', 'transactions', 'spending', 'fi', 'nw'].includes(t.id);
-                const deleteBtn = !isBuiltIn ? `<button class="icon-btn del" onclick="deleteCustomTab('${t.id}')" style="min-width:24px; min-height:24px;">✕</button>` : '';
-                return `
-                    <div style="display:flex; align-items:center; gap:8px; background:var(--surface); padding:4px 12px; border-radius:8px;">
-                        <input type="checkbox" ${t.enabled !== false ? 'checked' : ''} onchange="toggleTabEnabled('${t.id}')" style="width:16px; height:16px; cursor:pointer; margin:0;" title="Show/Hide Tab">
-                        <input type="text" value="${escapeHTML(t.label)}" onchange="renameTab('${t.id}', this.value)" style="flex:1; font-weight:700; font-size:0.85rem; padding:4px 8px; margin-bottom:0; border:1px solid transparent; background:transparent;" onfocus="this.style.borderColor='var(--border)'" onblur="this.style.borderColor='transparent'" title="Click to rename tab">
-                        ${deleteBtn}
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function renameTab(tabId, newLabel) {
-            const label = newLabel.trim();
-            if (!label) return;
-            const tab = state.tabs.find(t => t.id === tabId);
-            if (tab) {
-                tab.label = label;
-                save();
-                renderTabsNav();
-                showToast(`Tab renamed to "${label}"`, 'var(--accent)');
-            }
-        }
-
-        function toggleTabEnabled(tabId) {
-            const tab = state.tabs.find(t => t.id === tabId);
-            if (tab) {
-                tab.enabled = (tab.enabled === false) ? true : false;
-                save();
-                renderTabsNav();
-                populateDashboardDropdowns();
-                if (tab.id === currentTabId && tab.enabled === false) {
-                    switchTab('dashboard');
-                }
-            }
-        }
-
-        function addCustomDashboardTab() {
-            const label = document.getElementById('new-tab-label').value.trim();
-            if (!label) {
-                showToast('Enter a tab label name.', 'var(--danger)');
-                return;
-            }
-
-            const tabId = 'custom-' + Date.now();
-            state.tabs.push({
-                id: tabId,
-                label: label,
-                type: 'dashboard',
-                enabled: true,
-                custom: true,
-                layout: {
-                    cols: 2,
-                    slots: ['budget-expenses', 'txn-history', 'spending', 'notes']
-                }
-            });
-
-            save();
-            renderTabsNav();
-            populateDashboardDropdowns();
-            renderTabManagerList();
-
-            document.getElementById('new-tab-label').value = '';
-            showToast('Custom dashboard tab created!', 'var(--income)');
-        }
-
-        function saveDashboardAsCustomTab() {
-            const name = prompt("Enter a label name for this layout page:");
-            if (!name || !name.trim()) return;
-
-            const activeTab = state.tabs.find(t => t.id === currentTabId) || { layout: state.dashboardLayout };
-            const currentLayout = activeTab.layout || state.dashboardLayout;
-
-            const tabId = 'custom-' + Date.now();
-            state.tabs.push({
-                id: tabId,
-                label: name.trim(),
-                type: 'dashboard',
-                enabled: true,
-                custom: true,
-                layout: {
-                    cols: currentLayout.cols,
-                    slots: [...currentLayout.slots]
-                }
-            });
-
-            save();
-            renderTabsNav();
-            populateDashboardDropdowns();
-            showToast('Saved to Custom Tabs successfully!', 'var(--income)');
-        }
-
-        function deleteCustomTab(tabId) {
-            showConfirmToast('Delete this custom dashboard tab page?', () => {
-                state.tabs = state.tabs.filter(t => t.id !== tabId);
-                if (state.customTabData) {
-                    Object.keys(state.customTabData).forEach(k => {
-                        if (k.startsWith('notes-' + tabId) || k.startsWith('cl-' + tabId)) {
-                            delete state.customTabData[k];
-                        }
-                    });
-                }
-                save();
-
-                renderTabsNav();
-                populateDashboardDropdowns();
-                renderTabManagerList();
-
-                if (currentTabId === tabId) {
-                    switchTab('dashboard');
-                }
-                showToast('Tab page removed.', 'var(--accent)');
-            });
-        }
-
-        // ─── DYNAMIC REPARENTING PORTAL ENGINE ──────────────────────────────
-        const WIDGETS_REGISTRY = {
-            'budget-full': { elId: 'view-budget', nativeParentId: 'views-root-container', label: 'Full Budget' },
-            'budget-nav': { elId: 'mod-budget-nav', nativeParentId: 'native-budget-nav', label: 'Budget Month Navigation' },
-            'budget-income': { elId: 'mod-income', nativeParentId: 'native-income', label: 'Budget Income List' },
-            'budget-expenses': { elId: 'mod-expenses', nativeParentId: 'native-expenses', label: 'Budget Expenses List' },
-            'budget-sinking': { elId: 'mod-sinking', nativeParentId: 'native-sinking', label: 'Budget Savings/Sinking List' },
-            'txn-full': { elId: 'view-transactions', nativeParentId: 'views-root-container', label: 'Full Transactions List' },
-            'txn-nav': { elId: 'mod-txn-nav', nativeParentId: 'native-txn-nav', label: 'Transactions Navigation' },
-            'txn-logger': { elId: 'mod-txn-logger', nativeParentId: 'native-txn-logger', label: 'Log Transaction Form' },
-            'txn-history': { elId: 'mod-txn-history', nativeParentId: 'native-txn-history', label: 'Monthly Transactions List' },
-            'spending': { elId: 'view-spending', nativeParentId: 'views-root-container', label: 'Distribution Pie Chart' },
-            // Net Worth Segmented components
-            'nw-full': { elId: 'view-nw', nativeParentId: 'views-root-container', label: 'Full Net Worth Page' },
-            'nw-metrics': { elId: 'mod-nw-metrics', nativeParentId: 'native-nw-metrics', label: 'Net Worth Metrics' },
-            'nw-chart': { elId: 'mod-nw-chart', nativeParentId: 'native-nw-chart', label: 'Net Worth Projection Chart' },
-            'nw-controls': { elId: 'mod-nw-controls', nativeParentId: 'native-nw-controls', label: 'Net Worth Settings form' },
-            'nw-lists': { elId: 'mod-nw-lists', nativeParentId: 'native-nw-lists', label: 'Assets & Liabilities dual list' },
-            // FIRE Segmented components
-            'fi-full': { elId: 'view-fi', nativeParentId: 'views-root-container', label: 'Full FIRE Independence Page' },
-            'fi-metrics': { elId: 'mod-fi-metrics', nativeParentId: 'native-fi-metrics', label: 'FIRE Summary Indicators' },
-            'fi-chart': { elId: 'mod-fi-chart', nativeParentId: 'native-fi-chart', label: 'FIRE Milestones Line Chart' },
-            'fi-controls': { elId: 'mod-fi-controls', nativeParentId: 'native-fi-controls', label: 'FIRE Parameters Form' },
-            'fi-milestones': { elId: 'mod-fi-milestones', nativeParentId: 'native-fi-milestones', label: 'FIRE Milestone Status checklist' }
-        };
-
-        function reparentViews() {
-            const activeTabId = currentTabId;
-            const activeTab = state.tabs.find(t => t.id === activeTabId);
-
-            // 1. Reset all widgets back to their native containers to prevent collisions
-            Object.keys(WIDGETS_REGISTRY).forEach(key => {
-                const conf = WIDGETS_REGISTRY[key];
-                const widgetEl = document.getElementById(conf.elId);
-                const parentEl = document.getElementById(conf.nativeParentId);
-                if (widgetEl && parentEl && widgetEl.parentNode !== parentEl) {
-                    parentEl.appendChild(widgetEl);
-                }
-                if (widgetEl) widgetEl.classList.remove('active');
-            });
-
-            // Hide the wrapper dashboard container
-            const dbEl = document.getElementById('view-dashboard');
-            if (dbEl) dbEl.classList.remove('active');
-
-            // 2. Setup layout context
-            if (activeTab && activeTab.type === 'dashboard') {
-                const currentLayout = activeTab.layout || state.dashboardLayout;
-                const colsVal = currentLayout.cols !== undefined ? currentLayout.cols : 2;
-
-                const grid = document.getElementById('dashboard-grid');
-                if (grid) {
-                    grid.style.display = 'grid';
-                    grid.style.gap = '16px';
-                    grid.style.width = '100%';
-
-                    if (colsVal === 1 || colsVal === '1') {
-                        grid.style.gridTemplateColumns = '1fr';
-                    } else if (colsVal === 2 || colsVal === '2') {
-                        grid.style.gridTemplateColumns = '1fr 1fr';
-                    } else if (colsVal === 3 || colsVal === '3') {
-                        grid.style.gridTemplateColumns = '1fr 1fr 1fr';
-                    } else if (colsVal === 4 || colsVal === '4') {
-                        grid.style.gridTemplateColumns = 'repeat(2, 1fr)'; // 2x2 grid
-                    } else if (colsVal === '2-60-40') {
-                        grid.style.gridTemplateColumns = '3fr 2fr';
-                    } else if (colsVal === '2-40-60') {
-                        grid.style.gridTemplateColumns = '2fr 3fr';
-                    } else {
-                        grid.style.gridTemplateColumns = '1fr 1fr';
-                    }
-                }
-
-                // Determine active number of slots based on layout columns selection
-                let activeSlotsCount = 2;
-                if (colsVal === 1 || colsVal === '1') activeSlotsCount = 1;
-                else if (colsVal === 2 || colsVal === '2' || colsVal === '2-60-40' || colsVal === '2-40-60') activeSlotsCount = 2;
-                else if (colsVal === 3 || colsVal === '3') activeSlotsCount = 3;
-                else if (colsVal === 4 || colsVal === '4') activeSlotsCount = 4;
-
-                // Populating active slots
-                for (let i = 0; i < 4; i++) {
-                    const slotEl = document.getElementById(`db-slot-${i}`);
-                    if (!slotEl) continue;
-
-                    slotEl.innerHTML = '';
-                    if (i < activeSlotsCount) {
-                        slotEl.style.display = 'flex';
-                        const widgetKey = currentLayout.slots[i] || 'budget-expenses';
-
-                        // Create clean widget wrapper header inside column
-                        const header = document.createElement('div');
-                        header.className = 'dashboard-slot-header';
-
-                        let displayLabel = 'Widget';
-                        if (WIDGETS_REGISTRY[widgetKey]) {
-                            displayLabel = WIDGETS_REGISTRY[widgetKey].label;
-                        } else if (widgetKey === 'notes') {
-                            displayLabel = 'Notes Area';
-                        } else if (widgetKey === 'checklist') {
-                            displayLabel = 'Checklist';
-                        }
-                        header.innerHTML = `<span>${escapeHTML(displayLabel)}</span>`;
-                        slotEl.appendChild(header);
-
-                        // Mount target components
-                        if (WIDGETS_REGISTRY[widgetKey]) {
-                            const widgetEl = document.getElementById(WIDGETS_REGISTRY[widgetKey].elId);
-                            if (widgetEl) {
-                                slotEl.appendChild(widgetEl);
-                                widgetEl.classList.add('active');
-                                if (widgetKey.includes('spending')) setTimeout(renderCharts, 50);
-                                if (widgetKey.includes('fi')) setTimeout(renderFI, 50);
-                                if (widgetKey.includes('nw')) setTimeout(renderNW, 50);
-                            }
-                        } else if (widgetKey === 'notes' || widgetKey === 'checklist') {
-                            // Render modular notes or checklist inline inside this specific slot
-                            renderInlineSlotWidget(activeTabId, i, widgetKey, slotEl);
-                        }
-                    } else {
-                        slotEl.style.display = 'none';
-                    }
-                }
-                if (dbEl) dbEl.classList.add('active');
-            } else {
-                // Render as single tab view
-                const activeEl = document.getElementById('view-' + activeTabId);
-                if (activeEl) activeEl.classList.add('active');
-            }
-        }
-
-        // Inline Slot Widgets Render Engine
-        function renderInlineSlotWidget(tabId, slotIdx, type, parentEl) {
-            const dataKey = `${type}-${tabId}-${slotIdx}`;
-
-            if (type === 'notes') {
-                const noteVal = state.customTabData?.[dataKey] || '';
-                const widgetWrap = document.createElement('div');
-                widgetWrap.style.flex = '1';
-                widgetWrap.style.display = 'flex';
-                widgetWrap.innerHTML = `
-                    <textarea id="note-${dataKey}" style="height:320px; font-family:inherit; font-size:0.9rem; background:#fff; resize:vertical; padding:12px; margin-bottom:0;" 
-                        placeholder="Type personal plans, guidelines or quick thoughts here..." oninput="saveInlineNote('${dataKey}')">${escapeHTML(noteVal)}</textarea>
-                `;
-                parentEl.appendChild(widgetWrap);
-            } else if (type === 'checklist') {
-                const items = state.customTabData?.[dataKey] || [];
-                const widgetWrap = document.createElement('div');
-                widgetWrap.style.width = '100%';
-                widgetWrap.innerHTML = `
-                    <div style="display:flex; gap:6px; margin-bottom:12px;">
-                        <input type="text" id="input-${dataKey}" placeholder="Add list task..." style="margin-bottom:0; flex:1; padding:7px 10px; font-size:0.82rem;">
-                        <button class="btn-primary" style="width:auto; padding:6px 12px; font-size:0.8rem;" onclick="addInlineChecklistItem('${dataKey}')">Add</button>
-                    </div>
-                    <div id="list-${dataKey}" style="display:flex; flex-direction:column; gap:6px;">
-                        ${items.length === 0 ? '<div class="empty-state" style="padding:15px 0;">No tasks added yet.</div>' : items.map((item, idx) => `
-                            <div style="display:flex; align-items:center; gap:8px; background:var(--surface); padding:6px 10px; border-radius:8px;">
-                                <input type="checkbox" ${item.done ? 'checked' : ''} onchange="toggleInlineChecklistItem('${dataKey}', ${idx})" style="width:16px; height:16px; cursor:pointer; margin:0;">
-                                <span style="flex:1; font-size:0.85rem; ${item.done ? 'text-decoration:line-through; color:var(--text2);' : ''}">${escapeHTML(item.text)}</span>
-                                <button class="icon-btn del" onclick="deleteInlineChecklistItem('${dataKey}', ${idx})" style="min-width:20px; min-height:20px; font-size:0.75rem;">✕</button>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-                parentEl.appendChild(widgetWrap);
-            }
-        }
-
-        function saveInlineNote(dataKey) {
-            const val = document.getElementById('note-' + dataKey).value;
-            if (!state.customTabData) state.customTabData = {};
-            state.customTabData[dataKey] = val;
-            save();
-        }
-
-        function addInlineChecklistItem(dataKey) {
-            const input = document.getElementById('input-' + dataKey);
-            const text = input.value.trim();
-            if (!text) return;
-
-            if (!state.customTabData) state.customTabData = {};
-            if (!state.customTabData[dataKey]) state.customTabData[dataKey] = [];
-            state.customTabData[dataKey].push({ text, done: false });
-            save();
-
-            input.value = '';
-            reparentViews(); // Refresh slot DOM to draw new task
-        }
-
-        function toggleInlineChecklistItem(dataKey, idx) {
-            if (state.customTabData?.[dataKey]?.[idx]) {
-                state.customTabData[dataKey][idx].done = !state.customTabData[dataKey][idx].done;
-                save();
-                reparentViews();
-            }
-        }
-
-        function deleteInlineChecklistItem(dataKey, idx) {
-            if (state.customTabData?.[dataKey]) {
-                state.customTabData[dataKey].splice(idx, 1);
-                save();
-                reparentViews();
-            }
-        }
-
-        function populateDashboardDropdowns() {
-            let options = '';
-            Object.keys(WIDGETS_REGISTRY).forEach(key => {
-                options += `<option value="${key}">${escapeHTML(WIDGETS_REGISTRY[key].label)}</option>`;
-            });
-            options += `<option value="notes">Notes Widget</option>`;
-            options += `<option value="checklist">Checklist Widget</option>`;
-
-            for (let i = 0; i < 4; i++) {
-                const el = document.getElementById(`db-select-slot-${i}`);
-                if (el) {
-                    el.innerHTML = options;
-                    const activeTab = state.tabs.find(t => t.id === currentTabId);
-                    const currentLayout = activeTab?.layout || state.dashboardLayout;
-                    if (currentLayout?.slots?.[i]) {
-                        el.value = currentLayout.slots[i];
-                    }
-                }
-            }
-
-            const activeTab = state.tabs.find(t => t.id === currentTabId);
-            const currentLayout = activeTab?.layout || state.dashboardLayout;
-            const colsEl = document.getElementById('db-select-cols');
-            if (colsEl && currentLayout?.cols) {
-                colsEl.value = currentLayout.cols;
-            }
-
-            toggleSlotCConfig();
-        }
-
-        function toggleSlotCConfig() {
-            const cols = document.getElementById('db-select-cols')?.value || '2';
-            const slot2Wrap = document.getElementById('db-slot-2-config-wrap');
-            const slot3Wrap = document.getElementById('db-slot-3-config-wrap');
-
-            const showC = (cols === '3' || cols === '4');
-            const showD = (cols === '4');
-
-            if (slot2Wrap) slot2Wrap.style.display = showC ? 'block' : 'none';
-            if (slot3Wrap) slot3Wrap.style.display = showD ? 'block' : 'none';
-        }
-
-        function updateDashboardConfig() {
-            const cols = document.getElementById('db-select-cols').value;
-            const slots = [
-                document.getElementById('db-select-slot-0').value,
-                document.getElementById('db-select-slot-1').value,
-                document.getElementById('db-select-slot-2').value,
-                document.getElementById('db-select-slot-3').value
-            ];
-
-            const activeTab = state.tabs.find(t => t.id === currentTabId);
-            if (activeTab && activeTab.type === 'dashboard') {
-                activeTab.layout = { cols, slots };
-            } else {
-                state.dashboardLayout = { cols, slots };
-            }
-            save();
-
-            toggleSlotCConfig();
-            reparentViews();
-        }
-
-        function toggleElement(id) {
-            const el = document.getElementById(id);
-            const indicator = document.getElementById(id + '-indicator');
-            if (!el) return;
-            if (el.style.display === 'none') {
-                el.style.display = 'block';
-                if (indicator) indicator.textContent = 'Collapse ▴';
-            } else {
-                el.style.display = 'none';
-                if (indicator) indicator.textContent = 'Expand ▾';
-            }
-        }
-
-        // Dummy backwards compatibility helper
-        function ensureCustomTabDOM() { }
-
         // ─── INIT ─────────────────────────────────────────────────────────────
         document.getElementById('txn-date').value = todayISO();
-
-        // Safe dynamic initialization of default views
-        if (!state.tabs) {
-            state.tabs = [
-                { id: 'dashboard', label: 'Dashboard', enabled: true, type: 'dashboard', layout: { cols: 2, slots: ['budget-expenses', 'txn-history', 'spending', 'notes'] } },
-                { id: 'budget', label: 'Budget', enabled: true },
-                { id: 'transactions', label: 'Transactions', enabled: true },
-                { id: 'spending', label: 'Overview', enabled: true },
-                { id: 'fi', label: 'Independence', enabled: true },
-                { id: 'nw', label: 'Net Worth', enabled: true }
-            ];
-            save();
-        }
-
-        // Backwards compatibility migration check
-        state.tabs.forEach(t => {
-            if (t.id === 'dashboard' && !t.layout) {
-                t.type = 'dashboard';
-                t.layout = { cols: 2, slots: ['budget-expenses', 'txn-history', 'spending', 'notes'] };
-                save();
-            }
-        });
-
-        ensureCustomTabDOM();
-        renderTabsNav();
-        populateDashboardDropdowns();
-
-        currentTabId = (state.tabs.find(t => t.enabled !== false) || { id: 'dashboard' }).id;
-
-        switchTab(currentTabId, document.getElementById('tab-btn-' + currentTabId));
-
         updateChartExpenseOptionLabel();
         render();
         renderCharts();
